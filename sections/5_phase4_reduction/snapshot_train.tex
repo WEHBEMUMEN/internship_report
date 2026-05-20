@@ -31,6 +31,32 @@ While standard Galerkin projection successfully reduces the state dimension by s
 \end{equation}
 However, evaluating the geometrically nonlinear internal force term $\mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r)$ still requires integration over the full-order mesh at every single Newton iteration. This dependency defines the classical \textit{lifting bottleneck}, where the online evaluation cost remains tied to the full-order mesh size $n$, demanding hyper-reduction techniques.
 
+\subsubsection{Computational Complexity and the Galerkin Projection Bottleneck}
+To demonstrate the physical necessity of hyper-reduction, we formally compare the floating-point operations (\acrshort{flops}) scaling per Newton-Raphson iteration of the Full Order Model, the standard Galerkin Reduced-Order Model, and the Hyper-Reduced Reduced-Order Model.
+
+Let $E$ be the total number of physical elements in the mesh, $N_{\text{qp}}$ represent the number of Gauss-Legendre quadrature points per element, $n_{\text{local}}$ represent the degrees of freedom per element, $n$ represent the total number of degrees of freedom in the full-order model, and $r$ represent the dimension of the reduced subspace ($r \ll n$).
+
+The computational costs associated with assembling the residual and tangent stiffness operators scale as follows:
+\begin{itemize}
+        \item \textbf{Full Order Model (FOM) Assembly}: Evaluates strain-displacement derivatives and constitutive operations over all elements and quadrature points, scaling as:
+        \begin{equation}
+                \text{Cost}_{\text{FOM}} \sim \mathcal{O}\left( E \cdot N_{\text{qp}} \cdot n_{\text{local}}^2 \right)
+        \end{equation}
+        For typical high-fidelity meshes, $E > 10^4$, creating a severe computational burden.
+        
+        \item \textbf{Standard Galerkin ROM Assembly}: Although the state variable is reduced to size $r$, computing the projected tangent stiffness matrix $\mat{K}_{r,T} = \mat{V}_r^T \mat{K}_T(\mat{V}_r \vect{q}_r) \mat{V}_r$ still requires evaluating $\mat{K}_T$ over the full mesh, followed by two consecutive projection matrix multiplications:
+        \begin{equation}
+                \text{Cost}_{\text{Galerkin}} \sim \mathcal{O}\left( E \cdot N_{\text{qp}} \cdot n_{\text{local}}^2 + n \cdot r^2 + n \cdot r \right)
+        \end{equation}
+        Because $E \cdot N_{\text{qp}} \cdot n_{\text{local}}^2$ remains the dominant term, the online cost remains strictly tied to the high-fidelity mesh size $n$. This represents the classical \textit{lifting bottleneck}, rendering the standard Galerkin ROM too slow for client-side execution budgets.
+        
+        \item \textbf{Hyper-Reduced ROM (ECSW)}: Bypasses the full-order assembly entirely by computing virtual work integrals over a drastically reduced set of active elements $\widehat{\Omega}$ (where $|\widehat{\Omega}| \ll E$):
+        \begin{equation}
+                \text{Cost}_{\text{ECSW}} \sim \mathcal{O}\left( |\widehat{\Omega}| \cdot N_{\text{qp}} \cdot n_{\text{local}}^2 + r^2 \right)
+        \end{equation}
+        Since $|\widehat{\Omega}|$ is independent of the full mesh scale, the hyper-reduced engine successfully achieves $\mathcal{O}(1)$ performance scaling relative to the mesh size $n$, enabling real-time execution in the browser.
+\end{itemize}
+
 \begin{figure}[H]
     \centering
     % [IMAGE PLACEHOLDER: Singular value decay profile / Singular values log-plot]

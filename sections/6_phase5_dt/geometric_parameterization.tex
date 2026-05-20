@@ -27,7 +27,17 @@ The mathematical pull-back framework serves as a strict prerequisite for hyper-r
 Computing sparse weight vectors $\vect{w}$ via Non-Negative Least Squares (\acrshort{nnls}) optimization requires a constant, topologically invariant list of elements $\mathcal{E}$. In an unstructured remeshing pipeline, elements possess no physical or index correspondence across parameter shifts, causing hyper-reduction to fail completely.
 
 \subsubsection{The Isogeometric Analysis Native Advantage}
-The client-side platform overcomes this topological bottleneck by leveraging the mathematical structure of Isogeometric Analysis. In our core implementation, geometric updates are executed by moving the physical control points $\vect{P}_{i,j}$ while strictly preserving the knot vectors $\Xi$ and $\mathcal{H}$, the total degrees of freedom, and element connectivity. 
+The client-side platform overcomes this topological bottleneck by leveraging the native mathematical structure of Isogeometric Analysis. The coordinate mapping of the physical domain $\vect{x} = \vect{S}(\xi, \eta; \vect{\mu})$ is parameterized explicitly by the design variables $\vect{\mu} \in \mathbb{R}^P$ through the physical control point lattice coordinates $\vect{P}_{i,j}(\vect{\mu})$:
+\begin{equation}
+        \vect{x}(\xi, \eta; \vect{\mu}) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}(\vect{\mu})
+\end{equation}
+The parameter-dependent control points are formulated as a linear transformation of the initial baseline control lattice points $\vect{P}_{i,j}^0$:
+\begin{equation}
+        \vect{P}_{i,j}(\vect{\mu}) = \vect{P}_{i,j}^0 + \mat{T}_{\text{geom}}(\vect{\mu}) \vect{P}_{i,j}^0
+\end{equation}
+where $\mat{T}_{\text{geom}}(\vect{\mu})$ is a sparse geometric transformation matrix mapping the parameter vector $\vect{\mu}$ (such as plate length increments or scaling factors) to the physical coordinate perturbations.
+
+Crucially, as parameters shift, the geometric updates are executed by moving only these control points $\vect{P}_{i,j}(\vect{\mu})$ while strictly preserving the underlying knot vectors $\Xi$ and $\mathcal{H}$, the total polynomial degrees, and the element connectivity grids.
 
 \begin{figure}[H]
     \centering
@@ -37,7 +47,15 @@ The client-side platform overcomes this topological bottleneck by leveraging the
     \label{fig:iga_mapping_advantage}
 \end{figure}
 
-Consequently, the parametric domain ($\hat{\Omega} = [0,1]^2$) naturally serves as the immutable reference configuration $\Omega_0$. A specific knot span or element index $e$ consistently maps to the same parametric coordinates and the same continuous basis functions. This preserves the structural layout of the hyper-reduction snapshot matrix across all geometric configurations, allowing real-time parameter tracking to function seamlessly without requiring manual element re-indexing.
+Consequently, the parametric domain $\hat{\Omega} = [0,1]^2$ serves natively as the immutable reference configuration $\Omega_0$. The spatial gradient in physical coordinates is mapped from parametric coordinates via:
+\begin{equation}
+        \nabla_x R_a = \mat{J}(\xi, \eta; \vect{\mu})^{-T} \nabla_{\xi} R_a
+\end{equation}
+where $\mat{J}(\xi, \eta; \vect{\mu})$ is the coordinate Jacobian of the NURBS map:
+\begin{equation}
+        \mat{J}(\xi, \eta; \vect{\mu}) = \begin{bmatrix} \frac{\partial \vect{x}}{\partial \xi} & \frac{\partial \vect{x}}{\partial \eta} \end{bmatrix} = \sum_{i,j} \vect{P}_{i,j}(\vect{\mu}) \otimes \nabla_{\xi} R_{i,j}^{p,q}
+\end{equation}
+Because the basis functions $R_{i,j}^{p,q}(\xi, \eta)$ and the element parametric spans are invariant under parameter transformations, a specific element index $e$ consistently maps to the same integration bounds and shape gradients in parametric space. This preserves the structural layout of the hyper-reduction snapshot matrix across all geometric configurations, allowing real-time parameter tracking to function seamlessly without requiring manual element re-indexing.
 
 \begin{devnote}
 This topological consistency is key to our client-side app performance. By ensuring that element index $e$ remains invariant as the user moves sliders, the online loop in \texttt{iga-sim-5.2/src/ui/plot.js} directly maps the pre-computed sparse element weights array to the active integration loops, keeping calculation times well below the standard 16ms frame budget.
