@@ -1,14 +1,27 @@
 \subsection{Sub-Phase 1.2: The IGA-FEM Physics Bridge \& Nonlinear Statics}
 \label{subsec:nonlinear_rec}
 
-Following exact geometric tracking, the simulation kernel was upgraded to evaluate variational boundary value problems, shifting the NURBS curves into high-continuity isoparametric elements. For the bending physics of slender 1D structures, the global stiffness matrix $\mat{K}$ is assembled by evaluating the $L_2$ inner product of the second parametric derivatives:
+Following exact geometric tracking, the simulation kernel was upgraded to evaluate variational boundary value problems, shifting the NURBS curves into high-continuity isoparametric elements. Under Euler-Bernoulli beam theory, the variational state is governed by minimizing the total potential energy functional $\Pi(\vect{u})$ representing internal strain and external work:
 \begin{equation}
-K_{ij} = \int_{0}^{1} \frac{d^2 R_{i,p}(\xi)}{d\xi^2} (EI) \frac{d^2 R_{j,p}(\xi)}{d\xi^2} d\xi
+\Pi(\vect{u}) = \frac{1}{2} \int_{0}^{L} EI \left( \frac{d^2 u}{dx^2} \right)^2 dx - \int_{0}^{L} q u \, dx
+\end{equation}
+Taking the first variation yields the virtual work statement, which establishes the continuous $L_2$ weak form. To evaluate these integrals numerically, they must be transformed into the master parametric space $\xi \in [0, 1]$. This physical-to-parametric bridge requires the evaluation of the mapping Jacobian $J(\xi) = dx/d\xi$:
+\begin{equation}
+J(\xi) = \frac{dx}{d\xi} = \sum_{i=0}^{n-1} \frac{d R_{i,p}(\xi)}{d\xi} x_i
+\end{equation}
+Using the coordinate Jacobian, spatial gradients are transformed back into parametric shape operators:
+\begin{equation}
+\frac{d R_i}{dx} = \frac{d R_i}{d\xi} J^{-1}, \quad \frac{d^2 R_i}{dx^2} = \left( \frac{d^2 R_i}{d\xi^2} J - \frac{d R_i}{d\xi} \frac{d^2 x}{d\xi^2} \right) J^{-3}
+\end{equation}
+Applying this spatial mapping directly to the element quadrature points yields the isoparametric global stiffness matrix $\mat{K}$:
+\begin{equation}
+K_{ij} = \int_{0}^{1} \frac{d^2 R_{i,p}(\xi)}{dx^2} (EI) \frac{d^2 R_{j,p}(\xi)}{dx^2} |J(\xi)| \, d\xi
 \end{equation}
 where $EI$ denotes the flexural rigidity parameter. Concurrently, the global mass matrix $\mat{M}$ capturing the inertial properties of the continuum is framed as:
 \begin{equation}
-M_{ij} = \int_{0}^{1} R_{i,p}(\xi) (\rho A) R_{j,p}(\xi) d\xi
+M_{ij} = \int_{0}^{1} R_{i,p}(\xi) (\rho A) R_{j,p}(\xi) |J(\xi)| \, d\xi
 \end{equation}
+
 
 Numerical approximation of these structural integrals is conducted within the engine via high-density quadrature approximations. To simulate large displacement states causing a non-negligible geometric softening under high point load regimes, a localized geometric nonlinearity filter was incorporated into the structural model:
 \begin{equation}
