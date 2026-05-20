@@ -7,11 +7,34 @@ To model structural components undergoing substantial structural deflection safe
 \end{equation}
 where $\nabla \vect{u}$ represents the spatial gradient of the continuous displacement field evaluated via the bivariate NURBS shape functions. 
 
-Consequently, the internal force vector $\mat{F}_{\text{int}}(\vect{u})$ and the state-dependent tangent stiffness matrix $\mat{K}_T(\vect{u})$ must be continuously re-evaluated. The continuous tangent operator is split into its constituent parts:
+Consequently, the internal force vector $\vect{F}_{\text{int}}(\vect{u})$ and the state-dependent tangent stiffness matrix $\mat{K}_T(\vect{u})$ must be continuously re-evaluated. The internal force vector is computed over the reference configuration $\Omega_0$ using the nonlinear strain-displacement matrix $\mat{B}_L(\vect{u})$ and the second Piola-Kirchhoff stress vector $\vect{S} = [S_{xx}, S_{yy}, S_{xy}]^T$:
 \begin{equation}
-    \mat{K}_T(\vect{u}) = \mat{K}_0 + \mat{K}_{\sigma}(\vect{u}) + \mat{K}_L(\vect{u})
+        \vect{F}_{\text{int}}(\vect{u}) = \int_{\Omega_0} \mat{B}_L^T(\vect{u}) \vect{S} \, d\Omega_0
 \end{equation}
-where $\mat{K}_0$ represents the baseline material stiffness matrix, $\mat{K}_{\sigma}(\vect{u})$ acts as the initial stress (or geometric) stiffness matrix capturing the internal tension distribution, and $\mat{K}_L(\vect{u})$ represents the large-displacement stiffness matrix governing standard kinematic transformations.
+where the nonlinear strain-displacement matrix is split into a displacement-independent part $\mat{B}_0$ and a displacement-dependent nonlinear part $\mat{B}_{\text{NL}}(\vect{u})$:
+\begin{equation}
+        \mat{B}_L(\vect{u}) = \mat{B}_0 + \mat{B}_{\text{NL}}(\vect{u})
+\end{equation}
+The continuous tangent stiffness operator $\mat{K}_T(\vect{u})$ is obtained by taking the variation of the internal force vector, which decomposes into elastic (material) and geometric (initial stress) components:
+\begin{equation}
+    \mat{K}_T(\vect{u}) = \mat{K}_e(\vect{u}) + \mat{K}_{\sigma}(\vect{u}) = \left( \mat{K}_0 + \mat{K}_L(\vect{u}) \right) + \mat{K}_{\sigma}(\vect{u})
+\end{equation}
+Here, $\mat{K}_0$ represents the standard baseline material stiffness matrix, whereas the large displacement kinematic stiffness matrix $\mat{K}_L(\vect{u})$ accounts for the kinematic coupling introduced by finite deflections, formulated as:
+\begin{equation}
+        \mat{K}_L(\vect{u}) = \int_{\Omega_0} \left( \mat{B}_0^T \mat{D} \mat{B}_{\text{NL}}(\vect{u}) + \mat{B}_{\text{NL}}^T(\vect{u}) \mat{D} \mat{B}_0 + \mat{B}_{\text{NL}}^T(\vect{u}) \mat{D} \mat{B}_{\text{NL}}(\vect{u}) \right) \, d\Omega_0
+\end{equation}
+The initial stress geometric stiffness matrix $\mat{K}_{\sigma}(\vect{u})$ accounts for structural stiffness changes due to internal stresses and is defined by:
+\begin{equation}
+        \mat{K}_{\sigma}(\vect{u}) = \int_{\Omega_0} \mat{G}^T \mat{M}(\vect{S}) \mat{G} \, d\Omega_0
+\end{equation}
+For each control point node $a$, the displacement gradient interpolation block $\mat{G}_a \in \mathbb{R}^{4 \times 2}$ is given by:
+\begin{equation}
+        \mat{G}_a = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] \frac{\partial R_a}{\partial y} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial x} \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \end{bmatrix}
+\end{equation}
+and the stress tensor block matrix $\mat{M}(\vect{S}) \in \mathbb{R}^{4 \times 4}$ maps the components of the second Piola-Kirchhoff stress:
+\begin{equation}
+        \mat{M}(\vect{S}) = \begin{bmatrix} \mat{S}_{\text{mat}} & \mat{0} \\ \mat{0} & \mat{S}_{\text{mat}} \end{bmatrix}, \quad \text{with} \quad \mat{S}_{\text{mat}} = \begin{bmatrix} S_{xx} & S_{xy} \\ S_{xy} & S_{yy} \end{bmatrix}
+\end{equation}
 
 \begin{figure}[H]
     \centering

@@ -15,8 +15,25 @@ where the blending coefficients $\alpha_i$ are determined explicitly by the knot
                 0 & \text{if } i \ge k + 1 
         \end{cases}
 \end{equation}
+This local linear relation can be cast globally for the 1D control point vector as a matrix-vector product:
+\begin{equation}
+        \vect{P}^{\text{new}} = \mat{T} \vect{P}
+\end{equation}
+where the sparse knot insertion matrix $\mat{T} \in \mathbb{R}^{(n+1) \times n}$ has non-zero entries defined by:
+\begin{equation}
+        T_{i, j} = \alpha_i \delta_{i, j} + (1 - \alpha_i) \delta_{i-1, j}
+\end{equation}
+where $\delta_{i, j}$ is the Kronecker delta.
 
-For 2D domains, this algorithm is executed tensorially across selected parameter rows or columns, enabling the engine to insert localized physical refinements near expected stress concentrations—such as the perimeter of the hole in the plate benchmark—without introducing geometry approximation errors.
+For two-dimensional domains with control grid lattice matrix $\mat{P} \in \mathbb{R}^{n \times m}$, inserting knots along the $\xi$ and $\eta$ directions involves distinct directional transformation matrices $\mat{T}_{\xi} \in \mathbb{R}^{(n+1) \times n}$ and $\mat{T}_{\eta} \in \mathbb{R}^{(m+1) \times m}$. The refined control point grid $\mat{P}^{\text{new}} \in \mathbb{R}^{(n+1) \times (m+1)}$ is assembled tensorially via:
+\begin{equation}
+        \mat{P}^{\text{new}} = \mat{T}_{\xi} \mat{P} \mat{T}_{\eta}^T
+\end{equation}
+Equivalently, by flattening the control lattice into a column vector $\vect{P}$, the global refinement mapping is expressed using the Kronecker product operator $\otimes$ as:
+\begin{equation}
+        \vect{P}^{\text{new}} = \left( \mat{T}_{\eta} \otimes \mat{T}_{\xi} \right) \vect{P}
+\end{equation}
+This structure enables the engine to insert localized physical refinements near expected stress concentrations—such as the perimeter of the hole in the plate benchmark—without introducing geometry approximation errors.
 
 \begin{figure}[H]
         \centering

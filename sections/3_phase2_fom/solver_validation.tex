@@ -5,7 +5,26 @@ The final sub-phase focused on constructing the global 2D assembly system to res
 \begin{equation}
         \mat{K}_e = \int_{-1}^{1} \int_{-1}^{1} \mat{B}^T(\xi, \eta) \mat{D} \mat{B}(\xi, \eta) |J(\xi, \eta)| \, d\xi \, d\eta
 \end{equation}
-where $\mat{B}$ is the strain-displacement matrix containing the spatial gradients of the rational basis functions, $\mat{D}$ is the constitutive elasticity matrix, and $|J|$ represents the determinant of the Jacobian matrix mapping the parametric coordinates to the physical configuration.
+where $|J|$ represents the determinant of the 2D coordinate Jacobian matrix mapping the parametric coordinates to the physical configuration.
+
+The constitutive matrix $\mat{D}$ under plane stress assumptions relates the in-plane stresses $\vect{\sigma} = [\sigma_{xx}, \sigma_{yy}, \tau_{xy}]^T$ to the strains $\vect{\varepsilon} = [\varepsilon_{xx}, \varepsilon_{yy}, \gamma_{xy}]^T$, and is defined as:
+\begin{equation}
+        \mat{D} = \frac{E}{1 - \nu^2} \begin{bmatrix} 1 & \nu & 0 \\ \nu & 1 & 0 \\ 0 & 0 & \frac{1 - \nu}{2} \end{bmatrix}
+\end{equation}
+where $E$ is the material's Young's modulus and $\nu$ is Poisson's ratio.
+
+The displacement field $\vect{u}(\xi, \eta) = [u(\xi, \eta), v(\xi, \eta)]^T$ is interpolated from the control point displacement variables $\vect{d}_a = [u_a, v_a]^T$ via:
+\begin{equation}
+        \vect{u}(\xi, \eta) = \sum_{a=0}^{N_{\text{bas}}-1} R_a(\xi, \eta) \vect{d}_a
+\end{equation}
+where $N_{\text{bas}} = n \times m$ represents the total number of bivariate basis functions. The strain-displacement matrix $\mat{B} \in \mathbb{R}^{3 \times 2N_{\text{bas}}}$ is composed of nodal blocks $\mat{B}_a \in \mathbb{R}^{3 \times 2}$ corresponding to each control node $a$:
+\begin{equation}
+        \mat{B} = \begin{bmatrix} \mat{B}_0 & \mat{B}_1 & \dots & \mat{B}_{N_{\text{bas}}-1} \end{bmatrix}, \quad \text{with} \quad \mat{B}_a = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \\[0.3em] \frac{\partial R_a}{\partial y} & \frac{\partial R_a}{\partial x} \end{bmatrix}
+\end{equation}
+The physical gradients are mapped from parametric space by solving the linear system governed by the coordinate Jacobian matrix $\mat{J}$:
+\begin{equation}
+        \begin{bmatrix} \frac{\partial R_a}{\partial x} \\[0.3em] \frac{\partial R_a}{\partial y} \end{bmatrix} = \mat{J}^{-1} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix} = \frac{1}{|J|} \begin{bmatrix} \frac{\partial y}{\partial \eta} & -\frac{\partial y}{\partial \xi} \\[0.3em] -\frac{\partial x}{\partial \eta} & \frac{\partial x}{\partial \xi} \end{bmatrix} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix}
+\end{equation}
 
 Boundary constraints are enforced directly through a row-elimination penalty approach, resolving the resulting system via a direct Gaussian elimination profile tailored for thin typed Float64 matrix bands.
 

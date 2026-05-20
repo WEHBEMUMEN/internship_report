@@ -9,11 +9,30 @@ The reduced internal force vector is approximated by sampling only the selected 
 \end{equation}
 where $\vect{f}_e(\vect{u}_r) = \mat{V}_{r,e}^T \mat{f}_{\text{int},e}(\mat{V}_{r,e} \vect{u}_r)$ represents the element-level reduced internal force contribution, and $w_e$ denotes a set of positive scaling weights.
 
-Finding the optimal, sparse element subset $\widehat{\Omega}$ and their corresponding weights $\vect{w}$ is framed as a non-negative least-squares (\acrshort{nnls}) optimization problem over the collected training configurations:
+Finding the optimal, sparse element subset $\widehat{\Omega}$ and their corresponding weights $\vect{w}$ is framed as a non-negative least-squares (\acrshort{nnls}) optimization problem over $M$ collected training snapshot configurations:
 \begin{equation}
     \min_{\vect{w}} \|\mat{A}\vect{w} - \vect{b}\|_2^2 \quad \text{subject to} \quad \vect{w} \ge \vect{0}
 \end{equation}
-The predictor matrix $\mat{A}$ contains the unweighted element force contributions across the training steps, while the target vector $\vect{b}$ represents the exact full-order projected force vector.
+Let $\vect{f}_e^{(j)} = \mat{V}_{r,e}^T \vect{f}_{\text{int},e}(\mat{V}_{r,e} \vect{u}_r^{(j)}) \in \mathbb{R}^r$ represent the projected element internal force vector evaluated for element $e$ at training state $j \in \{1, \dots, M\}$, where $\mat{V}_{r,e}$ is the localized row restriction of the reduced basis $\mat{V}_r$ to the degrees of freedom of element $e$.
+
+The global target vector $\vect{b} \in \mathbb{R}^{rM}$ is constructed by concatenating the exact full-order projected force vectors over all $M$ training configurations:
+\begin{equation}
+        \vect{b} = \begin{bmatrix} \vect{b}^{(1)} \\ \vect{b}^{(2)} \\ \vdots \\ \vect{b}^{(M)} \end{bmatrix} \quad \text{where} \quad \vect{b}^{(j)} = \sum_{e=1}^E \vect{f}_e^{(j)} \in \mathbb{R}^r
+\end{equation}
+where $E$ represents the total number of elements in the full mesh. The predictor matrix $\mat{A} \in \mathbb{R}^{rM \times E}$ is constructed by grouping the unweighted projected element force contributions across all elements and snapshots:
+\begin{equation}
+        \mat{A} = \begin{bmatrix}
+                \vect{f}_1^{(1)} & \vect{f}_2^{(1)} & \dots & \vect{f}_E^{(1)} \\
+                \vect{f}_1^{(2)} & \vect{f}_2^{(2)} & \dots & \vect{f}_E^{(2)} \\
+                \vdots & \vdots & \ddots & \vdots \\
+                \vect{f}_1^{(M)} & \vect{f}_2^{(M)} & \dots & \vect{f}_E^{(M)}
+        \end{bmatrix}
+\end{equation}
+Solving the NNLS problem yields a sparse weight vector $\vect{w} = [w_1, w_2, \dots, w_E]^T \ge \vect{0}$. The reduced mesh integration domain is defined by the set of elements corresponding to strictly positive weights:
+\begin{equation}
+        \widehat{\Omega} = \{ e \in \{1, \dots, E\} \mid w_e > 0 \}
+\end{equation}
+Due to the sparsity-promoting nature of the NNLS system, the cardinality of the active set satisfies $|\widehat{\Omega}| \ll E$.
 
 \begin{figure}[H]
     \centering

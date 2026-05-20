@@ -6,11 +6,38 @@ As an alternative to energy-based sampling, this sub-phase explored interpolativ
     \mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r) \approx \mat{U}_F \vect{c}(\vect{\mu})
 \end{equation}
 
-To determine the interpolation coefficients $\vect{c}(\vect{\mu})$ efficiently without evaluating the full vector, a greedy selection algorithm determines a specialized interpolation indices matrix $\mat{P} \in \mathbb{R}^{n \times m}$, containing select row-activation indicators:
+To determine the interpolation coefficients $\vect{c}(\vect{\mu})$ efficiently without evaluating the full vector, a greedy selection algorithm determines a specialized interpolation index vector $\vect{p} = [p_1, \dots, p_m]^T$ and corresponding projection matrix $\mat{P} = [\vect{e}_{p_1}, \dots, \vect{e}_{p_m}] \in \mathbb{R}^{n \times m}$ (where $\vect{e}_{p_k}$ is the $p_k$-th column of the identity matrix $\mat{I}_n$). The greedy index selection proceeds as:
+\begin{enumerate}
+        \item \textbf{First Index Selection}: Find the coordinate corresponding to the maximum absolute value of the first collateral basis mode $\vect{u}_1^F \in \mathbb{R}^n$:
+        \begin{equation}
+                p_1 = \arg\max_{i=1,\dots,n} |u_{i, 1}^F|
+        \end{equation}
+        Initialize the projection matrix $\mat{P}_1 = [\vect{e}_{p_1}] \in \mathbb{R}^{n \times 1}$ and basis matrix $\mat{U}_1 = [\vect{u}_1^F]$.
+        \item \textbf{Iterative Greedy Expansion}: For each mode $j = 2, 3, \dots, m$:
+        \begin{enumerate}
+                \item Solve the interpolation system for the mode coefficient vector $\vect{a} \in \mathbb{R}^{j-1}$:
+                \begin{equation}
+                        \left( \mat{P}_{j-1}^T \mat{U}_{j-1} \right) \vect{a} = \mat{P}_{j-1}^T \vect{u}_j^F
+                \end{equation}
+                \item Evaluate the interpolation residual vector $\vect{r}_j \in \mathbb{R}^n$:
+                \begin{equation}
+                        \vect{r}_j = \vect{u}_j^F - \mat{U}_{j-1} \vect{a}
+                \end{equation}
+                \item Select the coordinate index that maximizes the remaining interpolation error:
+                \begin{equation}
+                        p_j = \arg\max_{i=1,\dots,n} |r_{i, j}|
+                \end{equation}
+                \item Update the projection matrix and basis matrix collections:
+                \begin{equation}
+                        \mat{P}_j = \begin{bmatrix} \mat{P}_{j-1} & \vect{e}_{p_j} \end{bmatrix}, \quad \mat{U}_j = \begin{bmatrix} \mat{U}_{j-1} & \vect{u}_j^F \end{bmatrix}
+                \end{equation}
+        \end{enumerate}
+\end{enumerate}
+The final interpolation projection matrix is defined as $\mat{P} = \mat{P}_m$. This allows the online projection to evaluate the exact nonlinear internal forces at the selected DEIM degrees of freedom only:
 \begin{equation}
-    \mat{P}^T \mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r) = (\mat{P}^T \mat{U}_F) \vect{c}(\vect{\mu}) \implies \vect{c}(\vect{\mu}) = (\mat{P}^T \mat{U}_F)^{-1} \mat{F}_{\text{int}}\vert_{\mat{P}}(\vect{u}_r)
+        \mat{P}^T \mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r) = (\mat{P}^T \mat{U}_F) \vect{c}(\vect{\mu}) \implies \vect{c}(\vect{\mu}) = (\mat{P}^T \mat{U}_F)^{-1} \mat{F}_{\text{int}}\vert_{\mat{P}}(\vect{u}_r)
 \end{equation}
-where $\mat{F}_{\text{int}}\vert_{\mat{P}}$ represents the nonlinear internal forces evaluated purely at the selected DEIM degrees of freedom.
+where $\mat{F}_{\text{int}}\vert_{\mat{P}}(\vect{u}_r) = \mat{P}^T \mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r)$ maps the localized forces at the $m$ active degrees of freedom.
 
 \subsubsection{Unassembled DEIM (U-DEIM) Extension}
 Standard DEIM still exhibits an offline-online bottleneck in finite element frameworks because evaluating even a single spatial row index within a global assembled vector requires looping over all physical mesh elements connected to that node. To completely achieve element-level lifting decoupling, **Unassembled DEIM (U-DEIM)** was deployed.

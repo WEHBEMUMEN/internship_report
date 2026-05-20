@@ -1,20 +1,34 @@
 \subsection{Sub-Phase 3.2: Incremental Newton-Raphson Solution Control}
 \label{subsec:nr_solver}
 
-To track the steady balance path of the continuum under heavy external loads, an iterative Newton-Raphson solution framework was developed. For a given load step or parameter configuration $\vect{\mu}$, the out-of-balance forces are continuously monitored using the global residual vector $\mat{R}(\vect{u})$:
-\begin{equation}
-    \mat{R}(\vect{u}_k) = \mat{F}_{\text{ext}} - \mat{F}_{\text{int}}(\vect{u}_k)
-\end{equation}
-At each iteration step $k$, a linearized correction vector $\Delta \vect{u}$ is extracted by solving the high-fidelity global system of equations:
-\begin{equation}
-    \mat{K}_T(\vect{u}_k) \Delta \vect{u} = \mat{R}(\vect{u}_k)
-\end{equation}
-The continuous displacement field is sequentially corrected using an additive scheme:
-\begin{equation}
-    \vect{u}_{k+1} = \vect{u}_k + \Delta \vect{u}
-\end{equation}
+To track the steady balance path of the continuum under heavy external loads, an iterative Newton-Raphson solution framework was developed. The total external load is applied incrementally over $N_{\text{steps}}$ discrete steps, where the load at step $n$ is denoted as $\vect{F}_{\text{ext}}^n$. For a given load step, the algorithm seeks the equilibrium displacement vector $\vect{u}^n$ that satisfies the vanishing of the global residual vector $\vect{R}(\vect{u}) = \vect{0}$.
 
-This refinement loop executes recursively until the Euclidean norm of the residual satisfies a strict convergence criterion, $\|\mat{R}(\vect{u}_k)\| < \epsilon$, where $\epsilon$ represents a customized tolerance parameter.
+The iterative procedure within each load step $n$ is formulated as follows:
+\begin{enumerate}
+        \item \textbf{Initialization}: Set the iteration counter $k = 0$ and initialize the displacement state using the converged solution from the previous load step:
+        \begin{equation}
+                \vect{u}_0^n = \vect{u}^{n-1}
+        \end{equation}
+        \item \textbf{Residual and Stiffness Assembly}: Evaluate the internal force vector $\vect{F}_{\text{int}}(\vect{u}_k^n)$ and the global tangent stiffness matrix $\mat{K}_T(\vect{u}_k^n)$ based on the current state estimate $\vect{u}_k^n$.
+        \item \textbf{Residual Force Evaluation}: Compute the out-of-balance residual force vector:
+        \begin{equation}
+                \vect{R}(\vect{u}_k^n) = \vect{F}_{\text{ext}}^n - \vect{F}_{\text{int}}(\vect{u}_k^n)
+        \end{equation}
+        \item \textbf{Convergence Check}: Assess equilibrium using two independent Euclidean ($L_2$) norms. Convergence is achieved when both the relative force residual and the relative displacement increment satisfy strict tolerance parameters $\epsilon_R$ and $\epsilon_U$:
+        \begin{equation}
+                \frac{\|\vect{R}(\vect{u}_k^n)\|}{\|\vect{F}_{\text{ext}}^n\|} < \epsilon_R \quad \text{and} \quad \frac{\|\Delta \vect{u}_k^n\|}{\|\vect{u}_k^n\|} < \epsilon_U
+        \end{equation}
+        If the criteria are met, set $\vect{u}^n = \vect{u}_k^n$, terminate the iteration loop, and advance to the next load step $n+1$.
+        \item \textbf{Linearized Correction}: If convergence is not achieved, compute the displacement increment $\Delta \vect{u}_k^n$ by solving the linearized system of equations:
+        \begin{equation}
+                \mat{K}_T(\vect{u}_k^n) \Delta \vect{u}_k^n = \vect{R}(\vect{u}_k^n)
+        \end{equation}
+        \item \textbf{State Update}: Correct the displacement state via:
+        \begin{equation}
+                \vect{u}_{k+1}^n = \vect{u}_k^n + \Delta \vect{u}_k^n
+        \end{equation}
+        Increment the iteration counter $k \leftarrow k+1$ and return to Step 2.
+\end{enumerate}
 
 \begin{figure}[H]
     \centering

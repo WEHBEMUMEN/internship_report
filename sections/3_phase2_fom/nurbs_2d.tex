@@ -12,7 +12,17 @@ where $N_{i,p}(\xi)$ and $M_{j,q}(\eta)$ represent the standard univariate basis
         \vect{S}(\xi, \eta) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
 \end{equation}
 
+For surface integration and local coordinate transformation, the parametric gradients are mapped to physical space via the 2D coordinate Jacobian matrix $\mat{J}$:
+\begin{equation}
+\mat{J}(\xi, \eta) = \begin{bmatrix} \frac{\partial x}{\partial \xi} & \frac{\partial y}{\partial \xi} \\[0.3em] \frac{\partial x}{\partial \eta} & \frac{\partial y}{\partial \eta} \end{bmatrix} = \begin{bmatrix} \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} y_{i,j} \\[0.5em] \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} y_{i,j} \end{bmatrix}
+\end{equation}
+The physical tangent vectors spanning the surface tangent plane are defined as $\vect{g}_{\xi} = \partial \vect{S}/\partial \xi$ and $\vect{g}_{\eta} = \partial \vect{S}/\partial \eta$. The local outward unit surface normal vector $\vect{n}(\xi, \eta)$ required for pressure boundary conditions and normal visual rendering is extracted via the cross product:
+\begin{equation}
+\vect{n}(\xi, \eta) = \frac{\vect{g}_{\xi} \times \vect{g}_{\eta}}{\|\vect{g}_{\xi} \times \vect{g}_{\eta}\|}
+\end{equation}
+
 The evaluation engine loops exclusively over active knot spans $[\xi_k, \xi_{k+1}) \times [\eta_l, \eta_{l+1})$ where basis functions are non-vanishing, optimizing calculation overhead for complex multipatch topologies.
+
 
 \begin{figure}[H]
         \centering
