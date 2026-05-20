@@ -1,0 +1,30 @@
+\subsection{Sub-Phase 2.2: Localized Mesh Refinement and Knot Insertion Utilities}
+\label{subsec:refinement_utils}
+
+A primary benefit of Isogeometric Analysis is the ability to enrich the solution space without altering the exact CAD geometry boundary definitions. This sub-phase implemented an $h$-refinement suite based on the Boehm knot insertion algorithm. Introducing a new knot $\bar{\xi}$ into an existing knot sequence updates the control point configuration to maintain geometric invariance.
+
+The new control points $\vect{P}_i^{\text{new}}$ are computed via a linear combination of the original control sequence:
+\begin{equation}
+        \vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}
+\end{equation}
+where the blending coefficients $\alpha_i$ are determined explicitly by the knot layout topology:
+\begin{equation}
+        \alpha_i = \begin{cases} 
+                1 & \text{if } i \le k - p \\ 
+                \frac{\bar{\xi} - \xi_i}{\xi_{i+p} - \xi_i} & \text{if } k - p + 1 \le i \le k \\ 
+                0 & \text{if } i \ge k + 1 
+        \end{cases}
+\end{equation}
+
+For 2D domains, this algorithm is executed tensorially across selected parameter rows or columns, enabling the engine to insert localized physical refinements near expected stress concentrations—such as the perimeter of the hole in the plate benchmark—without introducing geometry approximation errors.
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{knot_refinement_stages.png}
+        \caption{Progressive $h$-refinement states: Knot insertion density variations around geometric discontinuities while preserving exact structural boundaries.}
+        \label{fig:mesh_refinement_stages}
+\end{figure}
+
+\begin{devnote}
+The script located at \texttt{phase-2-core/src/refine-utils.js} manages the index transformations when modifying the knot array density. The refinement process updates both coordinates and control weights simultaneously. This ensures the geometric mapping remains exact across interpolation changes, providing stable training states for subsequent Reduced Order Model snapshot passes.
+\end{devnote}

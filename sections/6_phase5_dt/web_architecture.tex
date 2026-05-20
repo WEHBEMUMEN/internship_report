@@ -1,0 +1,25 @@
+\subsection{Sub-Phase 5.1: Client-Side Software Architecture}
+\label{subsec:web_architecture}
+
+To ensure maximum accessibility for pedagogical and research purposes, the platform was engineered as a purely client-side web application. This architectural choice eliminates the need for expensive server-side simulation backends, instead leveraging the computational power of the user's browser through optimized JavaScript execution.
+
+The system follows a modular "Model-View-Controller" (MVC) pattern:
+\begin{itemize}
+    \item \textbf{The Model:} Comprises the IGA-ROM engine, handling the reduced state-space vectors and hyper-reduction integration loops using \texttt{Float64Array} typed arrays for near-native math performance.
+    \item \textbf{The View:} A responsive viewport utilizing the HTML5 Canvas and CSS3 for high-performance rendering of the NURBS geometry and displacement heatmaps.
+    \item \textbf{The Controller:} A management layer that listens for parameter changes (sliders) and triggers the ROM solver to update the structural state.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    % [IMAGE PLACEHOLDER: Diagram of the web app data flow / Component Architecture]
+    \vspace{4cm}
+    \caption{Digital Twin Architecture: Data flow from user-controlled parameters ($\vect{\mu}$) to the ROM solver and final visual rendering.}
+    \label{fig:app_architecture}
+\end{figure}
+
+Data persistence for the reduced model is managed via serialized \texttt{JSON} payloads. These files contain the pre-computed reduced basis $\mat{V}_r$, the hyper-reduction integration weights $w_e$, and the mapping tables, allowing the application to "boot" a fully trained model in milliseconds.
+
+\begin{devnote}
+The integration layer in \texttt{iga-sim-5.2/src/main.js} uses an asynchronous loading pattern to fetch the ROM basis files. This prevents the browser's UI thread from freezing while the large matrices (often exceeding 50MB) are parsed and prepared for the online execution loop.
+\end{devnote}

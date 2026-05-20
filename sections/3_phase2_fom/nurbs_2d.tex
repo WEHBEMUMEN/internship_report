@@ -1,0 +1,26 @@
+\subsection{Sub-Phase 2.1: Tensor-Product Bivariate NURBS Mapping Core}
+\label{subsec:nurbs_2d}
+
+To model realistic structural domains, the geometric kernel was scaled to evaluate two-dimensional manifolds. This was achieved by constructing a tensor product of univariate B-spline basis functions over two independent parametric directions governed by the knot vectors $\Xi = \{\xi_0, \xi_1, \dots, \xi_{r}\}$ and $\mathcal{H} = \{\eta_0, \eta_1, \dots, \eta_{s}\}$, with corresponding polynomial degrees $p$ and $q$.
+
+The bivariate rational basis functions $R_{i,j}^{p,q}(\xi, \eta)$ are formulated by projecting a grid of control weights $w_{i,j}$ across the product space:
+\begin{equation}
+        R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k=0}^{n-1} \sum_{l=0}^{m-1} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
+\end{equation}
+where $N_{i,p}(\xi)$ and $M_{j,q}(\eta)$ represent the standard univariate basis polynomials evaluated along the $\xi$ and $\eta$ directions, respectively. The continuous geometric mapping of the 2D surface patch $\vect{S}(\xi, \eta)$ is expressed as a linear combination of a bidimensional control point lattice $\vect{P}_{i,j} = [x_{i,j}, y_{i,j}, z_{i,j}]^T$:
+\begin{equation}
+        \vect{S}(\xi, \eta) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
+\end{equation}
+
+The evaluation engine loops exclusively over active knot spans $[\xi_k, \xi_{k+1}) \times [\eta_l, \eta_{l+1})$ where basis functions are non-vanishing, optimizing calculation overhead for complex multipatch topologies.
+
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\textwidth]{bivariate_mesh_geometry.png}
+        \caption{Parametric mapping engine output: Transformation of a flat bivariate knot grid into an exact curved physical surface continuum.}
+        \label{fig:bivariate_mapping}
+\end{figure}
+
+\begin{devnote}
+The implementation within \texttt{phase-2-core/src/nurbs-2d.js} provides structured matrices for managing control topologies without external library dependency wrappers. Derivatives are computed using structured tensor passes that feed parameter pairs $(\xi, \eta)$ into directional array accumulators, generating steady geometric tangent vectors required for surface normal extraction and numerical integration.
+\end{devnote}

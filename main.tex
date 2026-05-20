@@ -1,0 +1,104 @@
+\documentclass[preprint,12pt]{elsarticle}
+
+% ─── Encoding & Language ───
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+% ─── Math & Symbols ───
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{bm}
+
+% ─── Graphics, Tables & Formatting ───
+\usepackage{graphicx}
+\usepackage{booktabs,array,multirow,float}
+\usepackage{algorithm,algorithmic}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage[most]{tcolorbox} 
+
+% ─── Glossary & Acronyms Configuration ───
+\usepackage[acronym,toc]{glossaries}
+
+\newacronym{iga}{IGA}{Isogeometric Analysis}
+\newacronym{rom}{ROM}{Reduced Order Model}
+\newacronym{nnls}{NNLS}{Non-Negative Least Squares}
+\newacronym{dt}{DT}{Digital Twin}
+\newacronym{fom}{FOM}{Full Order Model}
+\newacronym{pod}{POD}{Proper Orthogonal Decomposition}
+\newacronym{ecsw}{ECSW}{Energy-Conserving Sampling and Weighting}
+\newacronym{deim}{DEIM}{Discrete Empirical Interpolation Method}
+\newacronym{nurbs}{NURBS}{Non-Uniform Rational B-Splines}
+\newacronym{cnam}{Cnam}{Conservatoire National des Arts et Métiers}
+\newacronym{fem}{FEM}{Finite Element Method}
+\newacronym{svd}{SVD}{Singular Value Decomposition}
+
+\makeglossaries
+
+% ─── Custom Mathematical Commands (Sanitized) ───
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+
+% ─── Developer Note Styling ───
+\newtcolorbox{devnote}[1][]{colback=blue!5!white,colframe=blue!75!black,title=Developer's Note, #1}
+
+\sloppy
+\journal{EPN04 Technical Project Report}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Digital Twin \& Reduced Order Modelling for Nonlinear Dynamics: Development Roadmap}
+
+\author{Mumen Wehbe}
+\ead{mumen.wehbe@lecnam.net}
+
+\affiliation{
+    organization={Équipement pour la Performance et le Numérique (EPN04), Conservatoire National des Arts et Métiers (Cnam)},
+    city={Paris},
+    country={France}
+}
+
+\begin{abstract}
+\input{sections/0_abstract/index}
+\end{abstract}
+
+\end{frontmatter}
+
+% Force printing of all entries in references.bib (Even if not directly cited yet)
+\nocite{*}
+
+% ════════════════════════════════════════════════════════════════
+%  PHASE ROUTING
+% ════════════════════════════════════════════════════════════════
+\clearpage
+\input{sections/1_introduction/index}
+
+\clearpage
+\input{sections/2_phase1_theory/index}
+
+\clearpage
+\input{sections/3_phase2_fom/index}
+
+\clearpage
+\input{sections/4_phase3_nonlinear/index}
+
+\clearpage
+\input{sections/5_phase4_reduction/index}
+
+\clearpage
+\input{sections/6_phase5_dt/index}
+
+\clearpage
+\input{sections/7_conclusion/index}
+
+% ════════════════════════════════════════════════════════════════
+%  BACK MATTER
+% ════════════════════════════════════════════════════════════════
+
+\printglossary[type=\acronymtype,title=List of Acronyms]
+
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,30 @@
+\subsection{Sub-Phase 4.2: Hyper-Reduction via Energy-Conserving Sampling and Weighting}
+\label{subsec:ecsw_logic}
+
+To completely break the dependency on the full mesh size, a hyper-reduction layer was constructed using the \acrlong{ecsw} method. The core concept behind ECSW is to replace the expensive global mesh integration with a sparse, weighted combination evaluated over a minimal subset of critical elements $\widehat{\Omega} \subset \Omega$.
+
+The reduced internal force vector is approximated by sampling only the selected reduced integration elements:
+\begin{equation}
+    \mat{V}_r^T \mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r) = \sum_{e \in \Omega} \vect{f}_e(\vect{u}_r) \approx \sum_{e \in \widehat{\Omega}} w_e \vect{f}_e(\vect{u}_r)
+\end{equation}
+where $\vect{f}_e(\vect{u}_r) = \mat{V}_{r,e}^T \mat{f}_{\text{int},e}(\mat{V}_{r,e} \vect{u}_r)$ represents the element-level reduced internal force contribution, and $w_e$ denotes a set of positive scaling weights.
+
+Finding the optimal, sparse element subset $\widehat{\Omega}$ and their corresponding weights $\vect{w}$ is framed as a non-negative least-squares (\acrshort{nnls}) optimization problem over the collected training configurations:
+\begin{equation}
+    \min_{\vect{w}} \|\mat{A}\vect{w} - \vect{b}\|_2^2 \quad \text{subject to} \quad \vect{w} \ge \vect{0}
+\end{equation}
+The predictor matrix $\mat{A}$ contains the unweighted element force contributions across the training steps, while the target vector $\vect{b}$ represents the exact full-order projected force vector.
+
+\begin{figure}[H]
+    \centering
+    % [IMAGE PLACEHOLDER: Sparse element selection highlights over the 2D domain]
+    \vspace{4cm}
+    \caption{Sparse integration domain mapping: Highlighting the selected hyper-reduction elements that accurately capture the internal energy state of the continuum.}
+    \label{fig:ecsw_mesh_selection}
+\end{figure}
+
+By resolving this system down to a sparse vector, the online execution loop only visits a fraction of the original mesh cells, achieving the execution speedups required for real-time application deployment.
+
+\begin{devnote}
+The script inside \texttt{iga-sim-3.4c/src/ecsw-engine.js} implements a customized sparse assembly block. During the online simulation phase, the element loops are restricted to an index table containing only the hyper-reduction elements and their corresponding optimized weights. This structure completely bypasses full mesh allocations, allowing the Newton-Raphson iteration loop to execute smoothly within standard browser frame budgets.
+\end{devnote}

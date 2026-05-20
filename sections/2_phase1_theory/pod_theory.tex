@@ -1,0 +1,29 @@
+\subsection{Sub-Phase 1.3: Subspace Projection Foundations for ROM}
+\label{subsec:pod_theory}
+
+The final sub-phase of Phase 1 targeted the initial mathematical implementation of modal projection to overcome global degrees of freedom bottlenecks. A low-dimensional projection basis $\mat{\Phi} \in \mathbb{R}^{n \times r}$ with $r \ll n$ is created to truncate the state-space model, compressing the physical displacement field onto a localized generalized coordinate manifold $\vect{q}_r(t)$:
+\begin{equation}
+\vect{u} \approx \mat{\Phi} \vect{q}_r
+\end{equation}
+
+Applying a Galerkin virtual work projection onto the baseline structural equilibrium equations maps the heavy structural stiffness operator $\mat{K}$ and external load distributions $\vect{F}$ down into reduced configurations:
+\begin{equation}
+\mat{K}_r = \mat{\Phi}^T \mat{K} \mat{\Phi}, \quad \vect{F}_r = \mat{\Phi}^T \vect{F}
+\end{equation}
+The reduced static system is evaluated using generalized state spaces:
+\begin{equation}
+\mat{K}_r \vect{q}_r = \vect{F}_r
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{pod_energy_decay.png}
+    \caption{Modal basis energy snapshot: Truncation analysis capturing the principal modal shapes governing structural deformation energy.}
+    \label{fig:pod_energy_decay}
+\end{figure}
+
+Evaluating the reduced coordinates yields the generalized states, which are subsequently mapped back into full geometric space to drive real-time visualization frameworks without noticeable latency.
+
+\begin{devnote}
+The engine version \texttt{iga-sim-1.8/src/engine/physics.js} eliminates external third-party numerical math libraries to optimize client-side execution loops. Projection matrices ($\mat{\Phi}$) are generated natively using analytical sinusoidal trial profiles matching fixed or cantilevered structural anchors, allowing the offline trainer to compute the initial matrix triplets ($\mat{\Phi}^T \mat{K} \mat{\Phi}$) smoothly inside browser loops without performance hits.
+\end{devnote}

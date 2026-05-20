@@ -1,0 +1,38 @@
+# LaTeX temporary files
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.fdb_latexmk
+*.fls
+*.glg
+*.glo
+*.gls
+*.idx
+*.ilg
+*.ind
+*.ist
+*.lof
+*.log
+*.lot
+*.maf
+*.mtc
+*.mtc0
+*.nav
+*.nlo
+*.out
+*.pdfsync
+*.ps
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.run.xml
+*.bcf
+
+# PDF output (optional - but usually we don't want compiled PDFs in git)
+*.pdf
+
+# OS generated files
+.DS_Store
+Thumbs.db

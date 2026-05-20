@@ -1,0 +1,28 @@
+\subsection{Sub-Phase 1.2: The IGA-FEM Physics Bridge \& Nonlinear Statics}
+\label{subsec:nonlinear_rec}
+
+Following exact geometric tracking, the simulation kernel was upgraded to evaluate variational boundary value problems, shifting the NURBS curves into high-continuity isoparametric elements. For the bending physics of slender 1D structures, the global stiffness matrix $\mat{K}$ is assembled by evaluating the $L_2$ inner product of the second parametric derivatives:
+\begin{equation}
+K_{ij} = \int_{0}^{1} \frac{d^2 R_{i,p}(\xi)}{d\xi^2} (EI) \frac{d^2 R_{j,p}(\xi)}{d\xi^2} d\xi
+\end{equation}
+where $EI$ denotes the flexural rigidity parameter. Concurrently, the global mass matrix $\mat{M}$ capturing the inertial properties of the continuum is framed as:
+\begin{equation}
+M_{ij} = \int_{0}^{1} R_{i,p}(\xi) (\rho A) R_{j,p}(\xi) d\xi
+\end{equation}
+
+Numerical approximation of these structural integrals is conducted within the engine via high-density quadrature approximations. To simulate large displacement states causing a non-negligible geometric softening under high point load regimes, a localized geometric nonlinearity filter was incorporated into the structural model:
+\begin{equation}
+\vect{u}_{\text{nonlinear}} = \vect{u}_{\text{static}} \odot \left( \vect{1} + \beta \vect{u}_{\text{static}}^{\circ 2} \right)
+\end{equation}
+where $\vect{u}_{\text{static}}$ is the solution of the linear system $\mat{K}\vect{u} = \vect{F}$ resolved via Gaussian elimination, $\odot$ signifies the Hadamard element-wise product, $\circ 2$ is the element-wise square operator, and $\beta$ represents a softening scaling variable.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{iga_vs_fem_bending.png}
+    \caption{Bending curvature validation: Comparison of high-order IGA structural response against classical cubic Hermite element formulations under severe static point loads.}
+    \label{fig:bending_curvature_eval}
+\end{figure}
+
+\begin{devnote}
+The physics kernel in \texttt{iga-sim-1.6/src/engine/physics.js} implements a performance benchmark to contrast IGA degrees of freedom directly against Lagrangian finite element methods. The structural core explicitly handles Dirichlet boundary conditions by replacing the affected equations with identity entries, maintaining matrix symmetry without performing complex memory reshaping operations on the underlying typed arrays.
+\end{devnote}

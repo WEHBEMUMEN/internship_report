@@ -1,0 +1,34 @@
+\subsection{Sub-Phase 4.3: Discrete Empirical Interpolation (DEIM) and Unassembled DEIM (U-DEIM)}
+\label{subsec:deim_logic}
+
+As an alternative to energy-based sampling, this sub-phase explored interpolative hyper-reduction using the \acrlong{deim} and its element-level extension, Unassembled DEIM (\acrshort{deim} variant). While ECSW acts directly on the virtual work integrals, DEIM approximates the non-linear internal force vector field $\mat{F}_{\text{int}}(\vect{u}_r)$ by projecting it onto a separate collateral basis $\mat{U}_F \in \mathbb{R}^{n \times m}$ extracted from nonlinear force snapshots:
+\begin{equation}
+    \mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r) \approx \mat{U}_F \vect{c}(\vect{\mu})
+\end{equation}
+
+To determine the interpolation coefficients $\vect{c}(\vect{\mu})$ efficiently without evaluating the full vector, a greedy selection algorithm determines a specialized interpolation indices matrix $\mat{P} \in \mathbb{R}^{n \times m}$, containing select row-activation indicators:
+\begin{equation}
+    \mat{P}^T \mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r) = (\mat{P}^T \mat{U}_F) \vect{c}(\vect{\mu}) \implies \vect{c}(\vect{\mu}) = (\mat{P}^T \mat{U}_F)^{-1} \mat{F}_{\text{int}}\vert_{\mat{P}}(\vect{u}_r)
+\end{equation}
+where $\mat{F}_{\text{int}}\vert_{\mat{P}}$ represents the nonlinear internal forces evaluated purely at the selected DEIM degrees of freedom.
+
+\subsubsection{Unassembled DEIM (U-DEIM) Extension}
+Standard DEIM still exhibits an offline-online bottleneck in finite element frameworks because evaluating even a single spatial row index within a global assembled vector requires looping over all physical mesh elements connected to that node. To completely achieve element-level lifting decoupling, **Unassembled DEIM (U-DEIM)** was deployed.
+
+Instead of reducing the global assembled vector, U-DEIM constructs a snapshot matrix out of un-assembled, localized element internal force vectors $\vect{f}_e$. The interpolation is performed directly within the localized element vector space, meaning the online physics core only needs to evaluate isolated element routines matching the interpolation index map:
+\begin{equation}
+    \mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r) \approx \sum_{e \in \widehat{\Omega}_U} \mat{L}_e \mat{U}_{f,e} (\mat{P}_e^T \mat{U}_{f,e})^{-1} \vect{f}_e\vert_{\mat{P}_e}(\vect{u}_r)
+\end{equation}
+where $\mat{L}_e$ handles standard global assembly mapping, and $\widehat{\Omega}_U$ represents the sharply restricted set of interpolated integration cells.
+
+\begin{figure}[H]
+    \centering
+    % [IMAGE PLACEHOLDER: Comparison of ECSW vs DEIM vs U-DEIM interpolation nodes]
+    \vspace{4cm}
+    \caption{Interpolation node distribution: Contrast between standard global DEIM selection points and the element-isolated U-DEIM index configurations across the parameter domain.}
+    \label{fig:deim_node_selection}
+\end{figure}
+
+\begin{devnote}
+The code blocks testing DEIM and U-DEIM configurations allow us to compare error preservation directly against ECSW. While standard DEIM requires tedious mesh topology assembly parsing at runtime, the U-DEIM variant aligns perfectly with our native JavaScript array layout, processing localized chunk computations smoothly without triggering heavy index transformations.
+\end{devnote}

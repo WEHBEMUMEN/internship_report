@@ -1,0 +1,28 @@
+\subsection{Sub-Phase 4.1: Parametric Snapshot Collection and Basis Extraction}
+\label{subsec:snapshot_train}
+
+To construct a reduced-order representation capable of real-time parameter exploration, an offline sampling campaign was established across the parametric space $\mathcal{P}$. By varying geometric configurations (such as aspect ratios or hole radii) and external force parameters $\vect{\mu} \in \mathcal{P}$, the full-order state trajectories are assembled into a dense snapshot matrix $\mat{S}$:
+\begin{equation}
+    \mat{S} = \begin{bmatrix} \vect{u}_1 & \vect{u}_2 & \dots & \vect{u}_N \end{bmatrix} \in \mathbb{R}^{n \times N}
+\end{equation}
+where $n$ represents the total high-fidelity degrees of freedom, and $N$ represents the total number of sampled design states.
+
+A low-dimensional orthogonal reduced basis $\mat{V}_r \in \mathbb{R}^{n \times r}$ ($r \ll n$) is extracted by performing a Singular Value Decomposition (\acrshort{svd}) on the snapshot ensemble:
+\begin{equation}
+    \mat{S} = \mat{U} \mat{\Sigma} \mat{W}^T \implies \mat{V}_r = \mat{U}[:, 1:r]
+\end{equation}
+The truncation size $r$ is determined online by tracking the relative singular value energy decay profile, ensuring that the selected modes capture over $99.99\%$ of the structural deformation energy.
+
+While standard Galerkin projection successfully reduces the state dimension by setting $\vect{u} \approx \mat{V}_r \vect{u}_r$, the geometrically nonlinear internal force term $\mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r)$ still requires integration over the full-order mesh at every single Newton iteration. This dependency defines the classical \textit{lifting bottleneck}, where the online evaluation cost remains tied to the full-order mesh size $n$.
+
+\begin{figure}[H]
+    \centering
+    % [IMAGE PLACEHOLDER: Singular value decay profile / Singular values log-plot]
+    \vspace{4cm}
+    \caption{Singular value spectrum showing rapid exponential decay, allowing for severe dimensional truncation from thousands of full-order DoFs to a minimal reduced subspace.}
+    \label{fig:svd_decay}
+\end{figure}
+
+\begin{devnote}
+The snapshot engine implemented in \texttt{iga-sim-3.4b/src/rom-engine.js} optimizes memory bandwidth by allocating a single continuous high-speed array buffer for snapshot caching. The basis projection operations use optimized row-column transforms, minimizing cache misses before the final basis vectors are serialized into JSON format for application usage.
+\end{devnote}

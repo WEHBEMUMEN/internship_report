@@ -1,0 +1,11 @@
+\section{Phase 3: Geometrically Nonlinear Physics Engine}
+\label{sec:phase3}
+
+This phase documents the transition of the computational core from a linear elasticity baseline to a fully incremental, geometrically nonlinear kinematic framework. Implemented within the codebase under \texttt{app/simulations/phase-3-core/}, this phase covers the construction of a client-side tangent stiffness operator, residual-driven convergence monitoring, and the execution of full-order Newton-Raphson iterative loops.
+
+% Isolate image routing strictly to the local phase assets
+\graphicspath{{sections/4_phase3_nonlinear/images/}}
+
+% Compile sub-phase content modules sequentially
+\input{sections/4_phase3_nonlinear/tangent_stiff}
+\input{sections/4_phase3_nonlinear/nr_solver}

@@ -1,0 +1,33 @@
+\section{Conclusion and Future Perspectives}
+\label{sec:conclusion}
+
+This technical report has detailed the systematic development of a real-time, client-side interactive Digital Twin platform utilizing \acrlong{iga} and projection-based \acrlong{rom} techniques. Conducted within the Équipement pour la Performance et le Numérique (EPN04) department at the \acrshort{cnam}, the project successfully bridged advanced computational continuum mechanics with modern web software engineering.
+
+\subsection{Summary of Achievements}
+The primary milestones completed during the five distinct development phases of the project include:
+\begin{enumerate}
+    \item \textbf{Theoretical Foundation Setup:} Established the 1D structural baseline kernels to handle smooth NURBS evaluations and verified baseline projection errors via Proper Orthogonal Decomposition.
+    \item \textbf{Full Order Model Construction:} Built a native, zero-dependency 2D tensor-product physical solver environment (\texttt{phase-2-core/}) capable of generating accurate displacement behaviors under open uniform knot distributions.
+    \item \textbf{Nonlinear Kinematics Integration:} Extended the element integration loops to compute the Green-Lagrange strain tensor, introducing an incremental residual-driven Newton-Raphson loop to trace geometrically nonlinear deformations safely.
+    \item \textbf{Hyper-Reduction Optimization:} Successfully deployed three independent hyper-reduction techniques—\acrshort{ecsw}, standard \acrshort{deim}, and Unassembled DEIM (\acrshort{deim} variant)—breaking the classical lifting bottleneck and preserving topological column alignment across shape updates.
+    \item \textbf{Digital Twin Deployment:} Built an asynchronous, client-side interactive application layer utilizing JSON-serialized ROM payloads that achieves stable convergence in under 16ms, ensuring a smooth 60FPS user interaction budget.
+\end{enumerate}
+
+\subsection{Future Perspectives and Research Paths}
+While the platform successfully meets its immediate pedagogical and performance objectives, several high-impact optimization vectors are identified for subsequent development phases:
+
+\subsubsection{1. Expansion to 3D Continuum Formulations}
+The existing physics core operates on 2D plane stress and plane strain mechanics. Scaling the tensor-product loop to process trivariate NURBS solids would enable the simulation of complex 3D volumes (e.g., thick turbine components or composite structures), significantly broadening the platform's industrial applicability.
+
+\subsubsection{2. Multi-Patch Topology Assembly}
+The current geometric mapping restricts the structural mesh domain to a single, continuous bivariate patch topology. Integrating multi-patch blending mechanics via G-continuity or penalty constraints (such as Nitsche's method or Mortar element formulations) would allow the web platform to represent intricate, non-isomorphic multipatch CAD definitions exactly.
+
+\subsubsection{3. Adaptive Online Hyper-Reduction Sampling}
+Currently, the ECSW and U-DEIM interpolation weights are computed entirely during the offline training pass. If the user shifts the parameter sliders far beyond the sampled training bounds $\mathcal{D}$, approximation accuracy decreases. Integrating an on-the-fly basis enrichment technique (e.g., localized localized kriging interpolation or automated online snapshot sampling) would allow the twin to retain structural accuracy dynamically.
+
+\begin{devnote}
+The modular, folder-isolated architecture engineered into the \texttt{report/} file structure ensures that as these future technical blocks are developed, their respective validation routines can be directly loaded into the documentation tree without altering the core baseline indexing layout.
+\end{devnote}
+
+\subsection*{Acknowledgements}
+The author expresses sincere gratitude to the EPN04 research team and academic supervisors at the Conservatoire National des Arts et Métiers for their continuous support, invaluable technical guidance, and for providing the specialized computational facilities that made this work possible.

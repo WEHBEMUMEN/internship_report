@@ -1,0 +1,33 @@
+\subsection{Sub-Phase 1.1: Geometric Representation via B-Splines and NURBS}
+\label{subsec:nurbs_mapping}
+
+The initial sub-phase was dedicated to building a high-performance geometric evaluator without external numerical dependencies, mirroring standard CAD kernels. This was achieved by implementing the Cox-de Boor recursive formulation to evaluate B-spline basis functions over an open uniform knot vector $\Xi = \{\xi_0, \xi_1, \dots, \xi_{m}\}$ where $m = n + p + 1$.
+
+The algorithmic evaluation of a $p$-th degree basis function $N_{i,p}(\xi)$ relies on the classical recurrence relation:
+\begin{equation}
+N_{i,0}(\xi) = \begin{cases} 1 & \text{if } \xi_i \le \xi < \xi_{i+1} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+\begin{equation}
+N_{i,p}(\xi) = \frac{\xi - \xi_i}{\xi_{i+p} - \xi_i} N_{i,p-1}(\xi) + \frac{\xi_{i+p+1} - \xi}{\xi_{i+p+1} - \xi_{i+1}} N_{i+1,p-1}(\xi)
+\end{equation}
+
+To represent conic or non-isomorphic domains exactly, the basis was extended to non-uniform rational formulations ($\acrshort{nurbs}$) by injecting projective control weights $w_i$, defining the rational basis functions $R_{i,p}(\xi)$ as:
+\begin{equation}
+R_{i,p}(\xi) = \frac{N_{i,p}(\xi) w_i}{\sum_{j=0}^{n-1} N_{j,p}(\xi) w_j}
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{nurbs_basis_curves.png}
+    \caption{Visual representation of evaluated NURBS basis functions and their corresponding control weights extracted from the initial client-side prototype interface.}
+    \label{fig:nurbs_curves_eval}
+\end{figure}
+
+The physical space coordinates of the parametric curve $C(\xi)$ are evaluated continuously by forming the linear combination of control points $\vect{P}_i = [x_i, y_i]^T$:
+\begin{equation}
+\vect{C}(\xi) = \sum_{i=0}^{n-1} R_{i,p}(\xi) \vect{P}_i
+\end{equation}
+
+\begin{devnote}
+The early implementation inside \texttt{iga-sim-1.2/src/engine/iga.js} avoids full memory allocations by performing a direct, zero-dependency implementation of the Cox-de Boor recursive loop. To enforce standard physical conditions, the knot vectors are initialized as open uniform arrays, clamping the curve boundaries directly to the primary control points.
+\end{devnote}

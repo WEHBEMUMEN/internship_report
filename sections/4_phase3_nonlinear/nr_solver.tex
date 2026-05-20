@@ -1,0 +1,29 @@
+\subsection{Sub-Phase 3.2: Incremental Newton-Raphson Solution Control}
+\label{subsec:nr_solver}
+
+To track the steady balance path of the continuum under heavy external loads, an iterative Newton-Raphson solution framework was developed. For a given load step or parameter configuration $\vect{\mu}$, the out-of-balance forces are continuously monitored using the global residual vector $\mat{R}(\vect{u})$:
+\begin{equation}
+    \mat{R}(\vect{u}_k) = \mat{F}_{\text{ext}} - \mat{F}_{\text{int}}(\vect{u}_k)
+\end{equation}
+At each iteration step $k$, a linearized correction vector $\Delta \vect{u}$ is extracted by solving the high-fidelity global system of equations:
+\begin{equation}
+    \mat{K}_T(\vect{u}_k) \Delta \vect{u} = \mat{R}(\vect{u}_k)
+\end{equation}
+The continuous displacement field is sequentially corrected using an additive scheme:
+\begin{equation}
+    \vect{u}_{k+1} = \vect{u}_k + \Delta \vect{u}
+\end{equation}
+
+This refinement loop executes recursively until the Euclidean norm of the residual satisfies a strict convergence criterion, $\|\mat{R}(\vect{u}_k)\| < \epsilon$, where $\epsilon$ represents a customized tolerance parameter.
+
+\begin{figure}[H]
+    \centering
+    % [IMAGE PLACEHOLDER: Full load-deflection curve or residual decay profile]
+    \vspace{4cm}
+    \caption{Typical quadratic error norm decay profile captured over multi-step incremental parameter paths under severe displacement conditions.}
+    \label{fig:nr_convergence}
+\end{figure}
+
+\begin{devnote}
+The solver logic engineered within \texttt{phase-3-core/src/rom-engine.js} encapsulates the convergence checking loop inside a high-speed matrix update pattern. By keeping memory mutations restricted to local Float64 standard fields, the engine achieves stable inner Newton iterations, laying a reliable foundation for constructing snapshot trajectories.
+\end{devnote}
