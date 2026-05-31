@@ -1,0 +1,101 @@
+\subsection{Theoretical Framework: Reference Configuration Mapping for Shape-Parametric ROM}
+
+To construct a shape-parametric Digital Twin capable of real-time predictions under varying geometric parameters $\vect{\mu} \in \mathcal{P} \subset \mathbb{R}^p$ (such as changing boundaries, notch depths, or aspect ratios), we must establish a mathematically rigorous representation of the governing equations. This section dissects the transition from the naive physical-space discretization to the reference pullback mapping paradigm, structured in four fundamental steps.
+
+---
+
+### Step 1: Physical-Domain FOM (The Naive Remeshing Approach)
+
+In the naive formulation of shape-parametric structural dynamics, the Full Order Model (FOM) equations of motion are solved directly on the physical, parameter-dependent domain $\Omega(\vect{\mu})$:
+\begin{equation}
+\mat{M}(\vect{\mu})\ddot{\vect{u}}(t) + \mat{C}(\vect{\mu})\dot{\vect{u}}(t) + \mat{K}(\vect{\mu})\vect{u}(t) = \vect{f}_{\text{ext}}(t; \vect{\mu})
+\end{equation}
+where the global matrices are assembled by integrating over the physical domain $\Omega(\vect{\mu})$ using the parameter-dependent NURBS basis functions $R_i(\vect{x}; \vect{\mu})$:
+\begin{equation}
+K_{ij}(\vect{\mu}) = \int_{\Omega(\vect{\mu})} \nabla R_i(\vect{x}; \vect{\mu}) : \mat{D} : \nabla R_j(\vect{x}; \vect{\mu}) \, \mathrm{d}\Omega
+\end{equation}
+
+#### Blind Spots of the Naive Approach
+While conceptually straightforward, this approach possesses critical blind spots that render it entirely unsuited for real-time Digital Twin applications:
+\begin{enumerate}
+    \item \textbf{Vector Space Incompatibility for POD}: Projection-based Reduced Order Modeling (such as POD) extracts a low-dimensional basis $\vect{\Phi}$ from a snapshot matrix $\mat{S} = [\vect{u}(t_1; \vect{\mu}_1), \dots, \vect{u}(t_m; \vect{\mu}_m)]$. If the physical mesh is redone for each parameter $\vect{\mu}$, the displacement snapshots reside in entirely different algebraic vector spaces $\mathbb{R}^{N(\vect{\mu})}$. Performing Singular Value Decomposition (SVD) on snapshots with varying dimensions or varying spatial node positions is mathematically impossible without complex, error-prone spatial interpolations.
+    \item \textbf{High Assembly Bottleneck}: Re-meshing the geometry and re-assembling the stiffness and mass matrices at each time step or parameter change requires integrating shape functions over varying domains, incurring a massive online computational overhead.
+    \item \textbf{Loss of Parametric Differentiability}: Discrete mesh regeneration introduces high-frequency numerical noise with respect to $\vect{\mu}$, destroying the smooth parameter-to-solution mapping required for gradient-based design sensitivity and optimization.
+\end{enumerate}
+
+---
+
+### Step 2: FOM Formulation on a Static Reference Configuration
+
+To resolve the vector space incompatibility, the governing equations are pulled back from the parameter-dependent physical domain $\Omega(\vect{\mu})$ to a fixed, parameter-independent reference configuration $\hat{\Omega}$ using a smooth, bijective geometric mapping $\vect{\Phi}$:
+\begin{equation}
+\vect{x} = \vect{\Phi}(\hat{\vect{x}}; \vect{\mu}), \quad \vect{x} \in \Omega(\vect{\mu}), \quad \hat{\vect{x}} \in \hat{\Omega}
+\end{equation}
+
+#### Mathematical Formulation of the Pullback
+The spatial gradients in the physical coordinate system $\vect{x}$ are related to the reference gradients in $\hat{\vect{x}}$ via the inverse transpose of the mapping's Jacobian tensor $\mat{J}_{\vect{\Phi}} = \frac{\partial \vect{\Phi}}{\partial \hat{\vect{x}}}$:
+\begin{equation}
+\nabla_{\vect{x}} R_i(\hat{\vect{x}}) = \mat{J}_{\vect{\Phi}}^{-\mathrm{T}}(\hat{\vect{x}}; \vect{\mu}) \nabla_{\hat{\vect{x}}} \hat{R}_i(\hat{\vect{x}})
+\end{equation}
+Transforming the integrals in the weak form yields the parameter-dependent stiffness matrix assembled entirely on the static reference domain $\hat{\Omega}$:
+\begin{equation}
+K_{ij}(\vect{\mu}) = \int_{\hat{\Omega}} \left( \mat{J}_{\vect{\Phi}}^{-\mathrm{T}} \nabla_{\hat{\vect{x}}} \hat{R}_i \right) : \mat{D} : \left( \mat{J}_{\vect{\Phi}}^{-\mathrm{T}} \nabla_{\hat{\vect{x}}} \hat{R}_j \right) \det(\mat{J}_{\vect{\Phi}}) \, \mathrm{d}\hat{\Omega}
+\end{equation}
+
+#### Estimation of Drawbacks and Advantages
+
+\begin{table}[H]
+\centering
+\caption{Algorithmic tradeoffs of the reference configuration mapping paradigm.}
+\label{tab:mapping_tradeoffs}
+\begin{tabular}{p{7cm}p{7cm}}
+\hline
+\textbf{Advantages} & \textbf{Drawbacks} \\ \hline
+\textbf{1. Single Mesh Topology}: The reference domain $\hat{\Omega}$ is discretized once. No remeshing, element distortion, or knot vector updates occur, preserving solver stability. & \textbf{1. Algebraic Complexity}: The weak form is significantly more complex, introducing the parameter-dependent terms $\mat{J}_{\vect{\Phi}}^{-\mathrm{T}}(\vect{\mu})$ and $\det(\mat{J}_{\vect{\Phi}}(\vect{\mu}))$ directly into the integrands. \\
+\textbf{2. Constant Basis Weights}: The NURBS basis functions $\hat{R}_i(\hat{\vect{x}})$ and control point weights are static, preserving exact CAD geometric boundaries. & \textbf{2. Post-Processing / Rendering Overhead}: The solution $\vect{u}$ is solved on $\hat{\Omega}$ and must be pushed forward to the physical coordinates $\Omega(\vect{\mu})$ for physical post-processing and 3D visualization. \\
+\textbf{3. Affine Precomputability}: Parameter-independent terms can be precomputed offline to accelerate online evaluation. & \\ \hline
+\end{tabular}
+\end{table}
+
+#### Precomputations and Connection to Rixen's Work
+Because the reference shape functions $\hat{R}_i(\hat{\vect{x}})$ and their gradients are parameter-independent, they can be evaluated and stored at the Gauss integration points during the offline phase. Furthermore, when the geometric mapping $\vect{\Phi}$ allows for an affine decomposition, we can express the stiffness matrix as:
+\begin{equation}
+\mat{K}(\vect{\mu}) = \sum_{q=1}^Q \theta_q(\vect{\mu}) \mat{K}_q^{\text{ref}}
+\end{equation}
+where the parameter-independent matrices $\mat{K}_q^{\text{ref}}$ are precomputed offline on the reference configuration, reducing the online assembly to a simple linear combination of pre-assembled matrices.
+
+This formulation directly aligns with the foundational work of Tiso and Rixen on non-conforming parameters and structural dynamics with shape changes (e.g., morphing structures with circle-to-ellipse changes). By defining a reference circle or nominal structural configuration, they successfully mapped all parameterized states to the same coordinate domain, which represents a mandatory prerequisite for robust projection-based model order reduction.
+
+---
+
+### Step 3: ECSW on Non-Mapped vs. Mapped Configurations
+
+The Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction algorithm accelerates the evaluation of nonlinear or parameter-dependent operators by selecting a sparse subset of elements $E^* \subset E$ and positive weights $w_e$:
+\begin{equation}
+\mat{K}(\vect{\mu}) \approx \sum_{e \in E^*} w_e \mat{K}_e(\vect{\mu})
+\end{equation}
+
+#### The Impossibility of ECSW on Non-Mapped Configurations
+If the physical mesh is redone for each parameter $\vect{\mu}$ (non-mapped configurations):
+\begin{itemize}
+    \item The physical elements $e$ change their boundaries, volumes, and connectivity.
+    \item The optimal set of selected elements $E^*$ and their weights $w_e$ (which are obtained via non-negative least squares optimization offline) would vary continuously, requiring the hyper-reduction training to be repeated online, completely destroying the speedup.
+\end{itemize}
+
+#### The Role of Reference Mapping in Hyper-reduction
+By pulling back the equations of motion to the reference configuration $\hat{\Omega}$:
+\begin{itemize}
+    \item The element grid remains completely static across all parameter states.
+    \item The ECSW training can be conducted once offline to select a \textbf{single, static subset of reference elements} $E^*$ and weights $w_e$ that remains structurally optimal across the entire parameter space $\mathcal{P}$.
+\end{itemize}
+
+---
+
+### Step 4: Justifying the Mapping on Reference Configuration
+
+The reference configuration mapping is not merely an engineering convenience, but a **fundamental mathematical prerequisite** for shape-parametric Digital Twins. The justification is summarized by three core proofs:
+\begin{enumerate}
+    \item \textbf{SVD Vector Space Prerequisite}: SVD-based basis extraction (POD) requires snapshot vectors to lie in the same Hilbert space $\mathcal{H}(\hat{\Omega})$. The reference mapping $\vect{\Phi}$ serves as the coordinate transform that pulls snapshots from varying spaces $\mathcal{H}(\Omega(\vect{\mu}))$ into the unified reference space $\mathcal{H}(\hat{\Omega})$.
+    \item \textbf{Offline/Online Splitting}: The mapping isolates the geometric parameter $\vect{\mu}$ into low-dimensional algebraic tensors ($\mat{J}_{\vect{\Phi}}$), enabling the spatial integration terms to be precomputed offline.
+    \item \textbf{Hyper-reduction Feasibility}: Mapping ensures that the element support domain is parameter-independent, allowing a single sparse integration rule (ECSW) to be trained and evaluated in sub-millisecond times online.
+\end{enumerate}

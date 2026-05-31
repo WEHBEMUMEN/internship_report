@@ -1,0 +1,12 @@
+{
+  "name": "iga-export-server",
+  "version": "1.0.0",
+  "description": "Local proxy server to capture and save simulation figures to the LaTeX report directory",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
