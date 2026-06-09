@@ -1,0 +1,117 @@
+% ==============================================================================
+\chapter{Real-Time Web Application (Digital Twin)}
+\label{ch:digital_twin}
+% ==============================================================================
+
+\section{Client-Side Software Architecture}
+To ensure maximum accessibility for pedagogical and research purposes, the Digital Twin platform is engineered as a purely client-side web application. This architectural choice eliminates the need for server-side simulation backends, leveraging the computational power of the user's browser through optimized JavaScript execution.
+
+The application follows the classic Model-View-Controller (MVC) design pattern:
+\begin{itemize}
+    \item \textbf{The Model}: Consists of the IGA-ROM engine, which manages the reduced state vectors $\underline{\mathbf{q}}$ and executes the hyper-reduced integration loops. High-speed mathematical operations are performed using native JavaScript \texttt{Float64Array} typed arrays to minimize overhead.
+    \item \textbf{The View}: A responsive user interface featuring an HTML5 Canvas viewport for rendering the structural deformation and real-time Von Mises stress heatmaps.
+    \item \textbf{The Controller}: Listers that monitor user inputs (parameter sliders for $\mu$ and $r$), trigger the ROM solver, and update the view dynamically.
+\end{itemize}
+
+Pre-computed ROM datasets (the reduced basis $\boldsymbol{\Phi}$, the active element weights $w_e$, and the geometric mapping tables) are serialized into compact \texttt{JSON} payloads. The controller fetches these payloads asynchronously on startup, allowing the model to initialize in milliseconds.
+
+\section{Reference Configuration Mapping for Shape-Parametric ROM}
+Constructing a shape-parametric Digital Twin capable of real-time predictions under varying geometric parameters $\boldsymbol{\mu} \in \mathcal{D}$ requires a mathematically rigorous representation of the parameterized equations.
+
+\subsection{Physical-Domain FOM (The Naive Remeshing Approach)}
+In a naive formulation, the Full Order Model (FOM) equations of motion are resolved directly on the physical parameter-dependent domain $\Omega(\boldsymbol{\mu})$:
+\begin{equation}
+\mat{M}(\boldsymbol{\mu})\ddot{\underline{\mathbf{U}}}(t) + \mat{C}(\boldsymbol{\mu})\dot{\underline{\mathbf{U}}}(t) + \mathbf{F}_{\text{int}}(\underline{\mathbf{U}}(t); \boldsymbol{\mu}) = \mathbf{F}_{\text{ext}}(t; \boldsymbol{\mu})
+\end{equation}
+This approach presents severe limitations:
+\begin{enumerate}
+    \item \textbf{Vector Space Incompatibility}: SVD-based basis extraction (POD) requires snapshot vectors to lie in the same vector space. If the mesh is regenerated for each parameter set, the dimensions $N(\boldsymbol{\mu})$ and nodal locations vary, preventing SVD analysis without complex interpolations.
+    \item \textbf{High Assembly Cost}: Remeshing and re-assembling the stiffness and mass matrices over varying physical domains introduces massive online computational overhead.
+    \item \textbf{Loss of Parametric Differentiability}: Discrete mesh regeneration introduces numerical noise, destroying the smooth parameter-to-solution mapping required for sensitivity analysis.
+\end{enumerate}
+
+\subsection{FOM Pullback to a Static Reference Configuration}
+To resolve these issues, the governing equations are pulled back from the parameterized physical domain $\Omega(\boldsymbol{\mu})$ to a fixed reference configuration $\hat{\Omega}$ using the smooth, parameterized geometric mapping:
+\begin{equation}
+\vect{x} = \boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu}), \quad \vect{x} \in \Omega(\boldsymbol{\mu}), \quad \boldsymbol{\xi} \in \hat{\Omega}
+\end{equation}
+The physical gradients are mapped from parametric space via the inverse transpose of the Jacobian matrix:
+\begin{equation}
+\nabla_{\vect{x}} R_i(\boldsymbol{\xi}) = \mathbf{J}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu}) \nabla_{\boldsymbol{\xi}} \hat{R}_i(\boldsymbol{\xi})
+\end{equation}
+Transforming the weak form integrals yields the parameter-dependent stiffness matrix assembled on the static reference domain $\hat{\Omega}$:
+\begin{equation}
+K_{ij}(\boldsymbol{\mu}) = \int_{\hat{\Omega}} \left( \mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \hat{R}_i \right) : \mat{D} : \left( \mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \hat{R}_j \right) \det(\mathbf{J}) \, \mathrm{d}\hat{\Omega}
+\end{equation}
+This reference mapping paradigm has several algorithmic trade-offs, which are summarized in Table \ref{tab:mapping_tradeoffs}.
+
+\begin{table}[htbp]
+\centering
+\caption{Algorithmic trade-offs of the reference configuration mapping paradigm.}
+\label{tab:mapping_tradeoffs}
+\begin{tabular}{p{7cm}p{7cm}}
+\toprule
+\textbf{Advantages} & \textbf{Drawbacks} \\ \midrule
+\textbf{1. Single Mesh Topology}: The reference domain $\hat{\Omega}$ is discretized once. No element distortion occurs. & \textbf{1. Algebraic Complexity}: The weak form is complex, introducing parameter-dependent $\mathbf{J}^{-T}(\boldsymbol{\mu})$ and $\det(\mathbf{J}(\boldsymbol{\mu}))$ terms into the integrals. \\
+\textbf{2. Constant Basis Weights}: NURBS basis functions $\hat{R}_i(\boldsymbol{\xi})$ are static, preserving exact CAD geometric boundaries. & \textbf{2. Push-Forward Rendering Cost}: The solution must be pushed forward to physical coordinates $\Omega(\boldsymbol{\mu})$ for post-processing and 3D visualization. \\
+\textbf{3. Affine Precomputability}: Parameter-independent terms can be precomputed offline. & \\ \bottomrule
+\end{tabular}
+\end{table}
+
+This formulation aligns with the foundational work of Tiso and Rixen on structural dynamics under shape changes. By defining a nominal structural reference configuration, all parameterized states are mapped to the same coordinate domain, which is a prerequisite for robust reduced order modeling.
+
+\begin{figure}[htbp]
+    \centering
+    \animategraphics[controls,autoplay,loop,width=\textwidth,poster=first]{10}{chapters/6_digital_twin/images/frames/frame-}{0}{51}
+    \caption{Interactive Digital Twin mapping lab dashboard showing a side-by-side comparison of the physical domain $\Omega(\mu)$ undergoing shape parameterization (left) and the static reference pullback domain $\hat{\Omega}$ used for SVD projection (right). The performance metrics showing the online speedup and the transient deflection comparison chart are compiled at the bottom. (Click on the controls or image in Adobe Acrobat to play the interactive simulation animation).}
+    \label{fig:pullback_mapping}
+\end{figure}
+
+\section{ECSW on Non-Mapped vs. Mapped Configurations}
+The Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction algorithm accelerates the evaluation of nonlinear or parameter-dependent operators by selecting a sparse subset of elements $E^* \subset E$ and positive weights $w_e$:
+\begin{equation}
+\mat{K}(\boldsymbol{\mu}) \approx \sum_{e \in E^*} w_e \mat{K}_e(\boldsymbol{\mu})
+\end{equation}
+
+If the physical mesh is redone for each parameter $\boldsymbol{\mu}$ (non-mapped configurations):
+\begin{itemize}
+    \item The elements $e$ change their boundaries, volumes, and connectivity grid.
+    \item The optimal set of selected elements $E^*$ and their weights $w_e$ would vary continuously, requiring the hyper-reduction training to be repeated online, which eliminates the speedup.
+\end{itemize}
+
+By pulling back the equations of motion to the reference configuration $\hat{\Omega}$, the element grid remains completely static across all parameter states. The ECSW training can be conducted once offline to select a \textbf{single, static subset of reference elements} $E^*$ and weights $w_e$ that remains structurally optimal across the entire parameter space $\mathcal{D}$. This mapping makes hyper-reduction feasible for shape-parametric Digital Twins.
+
+\subsection{Phase 5.3a: Reference-Mapped ECSW Hyper-reduction Lab}
+The Phase 5.3a interactive hyper-reduction simulation lab, shown in Figure \ref{fig:ecsw_mapped_lab}, demonstrates the comparative element selection under the reference pullback mapping. In the naive physical configuration, the mesh changes dynamically with $\boldsymbol{\mu}$, rendering the hyper-reduced element set $E^*$ parameter-dependent and invalidating the offline-online decomposition. In the mapped configuration, a single, pre-selected sparse subset of reference elements is highlighted, illustrating that the integration domain is static and the online computation remains extremely lightweight.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{chapters/6_digital_twin/images/ecsw_mapped_lab.png}
+    \caption{Interactive Digital Twin Phase 5.3a mapping lab dashboard. The interface shows a side-by-side comparison of elements highlighted on the naive physical mesh vs. the single reference-mapped ECSW mesh topology along with the selected integration weights.}
+    \label{fig:ecsw_mapped_lab}
+\end{figure}
+
+\subsection{Phase 5.3b: Reference-Mapped Non-Linear ECSW ROM Lab}
+The Phase 5.3b interactive lab, shown in Figure \ref{fig:nonlinear_mapped_rom}, illustrates the fully non-linear shape-parametric ECSW Reduced Order Model. The simulation accounts for large displacements under Green-Lagrange strain, using a Newton-Raphson solver that operates on the reduced coordinate vector $\mathbf{q}$. The comparison mode allows real-time overlay of the ROM solution against the linear baseline, validating the accuracy, stability, and speed of the mapped hyper-reduced formulation.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{chapters/6_digital_twin/images/nonlinear_mapped_rom.png}
+    \caption{Interactive Digital Twin Phase 5.3b non-linear simulation dashboard, showing the large-displacement cantilever beam deformation comparison, transient stress response, and performance charts under Green-Lagrange strain parameterization.}
+    \label{fig:nonlinear_mapped_rom}
+\end{figure}
+
+
+\section{Real-Time Parameter Synchronization and Interactivity}
+The core feature of the Digital Twin is the bi-directional link between user inputs and the virtual model. As the user modifies a parameter slider (e.g., notch position $\mu$ or radius $r$), the ROM engine performs an instantaneous state reconstruction:
+\begin{equation}
+    \underline{\mathbf{U}}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \underline{\mathbf{q}}(\boldsymbol{\mu})
+\end{equation}
+Because the hyper-reduced online solver operates on a generalized coordinate vector $\underline{\mathbf{q}}$ of minimal dimension (typically $r = 15$), the Newton-Raphson equilibrium iterations converge in under 16ms, enabling a smooth 60FPS interaction rate. The visual mesh is then updated in real-time by pushing the displacements forward to the physical control points.
+
+The visualization engine includes several interactive features:
+\begin{itemize}
+    \item \textbf{Von Mises Stress Heatmaps}: Real-time calculation of Von Mises stress fields derived from NURBS derivatives.
+    \item \textbf{Deformation Scaling}: Interactive control over the visual amplification of small displacements.
+    \item \textbf{Comparison Mode}: Overlapping the reduced model result with the baseline linear solution to highlight the impact of geometric nonlinearities.
+\end{itemize}

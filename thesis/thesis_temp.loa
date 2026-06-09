@@ -1,0 +1,3 @@
+\contentsline {algorithm}{\numberline {1}{\ignorespaces Full Order Model (FOM) Implicit Dynamics Solver}}{24}{algorithm.1}%
+\contentsline {algorithm}{\numberline {2}{\ignorespaces Offline ECSW Training and Reduced Basis Generation}}{29}{algorithm.2}%
+\contentsline {algorithm}{\numberline {3}{\ignorespaces Online Hyper-Reduced Newton-Raphson Solver (ECSW ROM)}}{30}{algorithm.3}%

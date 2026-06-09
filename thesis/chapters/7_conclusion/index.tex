@@ -1,0 +1,32 @@
+% ==============================================================================
+\chapter{Conclusion \& Future Perspectives}
+\label{ch:conclusion}
+% ==============================================================================
+
+\section{Summary of Achievements}
+This thesis has detailed the systematic development of a real-time, client-side interactive Digital Twin platform utilizing Isogeometric Analysis (IGA) and projection-based Reduced Order Modeling (ROM) techniques. The project successfully bridged advanced computational continuum mechanics with modern web software engineering.
+
+The primary milestones completed during the development include:
+\begin{enumerate}
+    \item \textbf{Theoretical Foundation}: Established the structural baseline kernels to handle smooth NURBS evaluations and verified baseline projection errors via Proper Orthogonal Decomposition.
+    \item \textbf{Full Order Model Construction}: Built a native 2D tensor-product physical solver environment capable of generating accurate displacement behaviors under open uniform knot distributions.
+    \item \textbf{Nonlinear Kinematics Integration}: Extended the element integration loops to compute the Green-Lagrange strain tensor, introducing an incremental residual-driven Newton-Raphson loop to trace geometrically nonlinear deformations.
+    \item \textbf{Hyper-Reduction Optimization}: Successfully deployed the Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction technique, breaking the classical lifting bottleneck and preserving topological column alignment across shape updates.
+    \item \textbf{Digital Twin Deployment}: Built an asynchronous, client-side interactive application layer utilizing JSON-serialized ROM payloads that achieves stable convergence in under 16ms, ensuring a smooth 60FPS user interaction budget.
+\end{enumerate}
+
+\section{Future Perspectives and Research Paths}
+While the platform successfully meets its immediate pedagogical and performance objectives, several optimization vectors are identified for subsequent research:
+
+\subsection{Expansion to 3D Continuum Formulations}
+The existing physics core operates on 2D plane stress and plane strain mechanics. Scaling the tensor-product loop to process trivariate NURBS solids would enable the simulation of complex 3D volumes (e.g., thick turbine components or composite structures), significantly broadening the platform's industrial applicability.
+
+\subsection{Multi-Patch Topology Assembly}
+The current geometric mapping restricts the structural mesh domain to a single, continuous bivariate patch topology. Integrating multi-patch blending mechanics via G-continuity or penalty constraints (such as Nitsche's method or Mortar element formulations) would allow the web platform to represent intricate, non-isomorphic multipatch CAD definitions exactly.
+
+\subsection{Adaptive Online Hyper-Reduction Sampling}
+Currently, the ECSW integration weights are computed entirely during the offline training pass. If the user shifts the parameter sliders far beyond the sampled training bounds, approximation accuracy decreases. Integrating on-the-fly basis enrichment techniques (such as localized kriging interpolation or automated online snapshot sampling) would allow the twin to retain structural accuracy dynamically.
+
+
+\subsection*{Acknowledgements}
+The author expresses sincere gratitude to the academic supervisors and research team at the Conservatoire National des Arts et Métiers for their continuous support, invaluable technical guidance, and for providing the specialized computational facilities that made this work possible.

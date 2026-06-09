@@ -1,0 +1,107 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ==============================================================================
+% Packages & Configuration
+% ==============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % scalable vector fonts to support microtype expansion
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage[protrusion=true,expansion=false]{microtype} % disable expansion if scalable fonts aren't fully resolved
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{animate}
+
+% Float and spacing optimization to reduce white space
+\renewcommand{\topfraction}{0.85}      % max fraction of floats at top
+\renewcommand{\bottomfraction}{0.85}   % max fraction of floats at bottom
+\renewcommand{\textfraction}{0.15}     % min fraction of text on a page
+\renewcommand{\floatpagefraction}{0.75} % min fraction of floats on float page
+
+% Reduce chapter title spacing
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}{\chaptername\ \thechapter}{10pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-30pt}{20pt}
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{8pt}{4pt}
+
+\geometry{
+    top=2.5cm,
+    bottom=2.5cm,
+    left=3cm,
+    right=3cm
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    pdftitle={M2 Thesis: Isogeometric Analysis and Reduced Order Modeling in Structural Dynamics},
+    pdfauthor={Thesis Author}
+}
+
+% Custom macros for vector/matrix notations
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+
+
+% ==============================================================================
+% Document Details
+% ==============================================================================
+\title{
+    \textbf{Isogeometric Analysis and Reduced Order Modeling for Parameterized Structural Dynamics} \\
+    \vspace{1.5cm}
+    \large{Master 2 Thesis}
+}
+\author{}
+\date{\today}
+
+% ==============================================================================
+% Main Document Content
+% ==============================================================================
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\listoffigures
+\newpage
+
+\listoftables
+\newpage
+
+\listofalgorithms
+\newpage
+
+\input{chapters/0_frontmatter/nomenclature}
+\newpage
+
+\input{chapters/1_introduction/index}
+\input{chapters/2_theory/index}
+\input{chapters/3_discretization/index}
+\input{chapters/4_simulation/index}
+\input{chapters/5_rom/index}
+\input{chapters/6_digital_twin/index}
+\input{chapters/7_conclusion/index}
+
+\input{chapters/8_appendix/index}
+\newpage
+
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

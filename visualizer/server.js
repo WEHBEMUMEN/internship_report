@@ -43,8 +43,8 @@ app.post('/__overlay__/save', (req, res) => {
     return res.status(400).json({ error: 'dataURL and filename are required' });
   }
 
-  // Strip the data: URI prefix
-  const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
+  // Strip the data: URI prefix (supports png, gif, etc.)
+  const base64 = dataURL.replace(/^data:image\/\w+;base64,/, '');
 
   // Only allow safe filenames (no path traversal)
   const safe = path.basename(filename).replace(/[^a-z0-9_\-\.]/gi, '_');

@@ -12,8 +12,26 @@ The system follows a modular "Model-View-Controller" (MVC) pattern:
 
 \begin{figure}[H]
     \centering
-    % [IMAGE PLACEHOLDER: Diagram of the web app data flow / Component Architecture]
-    \vspace{4cm}
+    \begin{tikzpicture}[
+        node distance=2.2cm,
+        block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=4.5cm, minimum height=1.0cm, align=center, font=\sffamily\small},
+        database/.style={cylinder, cylinder points=20, draw=green!70, fill=green!5, thick, minimum width=2.5cm, minimum height=1.2cm, shape border rotate=90, align=center, font=\sffamily\small},
+        arrow/.style={thick,->,>=stealth}
+    ]
+        % Nodes
+        \node [block] (ui) {User Interface \\ (Sliders: $\mu$, $r$)};
+        \node [block, right=1.5cm of ui] (controller) {Controller \\ (Event Handlers)};
+        \node [block, below of=controller, node distance=2.5cm] (model) {ROM Model Engine \\ (Newton-Raphson, Float64Array)};
+        \node [database, left=2.2cm of model] (db) {JSON Payloads \\ ($\boldsymbol{\Phi}$, $w_e$)};
+        \node [block, below of=model, node distance=2.5cm] (view) {View (HTML5 Canvas) \\ (Deformation \& Stress Heatmap)};
+
+        % Connections
+        \draw [arrow] (ui) -- node[above, font=\sffamily\tiny] {$\vect{\mu}$ updates} (controller);
+        \draw [arrow] (controller) -- node[right, font=\sffamily\tiny] {Trigger Solve} (model);
+        \draw [arrow] (db) -- node[above, font=\sffamily\tiny] {Asynchronous Load} (model);
+        \draw [arrow] (model) -- node[right, font=\sffamily\tiny] {Push Displacements} (view);
+        \draw [arrow] (view) -- node[left, font=\sffamily\tiny] {Visual Feedback} (ui);
+    \end{tikzpicture}
     \caption{Digital Twin Architecture: Data flow from user-controlled parameters ($\vect{\mu}$) to the ROM solver and final visual rendering.}
     \label{fig:app_architecture}
 \end{figure}

@@ -1,0 +1,48 @@
+% ==============================================================================
+\chapter*{Nomenclature}
+\addcontentsline{toc}{chapter}{Nomenclature}
+% ==============================================================================
+
+\noindent The primary mathematical symbols, coordinate systems, and operators utilized throughout this thesis are defined below:
+
+\section*{Geometric and Parametric Spaces}
+\begin{tabular}{p{2.5cm} p{11.5cm}}
+    $\Omega(\boldsymbol{\mu})$ & Parameterized physical domain of the notched cantilever beam \\
+    $\hat{\Omega}$              & Static, parameter-independent reference configuration domain ($[0,1]^2$) \\
+    $\Gamma_D, \Gamma_N$        & Dirichlet and Neumann boundary zones in physical coordinates \\
+    $\hat{\Gamma}_D, \hat{\Gamma}_N$ & Dirichlet and Neumann boundary zones mapped to the reference configuration \\
+    $\boldsymbol{\xi} = (\xi, \eta)^T$ & Coordinate coordinates in the parametric reference domain \\
+    $\boldsymbol{x} = (x, y)^T$ & Spatial coordinates in the physical domain \\
+    $\boldsymbol{\Psi}$          & Diffeomorphic geometric mapping mapping $\hat{\Omega} \to \Omega(\boldsymbol{\mu})$ \\
+    $\mathbf{J}$                 & Coordinate Jacobian matrix mapping parametric gradients to physical space \\
+    $J_{\boldsymbol{\mu}}$       & Determinant of the Jacobian matrix $\mathbf{J}$ \\
+    $\boldsymbol{\mu} = (r, \mu, \sigma)^T$ & Geometric parameter vector (notch radius, center location, width factor) \\
+\end{tabular}
+
+\section*{Isogeometric Analysis (IGA) Discretization}
+\begin{tabular}{p{2.5cm} p{11.5cm}}
+    $\Xi, \mathcal{H}$          & Knot vectors defining the B-spline parameter spaces \\
+    $p, q$                      & Polynomial degrees of the B-spline basis functions in $\xi$ and $\eta$ directions \\
+    $N_{i,p}, M_{j,q}$          & Univariate B-spline basis functions \\
+    $R_{i,j}^{p,q}$             & Bivariate NURBS rational basis functions \\
+    $w_{i,j}$                   & Projective control weights corresponding to control nodes \\
+    $\vect{P}_{i,j}$            & B-spline/NURBS control points forming the physical geometry mesh lattice \\
+    $\vect{u} = [u, v]^T$       & Discretized displacement field vector \\
+    $\vect{d}_a$                & Vector of nodal degrees of freedom at control node $a$ \\
+    $\mat{B}$                   & Strain-displacement gradient matrix \\
+    $\mat{D}$                   & Linear elastic constitutive matrix under plane stress assumptions \\
+\end{tabular}
+
+\section*{Reduced Order Modeling (ROM) \& Hyper-Reduction}
+\begin{tabular}{p{2.5cm} p{11.5cm}}
+    $N$                         & Number of degrees of freedom in the Full Order Model (FOM) \\
+    $r$                         & General dimension of the reduced coordinate subspace ($r \ll N$) \\
+    $\boldsymbol{\Phi}$         & Orthonormal reduced basis projection matrix ($\mathbb{R}^{N \times r}$) \\
+    $\underline{\mathbf{U}}$    & Vector of physical nodal displacements \\
+    $\underline{\mathbf{q}}$    & Vector of generalized reduced coordinates \\
+    $\widehat{\Omega}$           & Reduced integration domain consisting of ECSW active elements \\
+    $\vect{w} = [w_e]^T$        & Non-negative weights associated with ECSW active elements \\
+    $\mat{M}, \mat{K}, \mat{C}$  & Global mass, stiffness, and damping matrices (FOM) \\
+    $\mat{M}_r, \mat{K}_r, \mat{C}_r$ & Projected reduced-order mass, stiffness, and damping matrices (ROM) \\
+    $\vect{F}_{\text{int}}, \vect{F}_{\text{ext}}$ & Internal elastic restoring and external load vectors \\
+\end{tabular}

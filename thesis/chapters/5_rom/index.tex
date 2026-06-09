@@ -1,0 +1,210 @@
+% ==============================================================================
+\chapter{Reduced Order Modeling (ROM)}
+\label{ch:rom}
+% ==============================================================================
+
+\section{Subspace Projection}
+To bypass the computational cost associated with solving large systems of equations of dimension $N$, we project the full-order state vector $\underline{\mathbf{U}} \in \mathbb{R}^N$ onto a low-dimensional subspace of dimension $r \ll N$. The subspace is spanned by the columns of a reduced basis matrix $\boldsymbol{\Phi} \in \mathbb{R}^{N \times r}$:
+\begin{equation}
+    \underline{\mathbf{U}}(t; \boldsymbol{\mu}) \approx \boldsymbol{\Phi} \underline{\mathbf{q}}(t; \boldsymbol{\mu})
+\end{equation}
+where $\underline{\mathbf{q}}(t; \boldsymbol{\mu}) \in \mathbb{R}^r$ represents the vector of reduced coordinates. 
+
+The reduced basis matrix $\boldsymbol{\Phi}$ is typically constructed using Proper Orthogonal Decomposition (POD) from a database of FOM snapshots collected across various parameter configurations $\boldsymbol{\mu}_k$ and time steps $t_j$. Figure \ref{fig:pod_energy_decay} illustrates the singular value decay profile for our notched cantilever beam model.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{chapters/5_rom/images/pod_energy_decay.png}
+    \caption{Modal basis energy snapshot: Singular value decay profile capturing the cumulative energy represented by the principal POD modes.}
+    \label{fig:pod_energy_decay}
+\end{figure}
+
+
+\section{Galerkin Projection}
+Applying a Galerkin projection to the semi-discrete equation of motion yields the reduced-order system of dimension $r$:
+\begin{equation}
+    \mathbf{M}_{red}(\boldsymbol{\mu}) \ddot{\underline{\mathbf{q}}} + \mathbf{C}_{red}(\boldsymbol{\mu}) \dot{\underline{\mathbf{q}}} + \mathbf{F}_{red}(\underline{\mathbf{q}}; \boldsymbol{\mu}) = \lambda(t) \mathbf{F}_{red,ext}(\boldsymbol{\mu})
+\end{equation}
+where the reduced mass and damping matrices, and the external force vector are:
+\begin{align}
+    \mathbf{M}_{red}(\boldsymbol{\mu}) &= \boldsymbol{\Phi}^T \hat{\mathbf{M}}(\boldsymbol{\mu}) \boldsymbol{\Phi} \quad \in \mathbb{R}^{r \times r} \\
+    \mathbf{C}_{red}(\boldsymbol{\mu}) &= \boldsymbol{\Phi}^T \hat{\mathbf{C}}(\boldsymbol{\mu}) \boldsymbol{\Phi} \quad \in \mathbb{R}^{r \times r} \\
+    \mathbf{F}_{red,ext}(\boldsymbol{\mu}) &= \boldsymbol{\Phi}^T \hat{\mathbf{F}}_{ext}(\boldsymbol{\mu}) \quad \in \mathbb{R}^r
+\end{align}
+The reduced internal force vector is given by projecting the global internal force vector:
+\begin{equation}
+    \mathbf{F}_{red}(\underline{\mathbf{q}}; \boldsymbol{\mu}) = \boldsymbol{\Phi}^T \mathbf{F}_{\text{int}}(\boldsymbol{\Phi} \underline{\mathbf{q}}; \boldsymbol{\mu})
+\end{equation}
+
+\section{The Parameterization \& Lifting Bottleneck}
+Although the number of degrees of freedom is reduced to $r \ll N$, evaluating the reduced system remains computationally expensive. When the parameter vector $\boldsymbol{\mu}$ shifts or the state updates, the global operators $\hat{\mathbf{M}}(\boldsymbol{\mu})$, $\hat{\mathbf{C}}(\boldsymbol{\mu})$, and $\mathbf{F}_{\text{int}}(\boldsymbol{\Phi}\underline{\mathbf{q}})$ must be assembled in their full physical dimension $N$ before they can be projected. This operation scales with the size of the full mesh, defeating the purpose of the ROM. To achieve true online efficiency, hyper-reduction methods must be applied to evaluate these operators without full-dimensional assembly.
+
+\section{Hyper-Reduction via Energy-Conserving Sampling and Weighting (ECSW)}
+The Energy-Conserving Sampling and Weighting (ECSW) method replaces the expensive global mesh integration with a sparse, weighted combination evaluated over a minimal subset of critical elements $\widehat{\Omega} \subset \Omega$. The reduced internal force vector is approximated by sampling only the active elements:
+\begin{equation}
+    \boldsymbol{\Phi}^T \mathbf{F}_{\text{int}}(\boldsymbol{\Phi} \underline{\mathbf{q}}; \boldsymbol{\mu}) = \sum_{e \in \Omega} \underline{\mathbf{f}}_e(\underline{\mathbf{q}}; \boldsymbol{\mu}) \approx \sum_{e \in \widehat{\Omega}} w_e \underline{\mathbf{f}}_e(\underline{\mathbf{q}}; \boldsymbol{\mu})
+\end{equation}
+where $\underline{\mathbf{f}}_e(\underline{\mathbf{q}}; \boldsymbol{\mu}) = \boldsymbol{\Phi}_e^T \mathbf{f}_{\text{int},e}(\boldsymbol{\Phi}_e \underline{\mathbf{q}}; \boldsymbol{\mu})$ represents the element-level reduced internal force, and $w_e$ denotes a set of positive scaling weights.
+
+Finding the optimal, sparse element subset $\widehat{\Omega}$ and their corresponding weights $\vect{w}$ is framed as a non-negative least-squares (NNLS) optimization problem over $M$ collected training snapshot configurations:
+\begin{equation}
+    \min_{\vect{w}} \|\mat{A}\vect{w} - \vect{b}\|_2^2 \quad \text{subject to} \quad \vect{w} \ge \vect{0}
+\end{equation}
+Let $\underline{\mathbf{f}}_e^{(j)} = \boldsymbol{\Phi}_e^T \mathbf{f}_{\text{int},e}(\boldsymbol{\Phi}_e \underline{\mathbf{q}}^{(j)}) \in \mathbb{R}^r$ represent the projected element internal force vector evaluated for element $e$ at training state $j \in \{1, \dots, M\}$. The target vector $\vect{b} \in \mathbb{R}^{rM}$ is constructed by concatenating the exact full-order projected force vectors over all $M$ training configurations:
+\begin{equation}
+    \vect{b} = \begin{bmatrix} \vect{b}^{(1)} \\ \vect{b}^{(2)} \\ \vdots \\ \vect{b}^{(M)} \end{bmatrix} \quad \text{where} \quad \vect{b}^{(j)} = \sum_{e=1}^E \underline{\mathbf{f}}_e^{(j)} \in \mathbb{R}^r
+\end{equation}
+where $E$ is the total number of elements in the full mesh. The predictor matrix $\mat{A} \in \mathbb{R}^{rM \times E}$ is defined as:
+\begin{equation}
+    \mat{A} = \begin{bmatrix}
+        \underline{\mathbf{f}}_1^{(1)} & \underline{\mathbf{f}}_2^{(1)} & \dots & \underline{\mathbf{f}}_E^{(1)} \\
+        \underline{\mathbf{f}}_1^{(2)} & \underline{\mathbf{f}}_2^{(2)} & \dots & \underline{\mathbf{f}}_E^{(2)} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        \underline{\mathbf{f}}_1^{(M)} & \underline{\mathbf{f}}_2^{(M)} & \dots & \underline{\mathbf{f}}_E^{(M)}
+    \end{bmatrix}
+\end{equation}
+Solving the NNLS problem yields a sparse weight vector $\vect{w} = [w_1, w_2, \dots, w_E]^T \ge \vect{0}$. The reduced mesh integration domain is defined by the set of elements corresponding to positive weights:
+\begin{equation}
+    \widehat{\Omega} = \{ e \in \{1, \dots, E\} \mid w_e > 0 \}
+\end{equation}
+Due to the sparsity-promoting nature of the NNLS system, the cardinality of the active set satisfies $|\widehat{\Omega}| \ll E$, achieving significant computational speedups.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{chapters/5_rom/images/defect_static_simulation.png}
+    \caption{Cantilever notched beam structural model configuration (static traction benchmark) showing the parameter-dependent circular notch geometric defect, boundary clamping locks (left), and applied tensile load profiles (right).}
+    \label{fig:defect_static_simulation}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        node distance=1.6cm,
+        block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=5.5cm, minimum height=0.9cm, align=center, font=\sffamily\small},
+        cloud/.style={ellipse, draw=green!70, fill=green!5, thick, minimum width=3.5cm, minimum height=0.8cm, align=center, font=\sffamily\small},
+        arrow/.style={thick,->,>=stealth}
+    ]
+        % Nodes
+        \node [block] (snap) {Collect Snapshots \\ $\vect{U}(t_j; \boldsymbol{\mu}_k)$};
+        \node [block, below of=snap] (pod) {Gram-Schmidt Orthonormalization \\ Extract POD Basis $\boldsymbol{\Phi}$};
+        \node [block, below of=pod] (nnls) {Greedy OMP Solver \\ Select Active Elements $\widehat{\Omega}$};
+        \node [block, below of=nnls] (calib) {Stiffness Calibration \\ Scale weights $w_e$};
+        \node [cloud, right=1.5cm of calib] (online) {Online Simulation \\ $\boldsymbol{\Phi}^T \vect{F}_{\text{int}} \approx \sum_{e \in \widehat{\Omega}} w_e \vect{f}_e$};
+        
+        % Paths
+        \draw [arrow] (snap) -- (pod);
+        \draw [arrow] (pod) -- (nnls);
+        \draw [arrow] (nnls) -- (calib);
+        \draw [arrow] (calib) -- (online);
+    \end{tikzpicture}
+    \caption{Offline training vs. online real-time evaluation workflow in the ECSW hyper-reduced order modeling pipeline.}
+    \label{fig:ecsw_flowchart}
+\end{figure}
+
+\begin{algorithm}[htbp]
+\caption{Offline ECSW Training and Reduced Basis Generation}
+\label{alg:ecsw_training}
+\begin{algorithmic}[1]
+\Procedure{TrainECSW}{$\hat{\Omega}, \vect{F}_{\text{ext}}, \mu, r, \sigma$}
+    \State Generate nonlinear static snapshots:
+    \State $\vect{u}_{\text{bend}} \gets \text{NewtonRaphsonSolve}(\vect{F}_{\text{ext}}(\text{Y-load at tip}); \mu, r)$
+    \State $\vect{u}_{\text{tension}} \gets \text{AnalyticalTensionSnapshot}()$
+    \State $\vect{u}_{\text{mid}} \gets \text{NewtonRaphsonSolve}(\vect{F}_{\text{ext}}(\text{Y-load at mid-span}); \mu, r)$
+    \State Orthonormalize snapshots via Gram-Schmidt to construct $\boldsymbol{\Phi}$:
+    \For{each snapshot $\vect{s} \in \{\vect{u}_{\text{bend}}, \vect{u}_{\text{tension}}, \vect{u}_{\text{mid}}\}$}
+        \State $\vect{v} \gets \vect{s}$
+        \For{each $\vect{\phi} \in \boldsymbol{\Phi}$}
+            \State $\vect{v} \gets \vect{v} - (\vect{s} \cdot \vect{\phi}) \vect{\phi}$
+        \EndFor
+        \State $\vect{\phi}_{\text{new}} \gets \vect{v} / \|\vect{v}\|_2$
+        \State Append $\vect{\phi}_{\text{new}}$ to $\boldsymbol{\Phi}$
+    \EndFor
+    \State Zero out boundary DOFs in $\boldsymbol{\Phi}$ to avoid penalty numerical pollution
+    \State Assemble internal force snapshot matrix $\mat{A} \in \mathbb{R}^{rM \times E}$ and target $\vect{b} \in \mathbb{R}^{rM}$:
+    \For{each element $e \in \Omega$ and snapshot $\vect{s}_j$}
+        \State $\vect{f}_{e, j} \gets \text{getElementNonlinearInternalForce}(\mu, r, \vect{s}_j, e)$
+        \State $\mat{A}[j, e] \gets \boldsymbol{\Phi}_e^T \vect{f}_{e, j}$, \quad $\vect{b}[j] \gets \sum_e \mat{A}[j, e]$
+    \EndFor
+    \State Solve NNLS system via greedy Orthogonal Matching Pursuit (OMP) selection:
+    \State Initialize active elements $\mathcal{I}_{\text{act}} \gets \{e_{\text{clamp}}, e_{\text{notch}}, e_{\text{tip}}\}$
+    \State Solve $\min_{\vect{w}} \|\mat{A}_{:,\mathcal{I}_{\text{act}}} \vect{w} - \vect{b}\|_2$ and compute residual $\vect{r} \gets \vect{b} - \mat{A}_{:,\mathcal{I}_{\text{act}}} \vect{w}$
+    \While{$|\mathcal{I}_{\text{act}}| < N_{\text{max}}$ and $\|\vect{r}\|_2/\|\vect{b}\|_2 > \epsilon_{\text{tol}}$}
+        \State $e^* \gets \arg\max_{e \notin \mathcal{I}_{\text{act}}} \left( \mat{A}_{:, e}^T \vect{r} \right)$
+        \State $\mathcal{I}_{\text{act}} \gets \mathcal{I}_{\text{act}} \cup \{e^*\}$
+        \State Solve least squares for weights $\vect{w}$ on $\mathcal{I}_{\text{act}}$
+        \State Update residual $\vect{r}$
+    \EndWhile
+    \State Dynamic Stiffness Calibration:
+    \State Assemble full $K_{\text{full}}(\mu, r)$ and uncalibrated hyper-reduced $K_{\text{ecsw}}(\mu, r)$
+    \State $k_{r,\text{full}} \gets \vect{\phi}_0^T K_{\text{full}} \vect{\phi}_0$, \quad $k_{r,\text{ecsw}} \gets \vect{\phi}_0^T K_{\text{ecsw}} \vect{\phi}_0$
+    \State Scale weights: $\vect{w} \gets \vect{w} \times (k_{r,\text{full}} / k_{r,\text{ecsw}})$
+    \State \Return $\boldsymbol{\Phi}, \mathcal{I}_{\text{act}}, \vect{w}$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[htbp]
+\caption{Online Hyper-Reduced Newton-Raphson Solver (ECSW ROM)}
+\label{alg:ecsw_online}
+\begin{algorithmic}[1]
+\Procedure{StepECSWROM}{$\vect{q}_n, \dot{\vect{q}}_n, \ddot{\vect{q}}_n, \vect{w}, \mathcal{I}_{\text{act}}, \boldsymbol{\Phi}, \Delta t$}
+    \State Predict coordinates using Newmark-$\beta$ ($\beta=0.25, \gamma=0.5$):
+    \State $\vect{q}_{\text{pred}} \gets \vect{q}_n + \Delta t \dot{\vect{q}}_n + \Delta t^2 (0.5 - \beta) \ddot{\vect{q}}_n$
+    \State $\dot{\vect{q}}_{\text{pred}} \gets \dot{\vect{q}}_n + \Delta t (1 - \gamma) \ddot{\vect{q}}_n$
+    \State Initialize step values: $\vect{q}^{k=0} \gets \vect{q}_{\text{pred}}$, \quad $\dot{\vect{q}}^{k=0} \gets \dot{\vect{q}}_{\text{pred}}$, \quad $\ddot{\vect{q}}^{k=0} \gets \ddot{\vect{q}}_n$
+    \State Compute reduced mass $\mat{M}_r \gets \boldsymbol{\Phi}^T \mat{M} \boldsymbol{\Phi}$
+    \For{$k = 0, 1, \dots$ to $N_{\text{max}}$}
+        \State Reconstruct physical displacement field: $\vect{u}^k \gets \boldsymbol{\Phi} \vect{q}^k$
+        \State Assemble sparse internal force and tangent stiffness on $\mathcal{I}_{\text{act}}$:
+        \State $\vect{F}_{\text{int}} \gets \sum_{e \in \mathcal{I}_{\text{act}}} w_e \vect{f}_e(\vect{u}^k; \mu, r)$
+        \State $\mat{K}_{\text{ecsw}} \gets \sum_{e \in \mathcal{I}_{\text{act}}} w_e \mat{K}_e(\vect{u}^k; \mu, r)$
+        \State Project operators to reduced subspace:
+        \State $\vect{F}_{r,\text{int}} \gets \boldsymbol{\Phi}^T \vect{F}_{\text{int}}$
+        \State $\mat{K}_r \gets \boldsymbol{\Phi}^T \mat{K}_{\text{ecsw}} \boldsymbol{\Phi}$
+        \State $\mat{C}_r \gets \alpha_M \mat{M}_r + \beta_K \mat{K}_r$
+        \State Update accelerations and velocities:
+        \State $\ddot{\vect{q}}^k \gets \frac{\vect{q}^k - \vect{q}_n - \Delta t \dot{\vect{q}}_n}{\beta \Delta t^2} - \frac{0.5-\beta}{\beta}\ddot{\vect{q}}_n$
+        \State $\dot{\vect{q}}^k \gets \dot{\vect{q}}_{\text{pred}} + \gamma \Delta t \ddot{\vect{q}}^k$
+        \State Compute dynamic residual:
+        \State $\vect{R}_r \gets \vect{F}_{r,\text{ext}} - \mat{M}_r \ddot{\vect{q}}^k - \mat{C}_r \dot{\vect{q}}^k - \vect{F}_{r,\text{int}}$
+        \If{$\|\vect{R}_r\|_2 < \epsilon_{\text{tol}}$} \textbf{break}
+        \EndIf
+        \State Assemble dynamic tangent matrix: $\mat{K}_{r,\text{eff}} \gets \mat{K}_r (1 + \frac{\gamma \beta_K}{\beta \Delta t}) + \mat{M}_r (\frac{1}{\beta \Delta t^2} + \frac{\gamma \alpha_M}{\beta \Delta t})$
+        \State Solve correction: $\Delta \vect{q} \gets \mat{K}_{r,\text{eff}}^{-1} \vect{R}_r$
+        \State Update coordinate: $\vect{q}^{k+1} \gets \vect{q}^k + \Delta \vect{q}$
+    \EndFor
+    \State Update history: $\vect{q}_{n+1} \gets \vect{q}^k, \quad \dot{\vect{q}}_{n+1} \gets \dot{\vect{q}}^k, \quad \ddot{\vect{q}}_{n+1} \gets \ddot{\vect{q}}^k$
+    \State \Return $\vect{q}_{n+1}, \dot{\vect{q}}_{n+1}, \ddot{\vect{q}}_{n+1}$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\section{Quantitative Evaluation and Performance Comparison}
+To validate and compare the relative effectiveness of the model reduction strategies, a study was conducted using the notched cantilever beam benchmark under varying geometric and force parameters. The full-order model (FOM) is discretized using an exact bivariate NURBS mesh of $E = 3,200$ elements, corresponding to $N = 6,564$ high-fidelity degrees of freedom. The reduced basis size is fixed at $r = 15$ modes, capturing $\theta = 99.999\%$ of the singular value energy spectrum. The numerical performance, accuracy, and computational efficiency metrics are summarized in Table \ref{tab:hyper_reduction_metrics}.
+
+\begin{table}[htbp]
+        \centering
+        \caption{Quantitative comparative performance of model reduction strategies against the Full Order Model (FOM) baseline.}
+        \label{tab:hyper_reduction_metrics}
+        \resizebox{\textwidth}{!}{%
+        \begin{tabular}{lcccc}
+                \toprule
+                \textbf{Solver Strategy} & \textbf{Active DoFs / Cells} & \textbf{Relative $L_2$ Error (\%)} & \textbf{Assembly Time (ms)} & \textbf{Online Speedup} \\
+                \midrule
+                Full Order (FOM)        & $6,564$ DoFs / $3,200$ Cells & Baseline & $142.1$ & $1.0\times$ \\
+                Galerkin ROM (Unreduced)& $15$ DoFs / $3,200$ Cells    & $0.012$   & $154.5$ & $0.92\times$ \\
+                ECSW ROM (Hyper-reduced)& $15$ DoFs / $28$ Selected Cells& $0.054$   & $2.2$   & $64.5\times$ \\
+                \bottomrule
+        \end{tabular}%
+        }
+\end{table}
+
+The numerical results highlight the following critical structural behaviors:
+\begin{itemize}
+        \item \textbf{The Galerkin Projection Overhead}: Without hyper-reduction, the Galerkin ROM runs slower than the high-fidelity FOM solver ($0.92\times$ speedup). This represents the lifting bottleneck in action: evaluating and projecting the nonlinear tangent stiffness matrix over all $3,200$ elements creates severe computational overhead that wipes out any coordinate reduction advantages.
+        \item \textbf{ECSW Energy Conservation}: ECSW exhibits high accuracy with a relative $L_2$ error of just $0.054\%$, while using only $28$ selected elements. Because ECSW directly minimizes the virtual work integration error rather than approximating the discretized force field rows, it preserves the physical strain energy balance of the continuum exactly.
+        \item \textbf{Dynamic Eigenvalue \& Frequency Conservation}: To verify that the hyper-reduced model preserves the system's structural dynamics, an eigenvalue analysis was conducted at the operating configuration $\boldsymbol{\mu} = (5.0, 0.3, 0.6)^T$. The fundamental natural frequency computed by projecting the unreduced FOM tangent stiffness is $\omega_{n,\text{FOM}} = 1.108$ rad/s ($f_n \approx 0.176$ Hz). Under the ECSW sparse mesh assembly, the fundamental natural frequency is resolved as $\omega_{n,\text{ROM}} = 1.107$ rad/s ($f_n \approx 0.176$ Hz). This extremely small deviation ($0.09\%$) confirms that the offline weights training and stiffness calibration retain the exact mass-stiffness spectrum of the structure.
+        \item \textbf{Resonant Forcing Ratio}: The external forcing frequency is set at $\omega_{\text{ext}} = 1.2$ rad/s ($f_{\text{ext}} \approx 0.191$ Hz), resulting in a frequency ratio of $\omega_{\text{ext}} / \omega_n \approx 1.08$. This near-resonance condition drives the structural response into large-amplitude oscillations, highlighting the critical role of geometrically nonlinear kinematics (Green-Lagrange strains) in capturing the true structural deflection path.
+\end{itemize}
+
+

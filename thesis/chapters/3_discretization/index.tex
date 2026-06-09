@@ -1,0 +1,214 @@
+% ==============================================================================
+\chapter{Discretization: Isogeometric Analysis (IGA)}
+\label{ch:discretization}
+% ==============================================================================
+
+\section{Geometric Representation via B-Splines and NURBS}
+Isogeometric Analysis (IGA) utilizes the same mathematical basis functions to represent the physical geometry and to approximate the field variables. This maintains exact geometric descriptions throughout the analysis process and allows for shape parameterization without approximation errors.
+
+\subsection{B-Spline Basis Functions}
+Evaluating B-spline basis functions is performed over an open knot vector $\Xi = \{\xi_0, \xi_1, \dots, \xi_{m}\}$ where $m = n + p + 1$, $p$ is the polynomial degree, and $n$ is the number of basis functions. The recursive Cox-de Boor formula defines the basis functions $N_{i,p}(\xi)$ as:
+\begin{equation}
+    N_{i,0}(\xi) = \begin{cases} 1 & \text{if } \xi_i \le \xi < \xi_{i+1} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+\begin{equation}
+    N_{i,p}(\xi) = \frac{\xi - \xi_i}{\xi_{i+p} - \xi_i} N_{i,p-1}(\xi) + \frac{\xi_{i+p+1} - \xi}{\xi_{i+p+1} - \xi_{i+1}} N_{i+1,p-1}(\xi)
+\end{equation}
+with the convention $0/0 = 0$.
+
+For structural mechanics applications where variational strain energies involve spatial derivatives, the gradients of the basis functions are evaluated using the analytical derivative recurrence:
+\begin{equation}
+    \frac{d}{d\xi} N_{i,p}(\xi) = p \left( \frac{N_{i,p-1}(\xi)}{\xi_{i+p} - \xi_i} - \frac{N_{i+1,p-1}(\xi)}{\xi_{i+p+1} - \xi_{i+1}} \right)
+\end{equation}
+
+\subsection{Non-Uniform Rational B-Splines (NURBS)}
+To represent conic sections or complex parameterized boundaries exactly, projective control weights $w_i$ are injected, defining the rational basis functions $R_{i,p}(\xi)$ as:
+\begin{equation}
+    R_{i,p}(\xi) = \frac{N_{i,p}(\xi) w_i}{\sum_{j=0}^{n-1} N_{j,p}(\xi) w_j}
+\end{equation}
+
+The spatial gradients of the rational basis functions are evaluated using the quotient rule:
+\begin{equation}
+    \frac{d}{d\xi} R_{i,p}(\xi) = w_i \frac{\frac{d N_{i,p}(\xi)}{d\xi} W(\xi) - N_{i,p}(\xi) \frac{d W(\xi)}{d\xi}}{[W(\xi)]^2}
+\end{equation}
+where $W(\xi) = \sum_{j=0}^{n-1} N_{j,p}(\xi) w_j$ is the denominator projective sum function. The physical coordinates of a 1D parametric curve $\vect{C}(\xi)$ are given by:
+\begin{equation}
+    \vect{C}(\xi) = \sum_{i=0}^{n-1} R_{i,p}(\xi) \vect{P}_i
+\end{equation}
+where $\vect{P}_i$ are the coordinates of the control points.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{chapters/3_discretization/images/nurbs_basis_curves.png}
+    \caption{Continuous evaluation of NURBS basis functions and their corresponding control weights extracted from the simulation engine.}
+    \label{fig:nurbs_curves_eval}
+\end{figure}
+
+Unlike standard Lagrangian finite elements, NURBS basis functions do not possess the Kronecker delta property at internal nodes. Consequently, a control point $\vect{P}_i$ does not represent the physical state at a specific coordinate unless it lies on a repeated boundary knot of multiplicity $p+1$, where the curve interpolates the control point directly.
+
+\subsection{Tensor-Product Bivariate NURBS Mapping Core}
+To model 2D structural domains such as the cantilever beam, the geometric representation is extended to two-dimensional manifolds. This is achieved by constructing a tensor product of univariate B-spline basis functions over two independent parametric directions governed by the knot vectors $\Xi = \{\xi_0, \xi_1, \dots, \xi_{r}\}$ and $\mathcal{H} = \{\eta_0, \eta_1, \dots, \eta_{s}\}$, with corresponding polynomial degrees $p$ and $q$.
+
+The bivariate rational basis functions $R_{i,j}^{p,q}(\xi, \eta)$ are formulated by projecting a grid of control weights $w_{i,j}$ across the product space:
+\begin{equation}
+        R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k=0}^{n-1} \sum_{l=0}^{m-1} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
+\end{equation}
+where $N_{i,p}(\xi)$ and $M_{j,q}(\eta)$ represent the standard univariate basis polynomials evaluated along the $\xi$ and $\eta$ directions, respectively. The continuous geometric mapping of the 2D surface patch $\vect{S}(\xi, \eta)$ is expressed as a linear combination of a bidimensional control point lattice $\vect{P}_{i,j} = [x_{i,j}, y_{i,j}, z_{i,j}]^T$:
+\begin{equation}
+        \vect{S}(\xi, \eta) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{chapters/3_discretization/images/bivariate_mesh_geometry.png}
+    \caption{Bivariate NURBS mesh geometry representation of the notched cantilever beam showing control point lattice mapping.}
+    \label{fig:bivariate_mesh_geometry}
+\end{figure}
+
+For surface integration and local coordinate transformation, the parametric gradients are mapped to physical space via the 2D coordinate Jacobian matrix $\mat{J}$:
+\begin{equation}
+\label{eq:jacobian}
+\mat{J}(\xi, \eta) = \begin{bmatrix} \frac{\partial x}{\partial \xi} & \frac{\partial y}{\partial \xi} \\[0.3em] \frac{\partial x}{\partial \eta} & \frac{\partial y}{\partial \eta} \end{bmatrix} = \begin{bmatrix} \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} y_{i,j} \\[0.5em] \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} y_{i,j} \end{bmatrix}
+\end{equation}
+The physical tangent vectors spanning the surface tangent plane are defined as $\vect{g}_{\xi} = \partial \vect{S}/\partial \xi$ and $\vect{g}_{\eta} = \partial \vect{S}/\partial \eta$. The local outward unit surface normal vector $\vect{n}(\xi, \eta)$ required for boundary conditions is extracted via the cross product:
+\begin{equation}
+\vect{n}(\xi, \eta) = \frac{\vect{g}_{\xi} \times \vect{g}_{\eta}}{\|\vect{g}_{\xi} \times \vect{g}_{\eta}\|}
+\end{equation}
+
+\subsection{Diffeomorphic Mapping and Weak Form Pullback}
+The physical domain $\Omega(\boldsymbol{\mu})$ varies with the parameter vector $\boldsymbol{\mu}$, meaning that displacement snapshots collected for different parameters lie in different function spaces. This prevents Proper Orthogonal Decomposition (POD) and SVD-based basis extraction from being conducted directly in the physical space.
+
+To resolve this incompatibility, we define the parameterized smooth geometric mapping (diffeomorphism) $\boldsymbol{\Psi}(\cdot; \boldsymbol{\mu}): \hat{\Omega} \to \Omega(\boldsymbol{\mu})$ that maps any parametric point $\boldsymbol{\xi} = (\xi, \eta)^T \in \hat{\Omega}$ of our parent rectangular reference configuration to a physical point $\boldsymbol{x} \in \Omega(\boldsymbol{\mu})$:
+\begin{equation}
+    \boldsymbol{x} = \boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\boldsymbol{\xi}) \vect{P}_{i,j}(\boldsymbol{\mu})
+\end{equation}
+The gradient of this mapping is the coordinate Jacobian matrix $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ defined in Equation \ref{eq:jacobian}. We assume that the mapping is bijective and smooth, such that its Jacobian determinant is strictly positive:
+\begin{equation}
+    J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) = \det \mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) > 0
+\end{equation}
+By utilizing the pullback relations for spatial gradients and differential volume elements:
+\begin{equation}
+    \nabla_{\boldsymbol{x}} u = \mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \hat{u}, \quad d\Omega = J_{\boldsymbol{\mu}} \, d\hat{\Omega}
+\end{equation}
+where $\hat{u}(\boldsymbol{\xi}) = u(\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu}))$, we transform the integrals in the weak form onto the static reference configuration $\hat{\Omega}$:
+\begin{equation}
+    \hat{m}(\ddot{\underline{u}}, \delta\underline{u}; \boldsymbol{\mu}) + \hat{k}(\underline{u}, \delta\underline{u}; \boldsymbol{\mu}) = \hat{f}(\delta\underline{u}; \boldsymbol{\mu}) \quad \forall \delta\underline{u} \in \mathcal{V}_0(\hat{\Omega})
+\end{equation}
+where the pulled-back bilinear and linear forms are written as:
+\begin{align}
+    \hat{m}(\ddot{\underline{u}}, \delta\underline{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \rho \ddot{\underline{u}} \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega} \\
+    \hat{k}(\underline{u}, \delta\underline{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \left(\mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \underline{u}\right) : \mat{D} : \left(\mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \delta\underline{u}\right) J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega} \\
+    \hat{f}(\delta\underline{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \underline{\hat{f}}_b \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega} + \int_{\hat{\Gamma}_N} \underline{\hat{h}}_N \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}, \Gamma}(\boldsymbol{\xi}) \, d\hat{\Gamma}
+\end{align}
+In this reference configuration, all variables are defined over the fixed coordinate space $\boldsymbol{\xi} \in \hat{\Omega}$. The dependency on the geometric parameter vector $\boldsymbol{\mu}$ is shifted entirely into the coordinate Jacobian $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ and its determinant $J_{\boldsymbol{\mu}}(\boldsymbol{\xi})$. This pullback establishes the mathematically consistent framework required to project snapshot states and construct our reduced-order model.
+
+\subsection{Parameter Update Mechanism and the Naive vs. Pullback Paradigms}
+Understanding the computational differences between resolving the governing equations on the parameterized physical domain directly (Naive) versus using the reference configuration mapping (Pullback) is central to shape-parametric Reduced Order Modeling:
+\begin{itemize}
+    \item \textbf{Parameter Update Mechanism}: In our Isogeometric Analysis (IGA) framework, changing the shape parameters $\boldsymbol{\mu} = (r, \mu, \sigma)^T$ is accomplished by displacing the physical coordinates of the control point lattice $\vect{P}_{i,j}(\boldsymbol{\mu})$:
+    \begin{equation}
+        \vect{P}_{i,j}(\boldsymbol{\mu}) = \vect{P}_{i,j}^0 + \Delta \vect{P}_{i,j}(r, \mu, \sigma)
+    \end{equation}
+    where $\vect{P}_{i,j}^0$ represent the initial unnotched rectangular beam coordinates, and $\Delta \vect{P}_{i,j}$ translates the control points near the notch centers vertically based on the radius $r$ and width factor $\sigma$ at longitudinal position $\mu$.
+    \item \textbf{The Naive Approach (Physical Domain Simulation)}: In the naive approach, the equations of motion are solved on the physical domain $\Omega(\boldsymbol{\mu})$. As the geometry changes, the mesh must be regenerated, meaning:
+    \begin{enumerate}
+        \item The number of nodes and element connectivity grids may vary, resulting in a vector space size mismatch.
+        \item Snapshots collected across different parameter values $\boldsymbol{\mu}_k$ cannot be stored in a single snapshot matrix for Singular Value Decomposition (SVD), rendering POD basis extraction impossible.
+        \item The heavy numerical integration and stiffness matrix assembly must be performed online over the physical domain for every parameter change, causing a severe computational bottleneck.
+    \end{enumerate}
+    \item \textbf{The Pullback Approach (Reference Domain Mapping)}: The pullback approach maps all physical fields to the static parametric reference domain $\hat{\Omega} = [0,1]^2$. Under this paradigm:
+    \begin{enumerate}
+        \item The discretization grid and total degrees of freedom remain constant. All snapshot vectors lie in the same vector space, enabling consistent POD basis projection.
+        \item The shape parameter changes are captured entirely by updating the coordinate Jacobian matrix $\mat{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ at the Gauss integration points. The baseline basis functions and element connectivity do not change, making hyper-reduced online updates extremely efficient.
+    \end{enumerate}
+\end{itemize}
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{chapters/2_theory/images/pullback_mapping.png}
+    \caption{Schematic representation of the pullback mapping workflow. Physical-domain integrals on the parameterized domain $\Omega(\boldsymbol{\mu})$ are pulled back via the diffeomorphism $\boldsymbol{\Psi}$ and the Jacobian matrix $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ to be evaluated on the parameter-independent reference configuration $\hat{\Omega}$.}
+    \label{fig:pullback_mapping}
+\end{figure}
+
+
+\section{Localized Mesh Refinement}
+A primary benefit of Isogeometric Analysis is the ability to enrich the solution space without altering the exact CAD geometry boundary definitions. Refinement of the discretization is achieved through $h$-refinement (knot insertion), $p$-refinement (degree elevation), and $k$-refinement (order elevation).
+
+Our framework utilizes the Boehm knot insertion algorithm for $h$-refinement. Introducing a new knot $\bar{\xi}$ into an existing knot sequence updates the control point configuration to maintain geometric invariance. The new control points $\vect{P}_i^{\text{new}}$ are computed via:
+\begin{equation}
+        \vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}
+\end{equation}
+where the blending coefficients $\alpha_i$ are determined explicitly by the knot layout topology:
+\begin{equation}
+        \alpha_i = \begin{cases} 
+                1 & \text{if } i \le k - p \\ 
+                \frac{\bar{\xi} - \xi_i}{\xi_{i+p} - \xi_i} & \text{if } k - p + 1 \le i \le k \\ 
+                0 & \text{if } i \ge k + 1 
+        \end{cases}
+\end{equation}
+This local linear relation can be cast globally for the 1D control point vector as a matrix-vector product $\vect{P}^{\text{new}} = \mat{T} \vect{P}$, where the sparse knot insertion matrix $\mat{T} \in \mathbb{R}^{(n+1) \times n}$ has non-zero entries defined by $T_{i, j} = \alpha_i \delta_{i, j} + (1 - \alpha_i) \delta_{i-1, j}$.
+
+For 2D domains with a control grid lattice matrix $\mat{P} \in \mathbb{R}^{n \times m}$, inserting knots along the $\xi$ and $\eta$ directions involves directional transformation matrices $\mat{T}_{\xi} \in \mathbb{R}^{(n+1) \times n}$ and $\mat{T}_{\eta} \in \mathbb{R}^{(m+1) \times m}$. The refined control point grid $\mat{P}^{\text{new}} \in \mathbb{R}^{(n+1) \times (m+1)}$ is assembled tensorially via:
+\begin{equation}
+        \mat{P}^{\text{new}} = \mat{T}_{\xi} \mat{P} \mat{T}_{\eta}^T
+\end{equation}
+By flattening the control lattice into a column vector $\vect{P}$, the global refinement mapping is expressed using the Kronecker product operator $\otimes$ as:
+\begin{equation}
+        \vect{P}^{\text{new}} = \left( \mat{T}_{\eta} \otimes \mat{T}_{\xi} \right) \vect{P}
+\end{equation}
+This allows us to insert localized refinements near expected stress concentrations (e.g., around the symmetric notches) while keeping the geometric representation exact.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{chapters/3_discretization/images/knot_refinement_stages.png}
+    \caption{Localized mesh refinement stages (h-refinement) showcasing the concentration of knot spans near geometric notches while preserving the exact boundaries.}
+    \label{fig:knot_refinement}
+\end{figure}
+
+\section{Field Approximation}
+Using the isoparametric concept, the displacement field $\vect{u}(\xi, \eta) = [u(\xi, \eta), v(\xi, \eta)]^T$ is discretized using the same NURBS basis functions that represent the geometry:
+\begin{equation}
+        \vect{u}(\xi, \eta) = \sum_{a=0}^{N_{\text{bas}}-1} R_a(\xi, \eta) \vect{d}_a
+\end{equation}
+where $\vect{d}_a = [u_a, v_a]^T$ represents the displacement degrees of freedom at control node $a$, and $N_{\text{bas}} = n \times m$ represents the total number of bivariate basis functions.
+
+\section{Global 2D Assembly \& Equations of Motion}
+Applying the Galerkin discretization to the weak form yields the semi-discrete equations of motion:
+\begin{equation}
+    \hat{\mathbf{M}}(\boldsymbol{\mu}) \ddot{\underline{\mathbf{U}}} + \hat{\mathbf{K}}(\boldsymbol{\mu}) \underline{\mathbf{U}} = \lambda(t) \hat{\mathbf{F}}_{ext}(\boldsymbol{\mu})
+\end{equation}
+where $\underline{\mathbf{U}}$ is the global displacement vector of control variables, and $\hat{\mathbf{M}}$ and $\hat{\mathbf{K}}$ are the global mass and stiffness matrices. The global stiffness matrix is assembled from local element contributions $\mat{K}_e$:
+\begin{equation}
+        \mat{K}_e = \int_{-1}^{1} \int_{-1}^{1} \mat{B}^T(\xi, \eta) \mat{D} \mat{B}(\xi, \eta) |J(\xi, \eta)| \, d\xi \, d\eta
+\end{equation}
+where the constitutive matrix $\mat{D}$ under plane stress assumptions is defined as:
+\begin{equation}
+        \mat{D} = \frac{E}{1 - \nu^2} \begin{bmatrix} 1 & \nu & 0 \\ \nu & 1 & 0 \\ 0 & 0 & \frac{1 - \nu}{2} \end{bmatrix}
+\end{equation}
+The strain-displacement matrix $\mat{B} \in \mathbb{R}^{3 \times 2N_{\text{bas}}}$ is composed of nodal blocks $\mat{B}_a$:
+\begin{equation}
+        \mat{B} = \begin{bmatrix} \mat{B}_0 & \mat{B}_1 & \dots & \mat{B}_{N_{\text{bas}}-1} \end{bmatrix}, \quad \text{with} \quad \mat{B}_a = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \\[0.3em] \frac{\partial R_a}{\partial y} & \frac{\partial R_a}{\partial x} \end{bmatrix}
+\end{equation}
+The physical gradients are mapped from parametric space by solving:
+\begin{equation}
+        \begin{bmatrix} \frac{\partial R_a}{\partial x} \\[0.3em] \frac{\partial R_a}{\partial y} \end{bmatrix} = \mat{J}^{-1} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix} = \frac{1}{|J|} \begin{bmatrix} \frac{\partial y}{\partial \eta} & -\frac{\partial y}{\partial \xi} \\[0.3em] -\frac{\partial x}{\partial \eta} & \frac{\partial x}{\partial \xi} \end{bmatrix} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix}
+\end{equation}
+
+The accuracy of this IGA core assembly compared to traditional Lagrangian Finite Element methods is summarized in Table \ref{tab:linear_validation}. Due to higher-order continuity across elements, IGA achieves similar accuracy to Lagrangian FEM with significantly fewer degrees of freedom.
+
+\begin{table}[htbp]
+        \centering
+        \caption{Linear solution accuracy validation comparing full-order IGA degrees of freedom against fine-mesh Lagrangian FEM frameworks.}
+        \label{tab:linear_validation}
+        \resizebox{\textwidth}{!}{%
+        \begin{tabular}{lcccc}
+                \toprule
+                \textbf{Mesh Setup} & \textbf{Total DoFs} & \textbf{Peak Displacement (mm)} & \textbf{Energy Norm} & \textbf{Solve Time (ms)} \\
+                \midrule
+                Lagrange FEM  & $12,400$ & $4.182$ & $1.042 \times 10^5$ & $845.2$ \\
+                IGA Core Core & $3,200$  & $4.185$ & $1.044 \times 10^5$ & $142.1$ \\
+                \bottomrule
+        \end{tabular}%
+        }
+\end{table}

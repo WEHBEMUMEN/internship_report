@@ -83,6 +83,11 @@
 window.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
+  // Load gifshot library dynamically from CDN
+  const gifshotScript = document.createElement('script');
+  gifshotScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js';
+  document.head.appendChild(gifshotScript);
+
   // ── Report figure names ─────────────────────────────────────────
   const FIGURES = [
     { value: 'nurbs_basis_curves.png',      label: 'NURBS Basis Curves'         },
@@ -441,6 +446,13 @@ window.addEventListener('DOMContentLoaded', function () {
       Download locally instead
     </button>
 
+    <button id="__iga-btn-record__" style="width: 100%; padding: 11px; border: none; border-radius: 12px; background: linear-gradient(135deg, #ec4899, #f43f5e); color: #fff; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(236,72,153,0.45); transition: all 0.2s; margin-bottom: 8px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+      </svg>
+      Record Simulation GIF
+    </button>
+
     <div id="__iga-status-bar__">
       <div class="iga-stat">
         <div class="val" id="__iga-stat-w__">—</div>
@@ -575,6 +587,368 @@ window.addEventListener('DOMContentLoaded', function () {
   // wait two frames for the animation loop to re-render, then capture.
   // The resize is invisible to the user (CSS size stays fixed).
   // For 2D canvases: copies to an offscreen canvas scaled up.
+  // ── Get viewport canvases (excluding charts, sparklines, and control panels) ───────
+  function getViewportCanvases() {
+    const EXCLUDE_IDS = new Set([
+      'sparkline-canvas', 'chart-speedup', 'chart-fd', 'chart-error', 'chart-residual', 'chart-comparison', 'sweep-map', 'chart-energy'
+    ]);
+    return Array.from(document.querySelectorAll('canvas'))
+      .filter(c => {
+        if (c.id && (c.id.includes('chart') || c.id.includes('sparkline') || c.id.includes('map') || c.id.includes('sweep'))) return false;
+        if (EXCLUDE_IDS.has(c.id)) return false;
+        if (c.closest('#control-panel') || c.closest('#audit-panel')) return false;
+        return c.width > 0 && c.height > 0;
+      })
+      .sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
+  }
+
+  // Swaps dark background pixels to white, and white text/gridlines to dark slate
+  function convertBackgroundToWhite(ctx, w, h) {
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+    
+    // Detect background color by sampling a few pixels from the left side
+    let bgR = 0, bgG = 0, bgB = 0;
+    const samples = 5;
+    for (let s = 0; s < samples; s++) {
+      const idx = s * 4;
+      bgR += data[idx];
+      bgG += data[idx+1];
+      bgB += data[idx+2];
+    }
+    bgR = Math.round(bgR / samples);
+    bgG = Math.round(bgG / samples);
+    bgB = Math.round(bgB / samples);
+    
+    // If background is already light, skip conversion
+    if ((bgR + bgG + bgB) / 3 > 210) return;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i+1];
+      const b = data[i+2];
+      
+      // Calculate color distance to background
+      const dist = Math.sqrt((r - bgR)**2 + (g - bgG)**2 + (b - bgB)**2);
+      
+      if (dist < 50) {
+        // Swap background to white
+        data[i]   = 255;
+        data[i+1] = 255;
+        data[i+2] = 255;
+      } else {
+        // Invert/convert white lines, grids, or text to dark slate
+        const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+        if (brightness > 210) {
+          data[i]   = 15;
+          data[i+1] = 23;
+          data[i+2] = 42;
+        }
+      }
+    }
+    
+    ctx.putImageData(imgData, 0, 0);
+  }
+
+  // Swaps dark background pixels to white, and white text/gridlines to dark slate for a single canvas
+  function convertCanvasToWhite(sourceCanvas) {
+    const w = sourceCanvas.width;
+    const h = sourceCanvas.height;
+    
+    // Create an offscreen canvas to process the pixels
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = w;
+    tempCanvas.height = h;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.drawImage(sourceCanvas, 0, 0);
+    
+    const imgData = tempCtx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+    
+    // Detect background color by sampling top-left area
+    let bgR = 0, bgG = 0, bgB = 0;
+    const samples = 5;
+    for (let s = 0; s < samples; s++) {
+      const idx = s * 4;
+      bgR += data[idx];
+      bgG += data[idx+1];
+      bgB += data[idx+2];
+    }
+    bgR = Math.round(bgR / samples);
+    bgG = Math.round(bgG / samples);
+    bgB = Math.round(bgB / samples);
+    
+    // If background is already light, return original
+    if ((bgR + bgG + bgB) / 3 > 210) {
+      return sourceCanvas;
+    }
+
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i+1];
+      const b = data[i+2];
+      
+      const dist = Math.sqrt((r - bgR)**2 + (g - bgG)**2 + (b - bgB)**2);
+      
+      if (dist < 50) {
+        data[i]   = 255;
+        data[i+1] = 255;
+        data[i+2] = 255;
+      } else {
+        const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+        if (brightness > 200) {
+          data[i]   = 15;
+          data[i+1] = 23;
+          data[i+2] = 42;
+        }
+      }
+    }
+    
+    tempCtx.putImageData(imgData, 0, 0);
+    return tempCanvas;
+  }
+
+  // ── Unified Frame Capture and Processing Pipeline ────────────────
+  async function captureAndProcessFrame(scale = 1) {
+    const canvases = getViewportCanvases();
+    if (canvases.length === 0) return null;
+
+    // Determine if metrics panel exists
+    const hasMetricsPanel = !!document.getElementById('metrics-panel');
+    const chartCanvas = document.getElementById('chart-comparison');
+
+    // 1. Temporarily upscale renderers if scale > 1
+    const originalSizes = [];
+    for (const canvas of canvases) {
+      const renderer = canvas.__igaRenderer;
+      if (renderer && scale > 1) {
+        const origW = canvas.width;
+        const origH = canvas.height;
+        originalSizes.push({ canvas, renderer, origW, origH });
+        
+        const newW = Math.round(origW * scale);
+        const newH = Math.round(origH * scale);
+        renderer.setSize(newW, newH, false);
+      }
+    }
+
+    // Upscale chart canvas temporarily if scale > 1 and it exists
+    let origChartW, origChartH;
+    if (chartCanvas && scale > 1) {
+      origChartW = chartCanvas.width;
+      origChartH = chartCanvas.height;
+      chartCanvas.width = Math.round(origChartW * scale);
+      chartCanvas.height = Math.round(origChartH * scale);
+    }
+
+    // If we upscaled, wait 2 frames for WebGL renderers to update
+    if (originalSizes.length > 0) {
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    }
+
+    // 2. Prepare the combined offscreen canvas
+    const offscreen = document.createElement('canvas');
+    const ctx = offscreen.getContext('2d');
+
+    let finalDataURL = null;
+
+    try {
+      let combinedW, cropH;
+      let viewportsH;
+
+      if (canvases.length >= 2) {
+        // Double viewport mode
+        const c1 = canvases[0];
+        const c2 = canvases[1];
+        const w1 = c1.width;
+        const h1 = c1.height;
+        const w2 = c2.width;
+        const h2 = c2.height;
+
+        combinedW = w1 + w2;
+        const combinedH = Math.max(h1, h2);
+
+        // Crop height of viewport to middle 55%
+        const cropY = Math.round(combinedH * 0.225);
+        cropH = Math.round(combinedH * 0.55);
+        viewportsH = cropH;
+
+        const metricsH = hasMetricsPanel ? Math.round(200 * scale) : 0;
+        offscreen.width = combinedW;
+        offscreen.height = cropH + metricsH;
+
+        // Fill background with white
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, combinedW, cropH + metricsH);
+
+        // Process individual viewports to white background
+        const processedC1 = convertCanvasToWhite(c1);
+        const processedC2 = convertCanvasToWhite(c2);
+
+        // Draw left canvas cropped
+        ctx.drawImage(processedC1, 
+          0, cropY, w1, cropH,
+          0, 0, w1, cropH
+        );
+
+        // Draw right canvas cropped
+        ctx.drawImage(processedC2, 
+          0, cropY, w2, cropH,
+          w1, 0, w2, cropH
+        );
+
+        // Draw titles
+        const fontSize = Math.max(14, Math.round(combinedW * 0.015));
+        ctx.font = `bold ${fontSize}px Inter, "Outfit", system-ui, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#0f172a'; // dark slate
+
+        const leftText  = 'Naive Physical Domain \u03A9(\u03BC)';
+        const rightText = 'Mapped Pullback Domain \u03A9\u0302';
+
+        const textY = Math.round(30 * scale) + fontSize;
+        ctx.fillText(leftText, w1 * 0.5, textY);
+        ctx.fillText(rightText, w1 + w2 * 0.5, textY);
+
+      } else {
+        // Single viewport mode
+        const c = canvases[0];
+        const w = c.width;
+        const h = c.height;
+
+        const cropY = Math.round(h * 0.225);
+        cropH = Math.round(h * 0.55);
+        viewportsH = cropH;
+        combinedW = w;
+
+        const metricsH = hasMetricsPanel ? Math.round(200 * scale) : 0;
+        offscreen.width = w;
+        offscreen.height = cropH + metricsH;
+
+        // Fill background with white
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, cropH + metricsH);
+
+        const processedC = convertCanvasToWhite(c);
+
+        ctx.drawImage(processedC, 
+          0, cropY, w, cropH,
+          0, 0, w, cropH
+        );
+
+        // Draw single title
+        const fontSize = Math.max(14, Math.round(w * 0.022));
+        ctx.font = `bold ${fontSize}px Inter, "Outfit", system-ui, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#0f172a'; // dark slate
+
+        const selectVal = document.getElementById('__iga-fig-select__').value;
+        let optionText = 'Simulation Result';
+        if (selectVal !== 'custom') {
+          optionText = document.querySelector(`#__iga-fig-select__ option[value="${selectVal}"]`)?.textContent || 'Simulation Result';
+        } else {
+          const h1 = document.querySelector('h1');
+          optionText = h1 ? h1.textContent.trim() : 'Simulation Result';
+        }
+
+        const textY = Math.round(30 * scale) + fontSize;
+        ctx.fillText(optionText, w * 0.5, textY);
+      }
+
+      // Draw metrics panel if it exists
+      if (hasMetricsPanel) {
+        const metricsH = Math.round(200 * scale);
+        const metricsY = viewportsH;
+
+        // Draw a separator line
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = Math.max(1, Math.round(1 * scale));
+        ctx.beginPath();
+        ctx.moveTo(0, metricsY);
+        ctx.lineTo(combinedW, metricsY);
+        ctx.stroke();
+
+        // 1. Fetch values from DOM
+        const naiveTimeVal = document.getElementById('stat-naive-time')?.textContent || '--';
+        const mappedTimeVal = document.getElementById('stat-mapped-time')?.textContent || '--';
+        const speedupVal = document.getElementById('stat-speedup')?.textContent || '--';
+        const fpsVal = document.getElementById('stat-fps')?.textContent || '--';
+
+        // 2. Draw 4 rounded metric cards in a grid on the left
+        const cardGridW = combinedW * 0.40;
+        const cardW = Math.round(cardGridW * 0.45);
+        const cardH = Math.round(metricsH * 0.38);
+        const gapX = Math.round(cardGridW * 0.05);
+        const gapY = Math.round(metricsH * 0.08);
+
+        const cards = [
+          { label: 'NAIVE ONLINE ASSEMBLY', value: naiveTimeVal },
+          { label: 'MAPPED ONLINE ASSEMBLY', value: mappedTimeVal },
+          { label: 'QUADRATURE ACCELERATION', value: speedupVal },
+          { label: 'GRAPHICS RENDER FPS', value: fpsVal }
+        ];
+
+        ctx.textAlign = 'left';
+
+        cards.forEach((card, index) => {
+          const col = index % 2;
+          const row = Math.floor(index / 2);
+
+          const cardX = 20 * scale + col * (cardW + gapX);
+          const cardY = metricsY + 20 * scale + row * (cardH + gapY);
+
+          // Card Background
+          ctx.fillStyle = '#f8fafc'; // light slate background
+          ctx.fillRect(cardX, cardY, cardW, cardH);
+
+          // Card Border
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = Math.max(1, Math.round(1.5 * scale));
+          ctx.strokeRect(cardX, cardY, cardW, cardH);
+
+          // Draw Text
+          ctx.fillStyle = '#64748b'; // slate-500
+          ctx.font = `600 ${Math.max(9, Math.round(7.5 * scale))}px Inter, "Outfit", sans-serif`;
+          ctx.fillText(card.label, cardX + 12 * scale, cardY + 18 * scale);
+
+          ctx.fillStyle = '#0f172a'; // slate-900
+          ctx.font = `bold ${Math.max(12, Math.round(13.5 * scale))}px "JetBrains Mono", monospace`;
+          ctx.fillText(card.value, cardX + 12 * scale, cardY + 38 * scale);
+        });
+
+        // 3. Draw Chart Comparison on the right
+        if (chartCanvas) {
+          const processedChart = convertCanvasToWhite(chartCanvas);
+          const chartW = combinedW * 0.55;
+          const chartH = metricsH - 40 * scale;
+          const chartX = combinedW * 0.42;
+          const chartY = metricsY + 20 * scale;
+          ctx.drawImage(processedChart, chartX, chartY, chartW, chartH);
+        }
+      }
+
+      finalDataURL = offscreen.toDataURL('image/png');
+
+    } catch (err) {
+      console.error('[IGA Export] Error composing frames:', err);
+    } finally {
+      // 3. Restore original sizes
+      for (const item of originalSizes) {
+        item.renderer.setSize(item.origW, item.origH, false);
+      }
+      if (chartCanvas && scale > 1 && origChartW) {
+        chartCanvas.width = origChartW;
+        chartCanvas.height = origChartH;
+      }
+      if (originalSizes.length > 0) {
+        await new Promise(r => requestAnimationFrame(r));
+      }
+    }
+
+    return finalDataURL;
+  }
+
+  // ── Hi-res capture ────────────────────────────────────────────────
   async function captureHiRes(scale) {
     detectCanvas();
     if (!activeCanvas) {
@@ -582,50 +956,9 @@ window.addEventListener('DOMContentLoaded', function () {
       return null;
     }
 
-    const canvas   = activeCanvas;
-    const renderer = canvas.__igaRenderer; // set by our THREE patch
-
     try {
-      let dataURL;
-
-      if (renderer && scale > 1) {
-        // ── Three.js path: upscale the render buffer ──────────────
-        const origW = canvas.width;
-        const origH = canvas.height;
-        const newW  = Math.round(origW * scale);
-        const newH  = Math.round(origH * scale);
-
-        // Resize without touching CSS layout (updateStyle = false)
-        renderer.setSize(newW, newH, false);
-
-        // Wait 2 frames: simulation's own rAF loop will re-render at new size
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-        dataURL = canvas.toDataURL('image/png');
-
-        // Restore original size
-        renderer.setSize(origW, origH, false);
-        await new Promise(r => requestAnimationFrame(r));
-
-      } else if (scale > 1) {
-        // ── 2D canvas path: draw into a larger offscreen canvas ───
-        const offscreen = document.createElement('canvas');
-        offscreen.width  = Math.round(canvas.width  * scale);
-        offscreen.height = Math.round(canvas.height * scale);
-        const ctx = offscreen.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.scale(scale, scale);
-        ctx.drawImage(canvas, 0, 0);
-        dataURL = offscreen.toDataURL('image/png');
-
-      } else {
-        // ── 1× direct capture ─────────────────────────────────────
-        dataURL = canvas.toDataURL('image/png');
-      }
-
-      // Detect blank frame (preserveDrawingBuffer missed)
-      if (dataURL.length < 200) {
+      const dataURL = await captureAndProcessFrame(scale);
+      if (!dataURL || dataURL.length < 200) {
         showToast('⚠ Canvas appears blank — reload and try again', 'error');
         return null;
       }
@@ -634,7 +967,6 @@ window.addEventListener('DOMContentLoaded', function () {
       captureCount++;
       document.getElementById('__iga-btn-download__').disabled = false;
       return dataURL;
-
     } catch (e) {
       showToast('❌ Capture failed: ' + e.message, 'error');
       return null;
@@ -698,11 +1030,170 @@ window.addEventListener('DOMContentLoaded', function () {
     showToast(`↓ Downloaded: ${getFilename()}`, 'success');
   });
 
+  // ── GIF Recording Logic ──────────────────────────────────────────
+  let recordingFrames = [];
+  let isRecording = false;
+
+  const recordBtn = document.getElementById('__iga-btn-record__');
+
+  recordBtn.addEventListener('click', async () => {
+    if (!window.gifshot) {
+      showToast('❌ gifshot library not loaded yet', 'error');
+      return;
+    }
+    
+    detectCanvas();
+    if (!activeCanvas) {
+      showToast('❌ No active canvas found to record', 'error');
+      return;
+    }
+
+    if (!isRecording) {
+      isRecording = true;
+      recordingFrames = [];
+      recordBtn.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="red"/>
+        </svg>
+        Stop & Save GIF
+      `;
+      recordBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+      showToast('🎥 Recording started! Drag sliders to animate.', 'success');
+
+      const recordFrame = async () => {
+        if (!isRecording) return;
+        const startTime = Date.now();
+        const frame = await captureAndProcessFrame(1);
+        if (frame) recordingFrames.push(frame);
+        
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(10, 100 - elapsed);
+        setTimeout(recordFrame, delay);
+      };
+      recordFrame();
+      
+    } else {
+      isRecording = false;
+      recordBtn.disabled = true;
+      recordBtn.innerHTML = '⚙️ Compiling GIF…';
+      showToast('⚙️ Compiling animation (using web workers)…', 'success');
+
+      if (recordingFrames.length === 0) {
+        showToast('❌ No frames captured.', 'error');
+        recordBtn.disabled = false;
+        recordBtn.innerHTML = 'Record Simulation GIF';
+        return;
+      }
+
+      // Read first frame size to compile with exact aspect ratio
+      const tempImg = new Image();
+      tempImg.onload = () => {
+        const gifW = Math.min(tempImg.width, 800);
+        const gifH = Math.round(gifW * (tempImg.height / tempImg.width));
+
+        window.gifshot.createGIF({
+          images: recordingFrames,
+          gifWidth: gifW,
+          gifHeight: gifH,
+          interval: 0.1, // 10 FPS
+          numFrames: recordingFrames.length,
+          frameDuration: 1
+        }, async (obj) => {
+          if (obj.error) {
+            showToast('❌ GIF compilation failed: ' + obj.errorMsg, 'error');
+          } else {
+            const dataURL = obj.image;
+            const originalFilename = getFilename();
+            const gifFilename = originalFilename.replace(/\.[^/.]+$/, "") + ".gif";
+            
+            try {
+              const response = await fetch('/__overlay__/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dataURL, filename: gifFilename }),
+              });
+              const result = await response.json();
+              if (result.success) {
+                showToast(`✓ GIF Saved → ${gifFilename}`, 'success');
+              } else {
+                showToast('❌ Server error: ' + result.error, 'error');
+              }
+            } catch (e) {
+              showToast('❌ Could not save: ' + e.message, 'error');
+            }
+          }
+
+          recordBtn.disabled = false;
+          recordBtn.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            Record Simulation GIF
+          `;
+          recordBtn.style.background = 'linear-gradient(135deg, #ec4899, #f43f5e)';
+        });
+      };
+      tempImg.src = recordingFrames[0];
+    }
+  });
+
   // ── Custom filename toggle ────────────────────────────────────────
   document.getElementById('__iga-fig-select__').addEventListener('change', function () {
     const wrap = document.getElementById('__iga-custom-wrap__');
     wrap.classList.toggle('visible', this.value === 'custom');
   });
+
+  // ── Auto-capture missing figures ──────────────────────────────────
+  async function autoCaptureIfMissing() {
+    try {
+      const res = await fetch('/__overlay__/figures');
+      const statusList = await res.json();
+      
+      const currentPath = window.location.pathname;
+      
+      if (currentPath.includes('iga-sim-3.4a')) {
+        const deimStatus = statusList.find(f => f.filename === 'deim_node_selection.png');
+        if (deimStatus && !deimStatus.saved) {
+          console.log('[IGA Export] Auto-capture triggered for deim_node_selection.png');
+          
+          // Wait for training button
+          const btnTrain = document.getElementById('btn-train');
+          if (btnTrain) {
+            showToast('🤖 Auto-training DEIM...', 'success');
+            btnTrain.click();
+            
+            // Wait for training
+            await new Promise(r => setTimeout(r, 5000));
+            
+            // Click DEIM method
+            const deimBtn = document.querySelector('button[data-method="deim"]');
+            if (deimBtn) deimBtn.click();
+            
+            // Enable DOFs
+            const dofsCheckbox = document.getElementById('input-show-dofs');
+            if (dofsCheckbox) {
+              dofsCheckbox.checked = true;
+              dofsCheckbox.dispatchEvent(new Event('change'));
+            }
+            
+            await new Promise(r => setTimeout(r, 1000));
+            
+            // Select deim_node_selection.png
+            document.getElementById('__iga-fig-select__').value = 'deim_node_selection.png';
+            
+            // Trigger capture
+            showToast('🤖 Auto-capturing DEIM Node Selection...', 'success');
+            document.getElementById('__iga-btn-capture__').click();
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[IGA Export] Auto-capture check failed:', e);
+    }
+  }
+
+  // Run auto-capture check after 2.5 seconds to let scripts load
+  setTimeout(autoCaptureIfMissing, 2500);
 
   // ── Minimize / restore ────────────────────────────────────────────
   document.getElementById('__iga-export-minimize__').addEventListener('click', () => {

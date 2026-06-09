@@ -1,0 +1,73 @@
+% ==============================================================================
+\chapter*{Appendices}
+\addcontentsline{toc}{chapter}{Appendices}
+\markboth{Appendices}{Appendices}
+% ==============================================================================
+
+\section*{Appendix A: Analytical Derivatives of NURBS Basis Functions}
+Evaluating the spatial derivatives of B-splines and NURBS is required to compute the strain-displacement matrix $\mat{B}$ and coordinate Jacobian $\mat{J}$ at the quadrature points. Let $N_{i,p}(\xi)$ denote the $i$-th B-spline basis function of polynomial degree $p$ defined over the knot vector $\Xi$. The analytical derivative of $N_{i,p}(\xi)$ is evaluated recursively as:
+\begin{equation}
+    N'_{i,p}(\xi) = \frac{d}{d\xi} N_{i,p}(\xi) = p \left( \frac{N_{i,p-1}(\xi)}{\xi_{i+p} - \xi_i} - \frac{N_{i+1,p-1}(\xi)}{\xi_{i+p+1} - \xi_{i+1}} \right)
+\end{equation}
+with the recursive base case:
+\begin{equation}
+    N'_{i,0}(\xi) = 0
+\end{equation}
+
+For rational NURBS curves where control point weights $w_i$ are introduced, the rational basis functions $R_i(\xi)$ are:
+\begin{equation}
+    R_i(\xi) = \frac{N_i(\xi) w_i}{W(\xi)} \quad \text{where} \quad W(\xi) = \sum_{j=0}^{n-1} N_j(\xi) w_j
+\end{equation}
+Applying the quotient rule yields the exact analytical gradient:
+\begin{equation}
+    \frac{d R_i(\xi)}{d\xi} = w_i \frac{N'_i(\xi) W(\xi) - N_i(\xi) W'(\xi)}{[W(\xi)]^2}
+\end{equation}
+where the derivative of the weighting denominator function is:
+\begin{equation}
+    W'(\xi) = \sum_{j=0}^{n-1} N'_j(\xi) w_j
+\end{equation}
+
+For bivariate surfaces mapped using a tensor product, the basis function is defined as:
+\begin{equation}
+    R_{i,j}(\xi, \eta) = \frac{N_i(\xi) M_j(\eta) w_{i,j}}{W(\xi, \eta)} \quad \text{where} \quad W(\xi, \eta) = \sum_{k=0}^{n-1}\sum_{l=0}^{m-1} N_k(\xi) M_l(\eta) w_{k,l}
+\end{equation}
+The partial derivatives with respect to the parametric coordinates $\xi$ and $\eta$ are resolved as:
+\begin{align}
+    \frac{\partial R_{i,j}(\xi, \eta)}{\partial \xi} &= w_{i,j} \frac{N'_i(\xi) M_j(\eta) W(\xi, \eta) - N_i(\xi) M_j(\eta) \frac{\partial W(\xi, \eta)}{\partial \xi}}{[W(\xi, \eta)]^2} \\
+    \frac{\partial R_{i,j}(\xi, \eta)}{\partial \eta} &= w_{i,j} \frac{N_i(\xi) M'_j(\eta) W(\xi, \eta) - N_i(\xi) M_j(\eta) \frac{\partial W(\xi, \eta)}{\partial \eta}}{[W(\xi, \eta)]^2}
+\end{align}
+where the partial derivatives of the weight denominator function are:
+\begin{equation}
+    \frac{\partial W(\xi, \eta)}{\partial \xi} = \sum_{k=0}^{n-1}\sum_{l=0}^{m-1} N'_k(\xi) M_l(\eta) w_{k,l}, \quad \frac{\partial W(\xi, \eta)}{\partial \eta} = \sum_{k=0}^{n-1}\sum_{l=0}^{m-1} N_k(\xi) M'_l(\eta) w_{k,l}
+\end{equation}
+
+\newpage
+
+\section*{Appendix B: Simulation Engine Configuration Parameters}
+To ensure reproducibility of the numerical experiments and benchmark comparisons, the physical dimensions, constitutive parameters, and solver configuration values utilized by the IGA-ROM simulation engine are detailed in Table \ref{tab:sim_parameters}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Detailed physical, discretization, and temporal solver parameters used in the numerical benchmark validation.}
+    \label{tab:sim_parameters}
+    \begin{tabular}{lclc}
+        \toprule
+        \textbf{Physical Constants} & \textbf{Value} & \textbf{Solver Settings} & \textbf{Value} \\
+        \midrule
+        Young's Modulus $E$ & $2.1 \times 10^{11}$ Pa & Time Step size $\Delta t$ & $0.005$ s \\
+        Poisson's Ratio $\nu$ & $0.3$ & Total Steps $N_{\text{steps}}$ & $400$ steps \\
+        Mass Density $\rho$ & $7850$ kg/m$^3$ & End Time $T$ & $2.0$ s \\
+        Beam Length $L$ & $8.0$ m & Newmark Coefficient $\beta$ & $0.25$ \\
+        Beam Height $H$ & $2.0$ m & Newmark Coefficient $\gamma$ & $0.50$ \\
+        Beam Thickness $t_h$ & $0.01$ m & Mass Damping $\alpha_M$ & $0.05$ \\
+        Notch Width Factor $\sigma$ & $0.6$ m & Stiffness Damping $\beta_K$ & $0.002$ \\
+        \midrule
+        \textbf{Mesh Configuration} & \textbf{Value} & \textbf{ECSW Settings} & \textbf{Value} \\
+        \midrule
+        Polynomial Degree $p, q$ & $2 \times 2$ (Quadratic) & Target Error Tolerance $\epsilon_{\text{tol}}$ & $1 \times 10^{-4}$ \\
+        Elements along $L$ & $80$ elements & Max Active Elements $N_{\text{max}}$ & $100$ elements \\
+        Elements along $H$ & $40$ elements & Training Snapshots $M$ & $3$ snapshots \\
+        Total DoFs $N$ & $6,564$ equations & ROM Subspace size $r$ & $15$ modes \\
+        \bottomrule
+    \end{tabular}
+\end{table}
