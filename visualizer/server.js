@@ -17,8 +17,8 @@ const path    = require('path');
 const app = express();
 
 // ── Configuration ──────────────────────────────────────────────────
-const SIM_ROOT   = path.resolve('D:/CNAM internship');            // your app
-const FIGURES_DIR = path.resolve('D:/Internship_report/figures'); // dedicated output folder
+const SIM_ROOT   = path.resolve('c:/Users/Wehbe/Documents/internship-cnam');            // your app
+const FIGURES_DIR = path.resolve('c:/Users/Wehbe/Documents/internship-report/internship_report/figures'); // dedicated output folder
 const PORT       = 3000;
 
 // Auto-create the figures output directory if it doesn't exist

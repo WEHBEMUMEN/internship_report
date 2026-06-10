@@ -90,12 +90,14 @@ window.addEventListener('DOMContentLoaded', function () {
 
   // ── Report figure names ─────────────────────────────────────────
   const FIGURES = [
-    { value: 'nurbs_basis_curves.png',      label: 'NURBS Basis Curves'         },
+    { value: 'nurbs_basis_curves.png',      label: 'Phase 1.8: NURBS Circle'    },
     { value: 'iga_vs_fem_bending.png',      label: 'IGA vs FEM Bending'         },
     { value: 'pod_energy_decay.png',        label: 'POD Energy Decay'           },
     { value: 'bivariate_mesh_geometry.png', label: 'Bivariate Mesh Geometry'    },
     { value: 'knot_refinement_stages.png',  label: 'Knot Refinement Stages'     },
     { value: 'deim_node_selection.png',     label: 'DEIM Node Selection'        },
+    { value: 'ecsw_mapped_lab.png',         label: 'Phase 5.3a: ECSW Mapped Lab' },
+    { value: 'nonlinear_mapped_rom.png',    label: 'Phase 5.3b: Nonlinear ROM Lab' },
     { value: 'custom',                      label: '✏️  Custom filename…'        },
   ];
 
@@ -413,9 +415,9 @@ window.addEventListener('DOMContentLoaded', function () {
       <label>Output quality</label>
       <div class="iga-quality-btns">
         <button class="iga-q-btn" data-scale="1">1×</button>
-        <button class="iga-q-btn active" data-scale="2">2×</button>
+        <button class="iga-q-btn" data-scale="2">2×</button>
         <button class="iga-q-btn" data-scale="3">3×</button>
-        <button class="iga-q-btn" data-scale="4">4×</button>
+        <button class="iga-q-btn active" data-scale="4">4×</button>
       </div>
       <div id="__iga-output-size__">calculating…</div>
     </div>
@@ -485,7 +487,7 @@ window.addEventListener('DOMContentLoaded', function () {
   let activeCanvas = null;
   let lastDataURL  = null;
   let captureCount = 0;
-  let currentScale = 2;  // default to 2× for publication quality
+  let currentScale = 4;  // default to 4× for publication quality
 
   // ── Quality selector ─────────────────────────────────────────────
   function updateOutputSizeLabel() {
@@ -756,7 +758,7 @@ window.addEventListener('DOMContentLoaded', function () {
       let combinedW, cropH;
       let viewportsH;
 
-      if (canvases.length >= 2) {
+      if (canvases.length >= 2 && (window.location.pathname.includes('5.3') || window.location.pathname.includes('mapping'))) {
         // Double viewport mode
         const c1 = canvases[0];
         const c2 = canvases[1];

@@ -42,13 +42,15 @@
     right=3cm
 }
 
+\usepackage{svg}
+
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
     citecolor=blue,
     urlcolor=blue,
     pdftitle={M2 Thesis: Isogeometric Analysis and Reduced Order Modeling in Structural Dynamics},
-    pdfauthor={Thesis Author}
+    pdfauthor={Mumen Wehbe}
 }
 
 % Custom macros for vector/matrix notations
@@ -60,11 +62,17 @@
 % Document Details
 % ==============================================================================
 \title{
+    \includesvg[width=6cm]{CNAM_Logo.svg} \\
+    \vspace{1.5cm}
     \textbf{Isogeometric Analysis and Reduced Order Modeling for Parameterized Structural Dynamics} \\
     \vspace{1.5cm}
     \large{Master 2 Thesis}
 }
-\author{}
+\author{
+    \textbf{Mumen Wehbe} \\
+    \vspace{0.5cm}
+    \small{Supervisor: Christophe Hoareau}
+}
 \date{\today}
 
 % ==============================================================================
@@ -73,6 +81,12 @@
 \begin{document}
 
 \maketitle
+
+\input{chapters/0_frontmatter/abstract}
+\newpage
+
+\input{chapters/0_frontmatter/acknowledgements}
+\newpage
 
 \tableofcontents
 \newpage
@@ -89,15 +103,15 @@
 \input{chapters/0_frontmatter/nomenclature}
 \newpage
 
-\input{chapters/1_introduction/index}
+%\input{chapters/1_introduction/index}
 \input{chapters/2_theory/index}
-\input{chapters/3_discretization/index}
-\input{chapters/4_simulation/index}
-\input{chapters/5_rom/index}
-\input{chapters/6_digital_twin/index}
-\input{chapters/7_conclusion/index}
+%\input{chapters/3_discretization/index}
+%\input{chapters/4_simulation/index}
+%\input{chapters/5_rom/index}
+%\input{chapters/6_digital_twin/index}
+%\input{chapters/7_conclusion/index}
 
-\input{chapters/8_appendix/index}
+%\input{chapters/8_appendix/index}
 \newpage
 
 \nocite{*}

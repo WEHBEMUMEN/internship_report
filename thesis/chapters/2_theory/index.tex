@@ -4,13 +4,11 @@
 % ==============================================================================
 
 \section{Geometry Configurations}
-In structural mechanics and shape optimization, we analyze physical domains under geometric variations. Let $\Omega_0 \subset \mathbb{R}^d$ ($d \in \{1, 2, 3\}$) define the initial physical coordinate configuration, and let $\Omega(t; \boldsymbol{\mu})$ define the deformed physical configuration at time $t$, parameterized by a vector of design variables $\boldsymbol{\mu} \in \mathcal{D} \subset \mathbb{R}^P$.
 
-To systematically analyze the structural response under geometric parameter variations, we distinguish between two physical configurations:
-\begin{itemize}
-    \item \textbf{Initial Physical Configuration} $\Omega_0$: The spatial domain of the structure in its undeformed state at $t = 0$.
-    \item \textbf{Deformed Physical Configuration} $\Omega(t; \boldsymbol{\mu})$: The spatial domain of the structure at time $t$ under external loads, subject to the geometric parameter vector $\boldsymbol{\mu}$.
-\end{itemize}
+Let $\Omega_0 \subset \mathbb{R}^d$ ($d \in \{1, 2, 3\}$) define the initial physical coordinate configuration, and let $\Omega(t; \boldsymbol{\mu})$ define the deformed physical configuration at time $t$, parameterized by a vector of design variables $\boldsymbol{\mu} \in \mathcal{D} \subset \mathbb{R}^P$. The fig.~\ref{fig:notched_beam_geometry} illustrates the geometry of a 2D cantilever beam under geometric parameter variations. The geometric parameters are grouped into a vector 
+$\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^3$ where $r$ represents the radius of the symmetric circular notches cut out from the top and bottom boundaries.
+$\mu$ denotes the spatial position (distance from the clamped boundary on the left) of the notch center along the longitudinal axis of the beam.
+  
 
 \begin{figure}[htbp]
     \centering
@@ -20,17 +18,8 @@ To systematically analyze the structural response under geometric parameter vari
 \end{figure}
 
 
-\section{Parameterized Framework}
-We consider a 2D cantilever beam under geometric parameter variations. The geometric parameters are grouped into a vector:
-\begin{equation}
-    \boldsymbol{\mu} = (r, \mu, \sigma)^T \in \mathcal{D} \subset \mathbb{R}^3
-\end{equation}
-where:
-\begin{itemize}
-    \item $r$ represents the radius of the symmetric circular notches cut out from the top and bottom boundaries.
-    \item $\mu$ denotes the spatial position (distance from the clamped boundary on the left) of the notch center along the longitudinal axis of the beam.
-    \item $\sigma$ represents the external loading parameters and stress multipliers.
-\end{itemize}
+
+
 The displacement field of the structure is denoted by $\underline{u}(\vect{x}, t; \boldsymbol{\mu})$ for $\vect{x} \in \Omega(\boldsymbol{\mu})$, and the stress state is represented by the Cauchy stress tensor $\boldsymbol{\sigma}$.
 
 \section{Governing Equations \& Kinematics}
