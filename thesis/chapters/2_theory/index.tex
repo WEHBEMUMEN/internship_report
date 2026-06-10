@@ -6,8 +6,7 @@
 \section{Geometry Configurations}
 
 Let $\Omega_0 \subset \mathbb{R}^d$ ($d \in \{1, 2, 3\}$) define the initial physical coordinate configuration, and let $\Omega(t; \boldsymbol{\mu})$ define the deformed physical configuration at time $t$, parameterized by a vector of design variables $\boldsymbol{\mu} \in \mathcal{D} \subset \mathbb{R}^P$. The fig.~\ref{fig:notched_beam_geometry} illustrates the geometry of a 2D cantilever beam under geometric parameter variations. The geometric parameters are grouped into a vector 
-$\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^3$ where $r$ represents the radius of the symmetric circular notches cut out from the top and bottom boundaries.
-$\mu$ denotes the spatial position (distance from the clamped boundary on the left) of the notch center along the longitudinal axis of the beam.
+$\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^3$ where $r$ represents the radius of the symmetric circular notches cut out from the top and bottom boundaries and $\mu$ denotes the spatial position (distance from the clamped boundary on the left) of the notch center along the longitudinal axis of the beam.
   
 
 \begin{figure}[htbp]
@@ -19,10 +18,9 @@ $\mu$ denotes the spatial position (distance from the clamped boundary on the le
 
 
 
+\section{Governing Equations \& Kinematics}
 
 The displacement field of the structure is denoted by $\underline{u}(\vect{x}, t; \boldsymbol{\mu})$ for $\vect{x} \in \Omega(\boldsymbol{\mu})$, and the stress state is represented by the Cauchy stress tensor $\boldsymbol{\sigma}$.
-
-\section{Governing Equations \& Kinematics}
 Assuming small strains and linear elastic isotropic material behavior, the strong form governing the transient response of the structural continuum on the parameterized physical domain $\Omega(\boldsymbol{\mu})$ over the time interval $(0, T]$ is given by the balance of linear momentum:
 \begin{equation}
     \rho \ddot{\underline{u}} - \nabla \cdot \boldsymbol{\sigma}(\underline{u}) = \underline{f}_b \quad \text{in } \Omega(\boldsymbol{\mu}) \times (0, T]
@@ -42,6 +40,7 @@ For an isotropic material, the Cauchy stress tensor $\boldsymbol{\sigma}$ is rel
 \end{equation}
 where $\mat{D}$ is the fourth-order elasticity tensor (which under plane stress assumptions reduces to a $3 \times 3$ constitutive matrix).
 
+\newpage
 \section{Weak Formulation at the Continuum Level}
 To derive the variational statement, we multiply the momentum balance equation by a test function $\delta\underline{u}$ belonging to the space of kinematically admissible variations:
 \begin{equation}
@@ -59,3 +58,16 @@ where the bilinear mass and stiffness forms, and the linear load form are define
 \end{align}
 
 
+
+\newpage
+\section{Pullback mapping}
+
+\begin{equation}
+    \underline{d}(\hat{\mu})
+\end{equation}
+
+\newpage
+\section{Weak Formulation on reference configuration}
+
+\newpage
+\section{Conclusion chapter 1 }
