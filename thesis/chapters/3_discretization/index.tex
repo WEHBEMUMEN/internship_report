@@ -39,9 +39,104 @@ where $\vect{P}_i$ are the coordinates of the control points.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{chapters/3_discretization/images/nurbs_basis_curves.png}
-    \caption{Continuous evaluation of NURBS basis functions and their corresponding control weights extracted from the simulation engine.}
+    \makebox[\textwidth][c]{%
+        \begin{tikzpicture}[scale=1.1, >=stealth]
+            % Define Colors matching the theme
+            \definecolor{n0color}{RGB}{37, 99, 235}   % Blue
+            \definecolor{n1color}{RGB}{5, 150, 105}   % Green
+            \definecolor{n2color}{RGB}{217, 119, 6}   % Orange
+            \definecolor{n3color}{RGB}{220, 38, 38}   % Red
+            \definecolor{n4color}{RGB}{124, 58, 237}  % Purple
+            \definecolor{n5color}{RGB}{219, 39, 119}  % Pink/Magenta
+
+            % Grid and Axes
+            \draw[gray!30, line width=0.5pt] (0, 0) grid[ystep=0.25, xstep=0.25] (10, 5);
+            \draw[gray!50, dashed, line width=0.5pt] (0, 1.25) -- (10, 1.25);
+            \draw[gray!50, dashed, line width=0.5pt] (0, 3.75) -- (10, 3.75);
+
+            % Axes lines
+            \draw[->, thick, black!70] (0,0) -- (10.5,0) node[right] {$\xi$};
+            \draw[->, thick, black!70] (0,0) -- (0,5.5) node[above] {$N_{i,2}(\xi)$};
+
+            % X-Ticks
+            \foreach \x/\label in {0/0.0, 2.5/0.25, 5/0.5, 7.5/0.75, 10/1.0} {
+                    \draw[black!70, thick] (\x, 2pt) -- (\x, -2pt) node[below, font=\small] {\label};
+                }
+            % Y-Ticks
+            \foreach \y/\label in {0/0.0, 2.5/0.5, 5/1.0} {
+                    \draw[black!70, thick] (2pt, \y) -- (-2pt, \y) node[left, font=\small] {\label};
+                }
+
+            % --- PLOTS AND FILLS ---
+            % Scale factor: x goes from 0 to 10 (scale=10), y goes from 0 to 5 (scale=5)
+
+            % N_{0,2} (Blue)
+            \fill[n0color, opacity=0.08] (0,5) -- plot[domain=0:0.25, samples=50] ({10*\x}, {5*(1-4*\x)^2}) -- (2.5,0) -- (0,0) -- cycle;
+            \draw[n0color, line width=1.5pt] plot[domain=0:0.25, samples=50] ({10*\x}, {5*(1-4*\x)^2});
+
+            % N_{1,2} (Green)
+            \fill[n1color, opacity=0.08] (0,0) -- plot[domain=0:0.25, samples=50] ({10*\x}, {5*(8*\x - 24*\x^2)}) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {5*(8*(0.5-\x)^2)}) -- (5,0) -- cycle;
+            \draw[n1color, line width=1.5pt] plot[domain=0:0.25, samples=50] ({10*\x}, {5*(8*\x - 24*\x^2)}) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {5*(8*(0.5-\x)^2)});
+
+            % N_{2,2} (Orange)
+            \fill[n2color, opacity=0.08] (0,0) -- plot[domain=0:0.25, samples=50] ({10*\x}, {5*(8*\x^2)}) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {5*(12*\x - 16*\x^2 - 1.5)}) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {5*(8*(0.75-\x)^2)}) -- (7.5,0) -- cycle;
+            \draw[n2color, line width=1.5pt] plot[domain=0:0.25, samples=50] ({10*\x}, {5*(8*\x^2)}) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {5*(12*\x - 16*\x^2 - 1.5)}) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {5*(8*(0.75-\x)^2)});
+
+            % N_{3,2} (Red)
+            \fill[n3color, opacity=0.08] (2.5,0) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {5*(8*(\x-0.25)^2)}) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {5*(12*(1-\x) - 16*(1-\x)^2 - 1.5)}) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {5*(8*(1-\x)^2)}) -- (10,0) -- cycle;
+            \draw[n3color, line width=1.5pt] plot[domain=0.25:0.5, samples=50] ({10*\x}, {5*(8*(\x-0.25)^2)}) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {5*(12*(1-\x) - 16*(1-\x)^2 - 1.5)}) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {5*(8*(1-\x)^2)});
+
+            % N_{4,2} (Purple)
+            \fill[n4color, opacity=0.08] (5,0) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {5*(8*(\x-0.5)^2)}) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {5*(8*(1-\x) - 24*(1-\x)^2)}) -- (10,0) -- cycle;
+            \draw[n4color, line width=1.5pt] plot[domain=0.5:0.75, samples=50] ({10*\x}, {5*(8*(\x-0.5)^2)}) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {5*(8*(1-\x) - 24*(1-\x)^2)});
+
+            % N_{5,2} (Pink)
+            \fill[n5color, opacity=0.08] (7.5,0) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {5*(4*\x-3)^2}) -- (10,5) -- (10,0) -- cycle;
+            \draw[n5color, line width=1.5pt] plot[domain=0.75:1.0, samples=50] ({10*\x}, {5*(4*\x-3)^2});
+
+            % Legend
+            \matrix [draw, fill=white, at={(10.2, 5)}, anchor=north west, font=\small, row sep=2pt, ampersand replacement=\&] {
+                \node {\tikz[baseline=-0.5ex]{\draw[n0color, line width=1.5pt] (0,0) -- (0.5,0);}}; \& \node {$N_{0,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n1color, line width=1.5pt] (0,0) -- (0.5,0);}}; \& \node {$N_{1,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n2color, line width=1.5pt] (0,0) -- (0.5,0);}}; \& \node {$N_{2,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n3color, line width=1.5pt] (0,0) -- (0.5,0);}}; \& \node {$N_{3,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n4color, line width=1.5pt] (0,0) -- (0.5,0);}}; \& \node {$N_{4,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n5color, line width=1.5pt] (0,0) -- (0.5,0);}}; \& \node {$N_{5,2}$}; \\
+            };
+
+        \end{tikzpicture}%
+    }
+    \caption{Continuous evaluation of quadratic B-spline basis functions $N_{i,2}(\xi)$ over the knot vector $\Xi = \{0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1\}$.}
     \label{fig:nurbs_curves_eval}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[scale=1.0, >=stealth]
+        % Control points coordinates
+        \coordinate (P0) at (0, 0);
+        \coordinate (P1) at (1.5, 2.5);
+        \coordinate (P2) at (3.5, 3.0);
+        \coordinate (P3) at (5.0, 1.0);
+        \coordinate (P4) at (7.0, 2.5);
+
+        % Draw control polygon (dashed)
+        \draw[thick, gray, dashed] (P0) -- (P1) -- (P2) -- (P3) -- (P4);
+
+        % Draw actual B-spline curve
+        \draw[ultra thick, blue!70!black] (P0) .. controls (1.0,1.8) and (2.5,2.5) .. (3.5,2.1) .. controls (4.5,1.7) and (5.8,1.2) .. (P4);
+
+        % Draw control points
+        \foreach \p/\l/\pos in {P0/P_0/left, P1/P_1/above, P2/P_2/above, P3/P_3/below, P4/P_4/right} {
+                \fill[red!80!black] (\p) circle (2.5pt);
+                \node[\pos, font=\small] at (\p) {$\vect{\l}$};
+            }
+
+        % Labels
+        \node[blue!70!black, above] at (3, 1.2) {$\vect{C}(\xi)$};
+    \end{tikzpicture}
+    \caption{Concept of a 1D B-spline curve $\vect{C}(\xi)$ showing the control points $\vect{P}_i$ (red dots) and the dashed control polygon guiding the smooth curve (blue line).}
+    \label{fig:bspline_curve_concept}
 \end{figure}
 
 Unlike standard Lagrangian finite elements, NURBS basis functions do not possess the Kronecker delta property at internal nodes. Consequently, a control point $\vect{P}_i$ does not represent the physical state at a specific coordinate unless it lies on a repeated boundary knot of multiplicity $p+1$, where the curve interpolates the control point directly.
@@ -51,29 +146,257 @@ To model 2D structural domains such as the cantilever beam, the geometric repres
 
 The bivariate rational basis functions $R_{i,j}^{p,q}(\xi, \eta)$ are formulated by projecting a grid of control weights $w_{i,j}$ across the product space:
 \begin{equation}
-        R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k=0}^{n-1} \sum_{l=0}^{m-1} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
+    R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k=0}^{n-1} \sum_{l=0}^{m-1} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
 \end{equation}
 where $N_{i,p}(\xi)$ and $M_{j,q}(\eta)$ represent the standard univariate basis polynomials evaluated along the $\xi$ and $\eta$ directions, respectively. The continuous geometric mapping of the 2D surface patch $\vect{S}(\xi, \eta)$ is expressed as a linear combination of a bidimensional control point lattice $\vect{P}_{i,j} = [x_{i,j}, y_{i,j}, z_{i,j}]^T$:
 \begin{equation}
-        \vect{S}(\xi, \eta) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
+    \vect{S}(\xi, \eta) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
 \end{equation}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.75\textwidth]{chapters/3_discretization/images/bivariate_mesh_geometry.png}
-    \caption{Bivariate NURBS mesh geometry representation of the notched cantilever beam showing control point lattice mapping.}
-    \label{fig:bivariate_mesh_geometry}
+    \makebox[\textwidth][c]{%
+        \begin{tikzpicture}[
+                declare function={
+                        n0(\t) = (\t < 0.25) * ((1-4*\t)^2);
+                        n2(\t) = (\t < 0.25) * (8*\t^2) +
+                        (\t >= 0.25) * (\t < 0.5) * (12*\t - 16*\t^2 - 1.5) +
+                        (\t >= 0.5) * (\t < 0.75) * (8*(0.75-\t)^2);
+                    }
+            ]
+            % Panel (a) Axis
+            \begin{axis}[
+                    at={(0,0)},
+                    width=7.5cm,
+                    height=6.0cm,
+                    grid=major,
+                    xlabel={$\xi$},
+                    ylabel={$\eta$},
+                    zlabel={$R_{0,2}(\xi,\eta)$},
+                    colormap/viridis,
+                    view={60}{30},
+                    zmin=0, zmax=0.8,
+                    title={(a) Boundary basis function $R_{0,2}(\xi,\eta)$}
+                ]
+                \addplot3[
+                    surf,
+                    domain=0:0.8,
+                    domain y=0:0.8,
+                    samples=25,
+                    shader=faceted
+                ] {n0(x)*n2(y)};
+            \end{axis}
+
+            % Panel (b) Axis
+            \begin{axis}[
+                    at={(7.8cm,0)},
+                    width=7.5cm,
+                    height=6.0cm,
+                    grid=major,
+                    xlabel={$\xi$},
+                    ylabel={$\eta$},
+                    zlabel={$R_{2,2}(\xi,\eta)$},
+                    colormap/viridis,
+                    view={60}{30},
+                    zmin=0, zmax=0.8,
+                    title={(b) Internal basis function $R_{2,2}(\xi,\eta)$}
+                ]
+                \addplot3[
+                    surf,
+                    domain=0:0.8,
+                    domain y=0:0.8,
+                    samples=25,
+                    shader=faceted
+                ] {n2(x)*n2(y)};
+            \end{axis}
+        \end{tikzpicture}%
+    }
+    \caption{3D surface plots of two distinct bivariate tensor-product B-spline basis functions: (a) boundary basis function $R_{0,2}(\xi,\eta) = N_{0,2}(\xi)M_{2,2}(\eta)$ and (b) internal basis function $R_{2,2}(\xi,\eta) = N_{2,2}(\xi)M_{2,2}(\eta)$, demonstrating the difference between edge-supported and fully internal support.}
+    \label{fig:bivariate_basis_3d}
 \end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[scale=1.0, >=stealth]
+        % Row 0
+        \coordinate (P00) at (0, 0);
+        \coordinate (P01) at (0.8, 0.6);
+        \coordinate (P02) at (1.6, 1.2);
+        % Row 1
+        \coordinate (P10) at (2.0, 1.0);
+        \coordinate (P11) at (2.8, 2.2); % raised in the middle
+        \coordinate (P12) at (3.6, 2.2);
+        % Row 2
+        \coordinate (P20) at (4.0, 0.5);
+        \coordinate (P21) at (4.8, 1.4);
+        \coordinate (P22) at (5.6, 2.0);
+
+        % Draw control net (dashed grid)
+        \draw[thick, gray!60, dashed] (P00) -- (P01) -- (P02);
+        \draw[thick, gray!60, dashed] (P10) -- (P11) -- (P12);
+        \draw[thick, gray!60, dashed] (P20) -- (P21) -- (P22);
+        \draw[thick, gray!60, dashed] (P00) -- (P10) -- (P20);
+        \draw[thick, gray!60, dashed] (P01) -- (P11) -- (P21);
+        \draw[thick, gray!60, dashed] (P02) -- (P12) -- (P22);
+
+        % Draw the smooth surface patch (colored patch)
+        \fill[blue!10, opacity=0.7, draw=blue!70!black, thick]
+        (0.5, 0.2) .. controls (1.5, 1.2) and (3.0, 1.2) .. (4.5, 0.7)
+        .. controls (5.0, 1.3) and (5.2, 1.6) .. (5.3, 1.8)
+        .. controls (3.8, 1.9) and (2.5, 1.8) .. (1.2, 1.0)
+        .. controls (0.8, 0.6) and (0.6, 0.4) .. (0.5, 0.2);
+
+        % Draw grid lines on the surface patch to show parameter lines
+        \draw[blue!40, thin] (1.8, 0.6) .. controls (2.6, 1.4) and (3.3, 1.4) .. (4.8, 1.0);
+        \draw[blue!40, thin] (1.0, 1.0) .. controls (2.2, 1.5) and (3.6, 1.5) .. (5.0, 1.4);
+
+        % Draw control points
+        \foreach \p in {P00, P01, P02, P10, P11, P12, P20, P21, P22} {
+                \fill[red!80!black] (\p) circle (2.5pt);
+            }
+
+        \node[red!80!black, above] at (P11) {$\vect{P}_{i,j}$};
+        \node[blue!70!black] at (3.0, 1.1) {$\vect{S}(\xi,\eta)$};
+    \end{tikzpicture}
+    \caption{Concept of a 2D B-spline surface patch $\vect{S}(\xi,\eta)$ guided by a 3D lattice of control points $\vect{P}_{i,j}$ (red dots) forming a dashed control net.}
+    \label{fig:bspline_surface_concept}
+\end{figure}
+
+
 
 For surface integration and local coordinate transformation, the parametric gradients are mapped to physical space via the 2D coordinate Jacobian matrix $\mat{J}$:
 \begin{equation}
-\label{eq:jacobian}
-\mat{J}(\xi, \eta) = \begin{bmatrix} \frac{\partial x}{\partial \xi} & \frac{\partial y}{\partial \xi} \\[0.3em] \frac{\partial x}{\partial \eta} & \frac{\partial y}{\partial \eta} \end{bmatrix} = \begin{bmatrix} \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} y_{i,j} \\[0.5em] \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} y_{i,j} \end{bmatrix}
+    \label{eq:jacobian}
+    \mat{J}(\xi, \eta) = \begin{bmatrix} \frac{\partial x}{\partial \xi} & \frac{\partial y}{\partial \xi} \\[0.3em] \frac{\partial x}{\partial \eta} & \frac{\partial y}{\partial \eta} \end{bmatrix} = \begin{bmatrix} \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} y_{i,j} \\[0.5em] \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} y_{i,j} \end{bmatrix}
 \end{equation}
 The physical tangent vectors spanning the surface tangent plane are defined as $\vect{g}_{\xi} = \partial \vect{S}/\partial \xi$ and $\vect{g}_{\eta} = \partial \vect{S}/\partial \eta$. The local outward unit surface normal vector $\vect{n}(\xi, \eta)$ required for boundary conditions is extracted via the cross product:
 \begin{equation}
-\vect{n}(\xi, \eta) = \frac{\vect{g}_{\xi} \times \vect{g}_{\eta}}{\|\vect{g}_{\xi} \times \vect{g}_{\eta}\|}
+    \vect{n}(\xi, \eta) = \frac{\vect{g}_{\xi} \times \vect{g}_{\eta}}{\|\vect{g}_{\xi} \times \vect{g}_{\eta}\|}
 \end{equation}
+
+\subsection{Localized Mesh Refinement}
+A primary benefit of Isogeometric Analysis is the ability to enrich the solution space without altering the exact CAD geometry boundary definitions. Refinement of the discretization is achieved through three distinct paradigms: $h$-refinement (knot insertion), $p$-refinement (degree elevation), and $k$-refinement (order elevation).
+
+\subsubsection{h-Refinement (Knot Insertion)}
+In $h$-refinement, new elements (knot spans) are created by inserting new values into the knot vectors without modifying the polynomial degree $p$ or the geometric shape. Inserting a new knot $\bar{\xi}$ into an existing knot sequence $\Xi = \{\xi_0, \xi_1, \dots, \xi_{n+p}\}$ increases the number of basis functions by one and updates the control point coordinates.
+
+Our framework utilizes the Boehm knot insertion algorithm. The new control points $\vect{P}_i^{\text{new}}$ are computed from the original control points via:
+\begin{equation}
+    \vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}
+\end{equation}
+where the blending coefficients $\alpha_i$ are determined by the knot layout topology:
+\begin{equation}
+    \alpha_i = \begin{cases}
+        1                                           & \text{if } i \le k - p           \\
+        \frac{\bar{\xi} - \xi_i}{\xi_{i+p} - \xi_i} & \text{if } k - p + 1 \le i \le k \\
+        0                                           & \text{if } i \ge k + 1
+    \end{cases}
+\end{equation}
+This local linear relation can be cast globally for the 1D control point vector as a matrix-vector product $\vect{P}^{\text{new}} = \mat{T} \vect{P}$, where the sparse knot insertion matrix $\mat{T} \in \mathbb{R}^{(n+1) \times n}$ has non-zero entries defined by $T_{i, j} = \alpha_i \delta_{i, j} + (1 - \alpha_i) \delta_{i-1, j}$.
+
+For 2D domains with a control grid lattice matrix $\mat{P} \in \mathbb{R}^{n \times m}$, inserting knots along the $\xi$ and $\eta$ directions involves directional transformation matrices $\mat{T}_{\xi} \in \mathbb{R}^{(n+1) \times n}$ and $\mat{T}_{\eta} \in \mathbb{R}^{(m+1) \times m}$. The refined control point grid $\mat{P}^{\text{new}} \in \mathbb{R}^{(n+1) \times (m+1)}$ is assembled tensorially via:
+\begin{equation}
+    \mat{P}^{\text{new}} = \mat{T}_{\xi} \mat{P} \mat{T}_{\eta}^T
+\end{equation}
+By flattening the control lattice into a column vector $\vect{P}$, the global refinement mapping is expressed using the Kronecker product operator $\otimes$ as:
+\begin{equation}
+    \vect{P}^{\text{new}} = \left( \mat{T}_{\eta} \otimes \mat{T}_{\xi} \right) \vect{P}
+\end{equation}
+This allows us to insert localized refinements near expected stress concentrations (e.g., around the symmetric notches) while keeping the geometric representation exact. At any newly inserted knot, the continuity of the basis functions is $C^{p-1}$.
+
+\subsubsection{p-Refinement (Degree Elevation)}
+In $p$-refinement, the polynomial degree of the basis functions is elevated from $p$ to $p + \Delta p$ without changing the geometry or the parametric coordinates of the existing knot spans. To maintain the geometric shape exactly and preserve the continuity properties at existing knot locations, the multiplicity of all existing knots must be increased by $\Delta p$.
+
+For a 1D curve, the new control points $\vect{P}^{\text{new}}$ are related to the original control points by a linear degree elevation operator:
+\begin{equation}
+    \vect{P}^{\text{new}} = \mat{T}_p \vect{P}
+\end{equation}
+where $\mat{T}_p$ is the degree elevation transformation matrix. Elevating the degree increases the support of each basis function and adds more control points. Unlike standard FEM where $p$-refinement introduces high-order Lagrange polynomials that can exhibit oscillatory behavior (Runge's phenomenon), IGA degree elevation preserves the non-negativity and variation-diminishing properties of B-splines.
+
+\subsubsection{k-Refinement (Order Elevation)}
+A key distinguishing feature of Isogeometric Analysis is $k$-refinement, which has no direct analogue in classical Finite Element Analysis. In standard FEM, $p$-refinement always results in elements that are only $C^0$-continuous across element boundaries. In contrast, IGA allows us to increase the polynomial degree while keeping the continuity across elements as high as possible.
+
+The $k$-refinement process is non-commutative and is performed in the following sequence:
+\begin{enumerate}
+    \item \textbf{Degree Elevation}: Elevate the polynomial degree from $p$ to $p + \Delta p$ on the initial coarse knot vector (which contains only the repeated boundary knots).
+    \item \textbf{Knot Insertion}: Insert the desired internal knots into the elevated knot vector.
+\end{enumerate}
+By elevating the degree first (where the only internal knot spans are virtually non-existent or highly continuous) and then inserting knots, the resulting basis functions possess $C^{p + \Delta p - 1}$ continuity at all newly inserted internal knots. This is significantly higher than the $C^{p-1}$ continuity obtained if knot insertion is performed prior to degree elevation. The high continuity of $k$-refinement provides superior accuracy per degree of freedom, especially for structural vibration and wave propagation problems.
+
+\begin{figure}[H]
+    \centering
+    \makebox[\textwidth][c]{%
+        \begin{minipage}[c]{0.38\textwidth}
+            \centering
+            \begin{tikzpicture}[scale=1.4, >=stealth]
+                % Grid
+                \draw[gray!15, thin, step=0.5] (-1.5, -1.5) grid (1.5, 1.5);
+                % Axes
+                \draw[->, black!40, line width=0.5pt] (-1.6, 0) -- (1.6, 0) node[right, font=\tiny] {$x$};
+                \draw[->, black!40, line width=0.5pt] (0, -1.6) -- (0, 1.6) node[above, font=\tiny] {$y$};
+
+                % Perfect Circle
+                \draw[blue!70!black, thick] (0,0) circle (1.0);
+
+                % Initial control net (dashed square-like octagon)
+                \draw[gray!70, dashed, thick] (1,0) -- (1,1) -- (0,1) -- (-1,1) -- (-1,0) -- (-1,-1) -- (0,-1) -- (1,-1) -- cycle;
+
+                % Control points on axes (w=1)
+                \foreach \x/\y in {1/0, 0/1, -1/0, 0/-1} {
+                        \fill[orange] (\x, \y) circle (2.2pt);
+                        \node[font=\tiny, fill=white, inner sep=1pt, rounded corners=1pt, draw=gray!20] at (\x*1.3, \y*1.3) {$w=1$};
+                    }
+                % Diagonal control points (w=0.707)
+                \foreach \x/\y in {1/1, -1/1, -1/-1, 1/-1} {
+                        \fill[orange] (\x, \y) circle (2.2pt);
+                        \node[font=\tiny, fill=white, inner sep=1.3pt, rounded corners=1pt, draw=gray!20] at (\x*1.25, \y*1.25) {$w\approx 0.707$};
+                    }
+            \end{tikzpicture}
+            \par\vspace{5pt}
+            \small (a) Before refinement
+        \end{minipage}\hfill
+        \begin{minipage}[c]{0.38\textwidth}
+            \centering
+            \begin{tikzpicture}[scale=1.4, >=stealth]
+                % Grid
+                \draw[gray!15, thin, step=0.5] (-1.5, -1.5) grid (1.5, 1.5);
+                % Axes
+                \draw[->, black!40, line width=0.5pt] (-1.6, 0) -- (1.6, 0) node[right, font=\tiny] {$x$};
+                \draw[->, black!40, line width=0.5pt] (0, -1.6) -- (0, 1.6) node[above, font=\tiny] {$y$};
+
+                % Perfect Circle
+                \draw[blue!70!black, thick] (0,0) circle (1.0);
+
+                % Refined control polygon (closer to circle)
+                \draw[gray!70, dashed, thick] (0:1.025)
+                \foreach \angle in {22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5, 360} {
+                        -- (\angle:1.025)
+                    };
+
+                % Refined control points
+                \foreach \angle in {0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5} {
+                        \fill[orange] (\angle:1.025) circle (2.2pt);
+                    }
+            \end{tikzpicture}
+            \par\vspace{5pt}
+            \small (b) After refinement
+        \end{minipage}\hfill
+        \begin{minipage}[c]{0.20\textwidth}
+            \centering
+            \begin{tikzpicture}[scale=0.9, ampersand replacement=\&]
+                \matrix [draw=gray!30, fill=white, rounded corners=2pt, font=\small, row sep=6pt, column sep=6pt, ampersand replacement=\&] {
+                    \node {\tikz[baseline=-0.5ex]{\draw[blue!70!black, thick] (0,0) -- (0.4,0);}}; \& \node {NURBS Circle};  \\
+                    \node {\tikz[baseline=-0.5ex]{\draw[gray!70, dashed, thick] (0,0) -- (0.4,0);}}; \& \node {Control Net}; \\
+                    \node {\tikz[baseline=-0.5ex]{\fill[orange] (0,0) circle (2.2pt);}}; \& \node {Control Point};           \\
+                };
+            \end{tikzpicture}
+        \end{minipage}%
+    }
+    \caption{NURBS circle parameterization: (a) initial 8-control-point configuration with projective weights generating an exact circle, and (b) refined configuration showing the control points and net converging towards the physical circle after knot insertion.}
+    \label{fig:nurbs_circle_parameterization}
+\end{figure}
+
+\newpage
 
 \subsection{Diffeomorphic Mapping and Weak Form Pullback}
 The physical domain $\Omega(\boldsymbol{\mu})$ varies with the parameter vector $\boldsymbol{\mu}$, meaning that displacement snapshots collected for different parameters lie in different function spaces. This prevents Proper Orthogonal Decomposition (POD) and SVD-based basis extraction from being conducted directly in the physical space.
@@ -82,6 +405,79 @@ To resolve this incompatibility, we define the parameterized smooth geometric ma
 \begin{equation}
     \boldsymbol{x} = \boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\boldsymbol{\xi}) \vect{P}_{i,j}(\boldsymbol{\mu})
 \end{equation}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=1.0, >=stealth]
+        % --- PARAMETRIC DOMAIN (left) ---
+        \begin{scope}[xshift=0cm, yshift=0cm]
+            \draw[fill=blue!5, draw=blue!50, thick] (0,0) rectangle (2.5,2.0);
+            % Grid lines
+            \foreach \x in {0.5, 1.0, 1.5, 2.0} {
+                    \draw[blue!30, thin] (\x, 0) -- (\x, 2.0);
+                }
+            \foreach \y in {0.5, 1.0, 1.5} {
+                    \draw[blue!30, thin] (0, \y) -- (2.5, \y);
+                }
+            % Labels
+            \node[below=2pt] at (1.25, 0) {$\xi$};
+            \node[left=4pt] at (0, 1.0) {$\eta$};
+            \node[fill=blue!5, inner sep=2.5pt, rounded corners=1pt] at (1.25, 1.0) {\large $\hat{\Omega}$};
+        \end{scope}
+
+        % --- MAPPING ARROW (middle) ---
+        \draw[->, ultra thick, black!60] (3.2, 1.0) to[out=30, in=150] node[above, black] {$\boldsymbol{\Psi}(\cdot; \boldsymbol{\mu})$} (5.8, 1.0);
+
+        % --- PHYSICAL DOMAIN (right) ---
+        \begin{scope}[xshift=6.5cm, yshift=1.0cm, scale=0.7]
+            % Drawing a notched beam centered at y=0, x from 0 to 6
+            % Top notch at x=3: arc from (2.2, 1.0) to (3.8, 1.0) with depth down to 0.4
+            % Bottom notch at x=3: arc from (2.2, -1.0) to (3.8, -1.0) with depth up to -0.4
+            \draw[fill=blue!5, draw=blue!50, thick]
+            (0, -1.0) -- (2.0, -1.0)
+            .. controls (2.5, -1.0) and (2.7, -0.4) .. (3.0, -0.4)
+            .. controls (3.3, -0.4) and (3.5, -1.0) .. (4.0, -1.0)
+            -- (6.0, -1.0) -- (6.0, 1.0) -- (4.0, 1.0)
+            .. controls (3.5, 1.0) and (3.3, 0.4) .. (3.0, 0.4)
+            .. controls (2.7, 0.4) and (2.5, 1.0) .. (2.0, 1.0)
+            -- (0, 1.0) -- cycle;
+
+            % Deformed grid lines (isoparametric lines)
+            \foreach \x in {1, 2, 3, 4, 5} {
+                    \ifnum\x=3
+                        % Draw a central line that squeezes at the notch
+                        \draw[blue!30, thin] (3.0, -0.4) -- (3.0, 0.4);
+                    \else
+                        \draw[blue!30, thin] (\x, -1.0) -- (\x, 1.0);
+                    \fi
+                }
+            % Draw some horizontal physical grid lines that curve near the notches
+            \draw[blue!30, thin] (0, -0.5)
+            .. controls (2.0, -0.5) and (2.5, -0.2) .. (3.0, -0.2)
+            .. controls (3.5, -0.2) and (4.0, -0.5) .. (6.0, -0.5);
+            \draw[blue!30, thin] (0, 0.5)
+            .. controls (2.0, 0.5) and (2.5, 0.2) .. (3.0, 0.2)
+            .. controls (3.5, 0.2) and (4.0, 0.5) .. (6.0, 0.5);
+            \draw[blue!30, thin] (0, 0) -- (6, 0);
+
+            % Labels
+            \node[below, font=\small] at (0, -1.0) {$x=0$};
+            \node[below, font=\small] at (6, -1.0) {$x=L$};
+            \node[fill=blue!5, inner sep=2.5pt, rounded corners=1pt] at (3.0, 0) {\large $\Omega(\boldsymbol{\mu})$};
+
+            % Coordinate axis
+            \draw[->, black!60] (-1.2, -1.8) -- (-0.2, -1.8) node[right, font=\tiny] {$x$};
+            \draw[->, black!60] (-1.2, -1.8) -- (-1.2, -0.8) node[above, font=\tiny] {$y$};
+        \end{scope}
+
+        % Global Labels aligned perfectly at y = -0.8
+        \node[below, font=\small] at (1.25, -0.8) {Parametric Reference Domain};
+        \node[below, font=\small] at (8.6, -0.8) {Physical Parameterized Domain};
+    \end{tikzpicture}
+    \caption{Smooth diffeomorphic mapping $\boldsymbol{\Psi}(\cdot; \boldsymbol{\mu})$ from the parameter-independent reference parent domain $\hat{\Omega}$ to the physical parameter-dependent domain $\Omega(\boldsymbol{\mu})$ containing the geometric features (notches).}
+    \label{fig:pullback_mapping}
+\end{figure}
+
 The gradient of this mapping is the coordinate Jacobian matrix $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ defined in Equation \ref{eq:jacobian}. We assume that the mapping is bijective and smooth, such that its Jacobian determinant is strictly positive:
 \begin{equation}
     J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) = \det \mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) > 0
@@ -96,9 +492,9 @@ where $\hat{u}(\boldsymbol{\xi}) = u(\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsy
 \end{equation}
 where the pulled-back bilinear and linear forms are written as:
 \begin{align}
-    \hat{m}(\ddot{\underline{u}}, \delta\underline{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \rho \ddot{\underline{u}} \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega} \\
-    \hat{k}(\underline{u}, \delta\underline{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \left(\mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \underline{u}\right) : \mat{D} : \left(\mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \delta\underline{u}\right) J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega} \\
-    \hat{f}(\delta\underline{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \underline{\hat{f}}_b \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega} + \int_{\hat{\Gamma}_N} \underline{\hat{h}}_N \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}, \Gamma}(\boldsymbol{\xi}) \, d\hat{\Gamma}
+    \hat{m}(\ddot{\underline{u}}, \delta\underline{u}; \boldsymbol{\mu}) & = \int_{\hat{\Omega}} \rho \ddot{\underline{u}} \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega}                                                                                                                                        \\
+    \hat{k}(\underline{u}, \delta\underline{u}; \boldsymbol{\mu})        & = \int_{\hat{\Omega}} \left(\mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \underline{u}\right) : \mat{D} : \left(\mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \delta\underline{u}\right) J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega}                                   \\
+    \hat{f}(\delta\underline{u}; \boldsymbol{\mu})                       & = \int_{\hat{\Omega}} \underline{\hat{f}}_b \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega} + \int_{\hat{\Gamma}_N} \underline{\hat{h}}_N \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}, \Gamma}(\boldsymbol{\xi}) \, d\hat{\Gamma}
 \end{align}
 In this reference configuration, all variables are defined over the fixed coordinate space $\boldsymbol{\xi} \in \hat{\Omega}$. The dependency on the geometric parameter vector $\boldsymbol{\mu}$ is shifted entirely into the coordinate Jacobian $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ and its determinant $J_{\boldsymbol{\mu}}(\boldsymbol{\xi})$. This pullback establishes the mathematically consistent framework required to project snapshot states and construct our reduced-order model.
 
@@ -106,70 +502,29 @@ In this reference configuration, all variables are defined over the fixed coordi
 Understanding the computational differences between resolving the governing equations on the parameterized physical domain directly (Naive) versus using the reference configuration mapping (Pullback) is central to shape-parametric Reduced Order Modeling:
 \begin{itemize}
     \item \textbf{Parameter Update Mechanism}: In our Isogeometric Analysis (IGA) framework, changing the shape parameters $\boldsymbol{\mu} = (r, \mu, \sigma)^T$ is accomplished by displacing the physical coordinates of the control point lattice $\vect{P}_{i,j}(\boldsymbol{\mu})$:
-    \begin{equation}
-        \vect{P}_{i,j}(\boldsymbol{\mu}) = \vect{P}_{i,j}^0 + \Delta \vect{P}_{i,j}(r, \mu, \sigma)
-    \end{equation}
-    where $\vect{P}_{i,j}^0$ represent the initial unnotched rectangular beam coordinates, and $\Delta \vect{P}_{i,j}$ translates the control points near the notch centers vertically based on the radius $r$ and width factor $\sigma$ at longitudinal position $\mu$.
+          \begin{equation}
+              \vect{P}_{i,j}(\boldsymbol{\mu}) = \vect{P}_{i,j}^0 + \Delta \vect{P}_{i,j}(r, \mu, \sigma)
+          \end{equation}
+          where $\vect{P}_{i,j}^0$ represent the initial unnotched rectangular beam coordinates, and $\Delta \vect{P}_{i,j}$ translates the control points near the notch centers vertically based on the radius $r$ and width factor $\sigma$ at longitudinal position $\mu$.
     \item \textbf{The Naive Approach (Physical Domain Simulation)}: In the naive approach, the equations of motion are solved on the physical domain $\Omega(\boldsymbol{\mu})$. As the geometry changes, the mesh must be regenerated, meaning:
-    \begin{enumerate}
-        \item The number of nodes and element connectivity grids may vary, resulting in a vector space size mismatch.
-        \item Snapshots collected across different parameter values $\boldsymbol{\mu}_k$ cannot be stored in a single snapshot matrix for Singular Value Decomposition (SVD), rendering POD basis extraction impossible.
-        \item The heavy numerical integration and stiffness matrix assembly must be performed online over the physical domain for every parameter change, causing a severe computational bottleneck.
-    \end{enumerate}
+          \begin{enumerate}
+              \item The number of nodes and element connectivity grids may vary, resulting in a vector space size mismatch.
+              \item Snapshots collected across different parameter values $\boldsymbol{\mu}_k$ cannot be stored in a single snapshot matrix for Singular Value Decomposition (SVD), rendering POD basis extraction impossible.
+              \item The heavy numerical integration and stiffness matrix assembly must be performed online over the physical domain for every parameter change, causing a severe computational bottleneck.
+          \end{enumerate}
     \item \textbf{The Pullback Approach (Reference Domain Mapping)}: The pullback approach maps all physical fields to the static parametric reference domain $\hat{\Omega} = [0,1]^2$. Under this paradigm:
-    \begin{enumerate}
-        \item The discretization grid and total degrees of freedom remain constant. All snapshot vectors lie in the same vector space, enabling consistent POD basis projection.
-        \item The shape parameter changes are captured entirely by updating the coordinate Jacobian matrix $\mat{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ at the Gauss integration points. The baseline basis functions and element connectivity do not change, making hyper-reduced online updates extremely efficient.
-    \end{enumerate}
+          \begin{enumerate}
+              \item The discretization grid and total degrees of freedom remain constant. All snapshot vectors lie in the same vector space, enabling consistent POD basis projection.
+              \item The shape parameter changes are captured entirely by updating the coordinate Jacobian matrix $\mat{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ at the Gauss integration points. The baseline basis functions and element connectivity do not change, making hyper-reduced online updates extremely efficient.
+          \end{enumerate}
 \end{itemize}
 
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{chapters/2_theory/images/pullback_mapping.png}
-    \caption{Schematic representation of the pullback mapping workflow. Physical-domain integrals on the parameterized domain $\Omega(\boldsymbol{\mu})$ are pulled back via the diffeomorphism $\boldsymbol{\Psi}$ and the Jacobian matrix $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ to be evaluated on the parameter-independent reference configuration $\hat{\Omega}$.}
-    \label{fig:pullback_mapping}
-\end{figure}
-
-
-\section{Localized Mesh Refinement}
-A primary benefit of Isogeometric Analysis is the ability to enrich the solution space without altering the exact CAD geometry boundary definitions. Refinement of the discretization is achieved through $h$-refinement (knot insertion), $p$-refinement (degree elevation), and $k$-refinement (order elevation).
-
-Our framework utilizes the Boehm knot insertion algorithm for $h$-refinement. Introducing a new knot $\bar{\xi}$ into an existing knot sequence updates the control point configuration to maintain geometric invariance. The new control points $\vect{P}_i^{\text{new}}$ are computed via:
-\begin{equation}
-        \vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}
-\end{equation}
-where the blending coefficients $\alpha_i$ are determined explicitly by the knot layout topology:
-\begin{equation}
-        \alpha_i = \begin{cases} 
-                1 & \text{if } i \le k - p \\ 
-                \frac{\bar{\xi} - \xi_i}{\xi_{i+p} - \xi_i} & \text{if } k - p + 1 \le i \le k \\ 
-                0 & \text{if } i \ge k + 1 
-        \end{cases}
-\end{equation}
-This local linear relation can be cast globally for the 1D control point vector as a matrix-vector product $\vect{P}^{\text{new}} = \mat{T} \vect{P}$, where the sparse knot insertion matrix $\mat{T} \in \mathbb{R}^{(n+1) \times n}$ has non-zero entries defined by $T_{i, j} = \alpha_i \delta_{i, j} + (1 - \alpha_i) \delta_{i-1, j}$.
-
-For 2D domains with a control grid lattice matrix $\mat{P} \in \mathbb{R}^{n \times m}$, inserting knots along the $\xi$ and $\eta$ directions involves directional transformation matrices $\mat{T}_{\xi} \in \mathbb{R}^{(n+1) \times n}$ and $\mat{T}_{\eta} \in \mathbb{R}^{(m+1) \times m}$. The refined control point grid $\mat{P}^{\text{new}} \in \mathbb{R}^{(n+1) \times (m+1)}$ is assembled tensorially via:
-\begin{equation}
-        \mat{P}^{\text{new}} = \mat{T}_{\xi} \mat{P} \mat{T}_{\eta}^T
-\end{equation}
-By flattening the control lattice into a column vector $\vect{P}$, the global refinement mapping is expressed using the Kronecker product operator $\otimes$ as:
-\begin{equation}
-        \vect{P}^{\text{new}} = \left( \mat{T}_{\eta} \otimes \mat{T}_{\xi} \right) \vect{P}
-\end{equation}
-This allows us to insert localized refinements near expected stress concentrations (e.g., around the symmetric notches) while keeping the geometric representation exact.
-
-\begin{figure}[htbp]
-    \centering
-    \animategraphics[controls,autoplay,loop,width=0.75\textwidth,poster=first]{10}{chapters/3_discretization/images/good/frame-}{0}{70}
-    \caption{Interactive Phase 1.8 NURBS circle parameterization showing the control points and projective weights layout. The animation demonstrates how modifying control point coordinates and weights transforms the geometry exactly in real-time. (Click on the controls or image in Adobe Acrobat to play the interactive simulation animation).}
-    \label{fig:nurbs_circle_parameterization}
-\end{figure}
 
 \section{Field Approximation}
 Using the isoparametric concept, the displacement field $\vect{u}(\xi, \eta) = [u(\xi, \eta), v(\xi, \eta)]^T$ is discretized using the same NURBS basis functions that represent the geometry:
 \begin{equation}
-        \vect{u}(\xi, \eta) = \sum_{a=0}^{N_{\text{bas}}-1} R_a(\xi, \eta) \vect{d}_a
+    \vect{u}(\xi, \eta) = \sum_{a=0}^{N_{\text{bas}}-1} R_a(\xi, \eta) \vect{d}_a
 \end{equation}
 where $\vect{d}_a = [u_a, v_a]^T$ represents the displacement degrees of freedom at control node $a$, and $N_{\text{bas}} = n \times m$ represents the total number of bivariate basis functions.
 
@@ -180,35 +535,43 @@ Applying the Galerkin discretization to the weak form yields the semi-discrete e
 \end{equation}
 where $\underline{\mathbf{U}}$ is the global displacement vector of control variables, and $\hat{\mathbf{M}}$ and $\hat{\mathbf{K}}$ are the global mass and stiffness matrices. The global stiffness matrix is assembled from local element contributions $\mat{K}_e$:
 \begin{equation}
-        \mat{K}_e = \int_{-1}^{1} \int_{-1}^{1} \mat{B}^T(\xi, \eta) \mat{D} \mat{B}(\xi, \eta) |J(\xi, \eta)| \, d\xi \, d\eta
+    \mat{K}_e = \int_{-1}^{1} \int_{-1}^{1} \mat{B}^T(\xi, \eta) \mat{D} \mat{B}(\xi, \eta) |J(\xi, \eta)| \, d\xi \, d\eta
 \end{equation}
 where the constitutive matrix $\mat{D}$ under plane stress assumptions is defined as:
 \begin{equation}
-        \mat{D} = \frac{E}{1 - \nu^2} \begin{bmatrix} 1 & \nu & 0 \\ \nu & 1 & 0 \\ 0 & 0 & \frac{1 - \nu}{2} \end{bmatrix}
+    \mat{D} = \frac{E}{1 - \nu^2} \begin{bmatrix} 1 & \nu & 0 \\ \nu & 1 & 0 \\ 0 & 0 & \frac{1 - \nu}{2} \end{bmatrix}
 \end{equation}
 The strain-displacement matrix $\mat{B} \in \mathbb{R}^{3 \times 2N_{\text{bas}}}$ is composed of nodal blocks $\mat{B}_a$:
 \begin{equation}
-        \mat{B} = \begin{bmatrix} \mat{B}_0 & \mat{B}_1 & \dots & \mat{B}_{N_{\text{bas}}-1} \end{bmatrix}, \quad \text{with} \quad \mat{B}_a = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \\[0.3em] \frac{\partial R_a}{\partial y} & \frac{\partial R_a}{\partial x} \end{bmatrix}
+    \mat{B} = \begin{bmatrix} \mat{B}_0 & \mat{B}_1 & \dots & \mat{B}_{N_{\text{bas}}-1} \end{bmatrix}, \quad \text{with} \quad \mat{B}_a = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \\[0.3em] \frac{\partial R_a}{\partial y} & \frac{\partial R_a}{\partial x} \end{bmatrix}
 \end{equation}
 The physical gradients are mapped from parametric space by solving:
 \begin{equation}
-        \begin{bmatrix} \frac{\partial R_a}{\partial x} \\[0.3em] \frac{\partial R_a}{\partial y} \end{bmatrix} = \mat{J}^{-1} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix} = \frac{1}{|J|} \begin{bmatrix} \frac{\partial y}{\partial \eta} & -\frac{\partial y}{\partial \xi} \\[0.3em] -\frac{\partial x}{\partial \eta} & \frac{\partial x}{\partial \xi} \end{bmatrix} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix}
+    \begin{bmatrix} \frac{\partial R_a}{\partial x} \\[0.3em] \frac{\partial R_a}{\partial y} \end{bmatrix} = \mat{J}^{-1} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix} = \frac{1}{|J|} \begin{bmatrix} \frac{\partial y}{\partial \eta} & -\frac{\partial y}{\partial \xi} \\[0.3em] -\frac{\partial x}{\partial \eta} & \frac{\partial x}{\partial \xi} \end{bmatrix} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix}
 \end{equation}
 
 The accuracy of this IGA core assembly compared to traditional Lagrangian Finite Element methods is summarized in Table \ref{tab:linear_validation}. Due to higher-order continuity across elements, IGA achieves similar accuracy to Lagrangian FEM with significantly fewer degrees of freedom.
 
 \begin{table}[htbp]
-        \centering
-        \caption{Linear solution accuracy validation comparing full-order IGA degrees of freedom against fine-mesh Lagrangian FEM frameworks.}
-        \label{tab:linear_validation}
-        \resizebox{\textwidth}{!}{%
+    \centering
+    \caption{Linear solution accuracy validation comparing full-order IGA degrees of freedom against fine-mesh Lagrangian FEM frameworks.}
+    \label{tab:linear_validation}
+    \resizebox{\textwidth}{!}{%
         \begin{tabular}{lcccc}
-                \toprule
-                \textbf{Mesh Setup} & \textbf{Total DoFs} & \textbf{Peak Displacement (mm)} & \textbf{Energy Norm} & \textbf{Solve Time (ms)} \\
-                \midrule
-                Lagrange FEM  & $12,400$ & $4.182$ & $1.042 \times 10^5$ & $845.2$ \\
-                IGA Core Core & $3,200$  & $4.185$ & $1.044 \times 10^5$ & $142.1$ \\
-                \bottomrule
+            \toprule
+            \textbf{Mesh Setup} & \textbf{Total DoFs} & \textbf{Peak Displacement (mm)} & \textbf{Energy Norm} & \textbf{Solve Time (ms)} \\
+            \midrule
+            Lagrange FEM        & $12,400$            & $4.182$                         & $1.042 \times 10^5$  & $845.2$                  \\
+            IGA Core Core       & $3,200$             & $4.185$                         & $1.044 \times 10^5$  & $142.1$                  \\
+            \bottomrule
         \end{tabular}%
-        }
+    }
 \end{table}
+
+\newpage
+
+\section{Summary and Conclusion}
+In this chapter, we detailed the spatial discretization of the structural domain using Isogeometric Analysis (IGA) and established the mathematical formulation of the shape-parameterized system. By utilizing the same NURBS basis functions for both geometry representation and field approximation, the exact boundary profile of the notched beam is preserved across parameter changes without mesh regeneration errors.
+
+To overcome the challenges associated with solving parametric equations on varying physical domains (e.g., incompatible snapshot spaces and expensive online matrix assembly), we introduced the smooth diffeomorphic pullback mapping $\boldsymbol{\Psi}(\cdot; \boldsymbol{\mu})$. This transformation maps the governing equations from the parameter-dependent physical domain $\Omega(\boldsymbol{\mu})$ to a fixed parametric reference configuration $\hat{\Omega}$. In the next chapter, we will discuss the time integration schemes and numerical simulation workflows used to solve these semi-discrete equations of motion under dynamic loading conditions.
+

@@ -21,6 +21,8 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{animate}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
 % Float and spacing optimization to reduce white space
 \renewcommand{\topfraction}{0.85}      % max fraction of floats at top
@@ -31,12 +33,16 @@
 % Reduce chapter title spacing
 \titleformat{\chapter}[display]
   {\normalfont\huge\bfseries}{\chaptername\ \thechapter}{10pt}{\Huge}
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection}{1em}{}
 \titlespacing*{\chapter}{0pt}{-30pt}{20pt}
 \titlespacing*{\section}{0pt}{12pt}{6pt}
 \titlespacing*{\subsection}{0pt}{8pt}{4pt}
 
 \geometry{
-    top=2.5cm,
+    top=2cm,
     bottom=2.5cm,
     left=3cm,
     right=3cm
@@ -62,7 +68,7 @@
 % Document Details
 % ==============================================================================
 \title{
-    \includesvg[width=6cm]{CNAM_Logo.svg} \\
+    \includegraphics[width=6cm]{CNAM_Logo.pdf} \\
     \vspace{1.5cm}
     \textbf{Isogeometric Analysis and Reduced Order Modeling for Parameterized Structural Dynamics} \\
     \vspace{1.5cm}
@@ -110,7 +116,6 @@
 \input{chapters/5_rom/index}
 \input{chapters/6_digital_twin/index}
 \input{chapters/7_conclusion/index}
-
 \input{chapters/8_appendix/index}
 \newpage
 

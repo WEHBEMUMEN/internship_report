@@ -6,13 +6,13 @@
 \section{Governing Dynamic Equations}
 To simulate the dynamic response of the parameterized structure, we resolve the semi-discrete second-order system of equations of motion:
 \begin{equation}
-        \mat{M}(\boldsymbol{\mu}) \ddot{\underline{\mathbf{U}}}(t) + \mat{C}(\boldsymbol{\mu}) \dot{\underline{\mathbf{U}}}(t) + \mathbf{F}_{\text{int}}(\underline{\mathbf{U}}(t); \boldsymbol{\mu}) = \lambda(t) \mathbf{F}_{\text{ext}}(\boldsymbol{\mu})
+        \mat{M}(\boldsymbol{\mu}) \ddot{\underline{\mathbf{U}}}(t) + \mat{C}(\boldsymbol{\mu}) \dot{\underline{\mathbf{U}}}(t) + \mat{K}(\boldsymbol{\mu}) \underline{\mathbf{U}}(t) = \lambda(t) \mathbf{F}_{\text{ext}}(\boldsymbol{\mu})
 \end{equation}
 where:
 \begin{itemize}
     \item $\mat{M}(\boldsymbol{\mu})$ is the consistent global mass matrix.
     \item $\mat{C}(\boldsymbol{\mu})$ is the viscous damping matrix.
-    \item $\mathbf{F}_{\text{int}}(\underline{\mathbf{U}}(t); \boldsymbol{\mu})$ is the internal force vector, which is state-dependent under geometric nonlinearities.
+    \item $\mat{K}(\boldsymbol{\mu})$ is the global stiffness matrix.
     \item $\mathbf{F}_{\text{ext}}(\boldsymbol{\mu})$ is the spatial profile of the external loads, and $\lambda(t)$ is the time-dependent loading factor.
 \end{itemize}
 
@@ -22,104 +22,88 @@ The global consistent mass matrix $\mat{M}$ is assembled element-wise using Gaus
 \end{equation}
 where $\rho$ is the material mass density. The viscous damping matrix $\mat{C}$ is modeled using the classical Rayleigh formulation:
 \begin{equation}
-        \mat{C} = \alpha_M \mat{M} + \beta_K \mat{K}_0
+        \mat{C}(\boldsymbol{\mu}) = \alpha_M \mat{M}(\boldsymbol{\mu}) + \beta_K \mat{K}(\boldsymbol{\mu})
 \end{equation}
-where $\alpha_M$ and $\beta_K$ are the mass-proportional and stiffness-proportional damping factors, and $\mat{K}_0$ is the baseline linear stiffness matrix.
-
-\section{Geometric Nonlinearity Framework}
-Under large displacement conditions, the infinitesimal strain assumptions are invalid. To model large deflections of the cantilever beam, we employ a geometrically nonlinear kinematic framework. The Green-Lagrange strain tensor $\mat{E}$ is defined as:
-\begin{equation}
-    \mat{E} = \frac{1}{2} \left( \nabla \vect{u} + \nabla \vect{u}^T + \nabla \vect{u}^T \nabla \vect{u} \right)
-\end{equation}
-where $\nabla \vect{u}$ represents the gradient of the continuous displacement field.
-
-The internal force vector $\mathbf{F}_{\text{int}}(\underline{\mathbf{U}})$ is evaluated over the initial configuration $\Omega_0$ using the nonlinear strain-displacement matrix $\mat{B}_L(\underline{\mathbf{U}})$ and the Second Piola-Kirchhoff stress vector $\vect{S} = [S_{xx}, S_{yy}, S_{xy}]^T$:
-\begin{equation}
-        \mathbf{F}_{\text{int}}(\underline{\mathbf{U}}) = \int_{\Omega_0} \mat{B}_L^T(\underline{\mathbf{U}}) \vect{S} \, d\Omega_0
-\end{equation}
-The nonlinear strain-displacement matrix $\mat{B}_L(\underline{\mathbf{U}})$ is decomposed into a displacement-independent part $\mat{B}_0$ and a displacement-dependent nonlinear part $\mat{B}_{\text{NL}}(\underline{\mathbf{U}})$:
-\begin{equation}
-        \mat{B}_L(\underline{\mathbf{U}}) = \mat{B}_0 + \mat{B}_{\text{NL}}(\underline{\mathbf{U}})
-\end{equation}
-
-The state-dependent tangent stiffness matrix $\mat{K}_T(\underline{\mathbf{U}})$ is obtained by taking the variation of the internal force vector:
-\begin{equation}
-    \mat{K}_T(\underline{\mathbf{U}}) = \mat{K}_e(\underline{\mathbf{U}}) + \mat{K}_{\sigma}(\underline{\mathbf{U}}) = \left( \mat{K}_0 + \mat{K}_L(\underline{\mathbf{U}}) \right) + \mat{K}_{\sigma}(\underline{\mathbf{U}})
-\end{equation}
-where $\mat{K}_L(\underline{\mathbf{U}})$ is the large-displacement stiffness matrix accounting for kinematic coupling, and $\mat{K}_{\sigma}(\underline{\mathbf{U}})$ is the initial stress (geometric) stiffness matrix. The large-displacement stiffness matrix is defined as:
-\begin{equation}
-        \mat{K}_L(\underline{\mathbf{U}}) = \int_{\Omega_0} \left( \mat{B}_0^T \mat{D} \mat{B}_{\text{NL}}(\underline{\mathbf{U}}) + \mat{B}_{\text{NL}}^T(\underline{\mathbf{U}}) \mat{D} \mat{B}_0 + \mat{B}_{\text{NL}}^T(\underline{\mathbf{U}}) \mat{D} \mat{B}_{\text{NL}}(\underline{\mathbf{U}}) \right) \, d\Omega_0
-\end{equation}
-The geometric stiffness matrix is formulated as:
-\begin{equation}
-        \mat{K}_{\sigma}(\underline{\mathbf{U}}) = \int_{\Omega_0} \mat{G}^T \mat{M}(\vect{S}) \mat{G} \, d\Omega_0
-\end{equation}
-For each control point node $a$, the displacement gradient interpolation block $\mat{G}_a$ and the stress mapping block matrix $\mat{M}(\vect{S})$ are:
-\begin{equation}
-        \mat{G}_a = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] \frac{\partial R_a}{\partial y} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial x} \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \end{bmatrix}, \quad \mat{M}(\vect{S}) = \begin{bmatrix} \mat{S}_{\text{mat}} & \mat{0} \\ \mat{0} & \mat{S}_{\text{mat}} \end{bmatrix}, \quad \mat{S}_{\text{mat}} = \begin{bmatrix} S_{xx} & S_{xy} \\ S_{xy} & S_{yy} \end{bmatrix}
-\end{equation}
+where $\alpha_M$ and $\beta_K$ are the mass-proportional and stiffness-proportional damping factors.
 
 \begin{figure}[htbp]
     \centering
     \begin{tikzpicture}[
-        node distance=1.6cm,
-        block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=6cm, minimum height=0.9cm, align=center, font=\sffamily\small},
-        process/.style={rectangle, draw=orange!70, fill=orange!5, thick, minimum width=6cm, minimum height=0.9cm, align=center, font=\sffamily\small},
+        node distance=1.5cm,
+        block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=6.5cm, minimum height=0.9cm, align=center, font=\sffamily\small},
+        process/.style={rectangle, draw=orange!70, fill=orange!5, thick, minimum width=6.5cm, minimum height=0.9cm, align=center, font=\sffamily\small},
         arrow/.style={thick,->,>=stealth}
     ]
         % Left Column: Naive Physical
         \node [block] (naive_start) {Naive Physical Path \\ $\Omega(\boldsymbol{\mu})$};
-        \node [process, below of=naive_start, node distance=1.6cm] (remesh) {Regenerate Mesh \\ $N(\boldsymbol{\mu})$ varies};
-        \node [process, below of=remesh, node distance=1.6cm] (assemble) {Assemble Stiffness $K(\boldsymbol{\mu})$ \\ High Cost, Online};
+        \node [process, below of=naive_start, node distance=1.5cm] (remesh) {Regenerate Mesh \\ $N(\boldsymbol{\mu})$ varies};
+        \node [process, below of=remesh, node distance=1.5cm] (assemble) {Assemble Stiffness $\mat{K}(\boldsymbol{\mu})$ \\ High Cost, Online};
+        \node [process, below of=assemble, node distance=1.5cm] (solve_naive) {Solve System \\ Variable Dimensions};
         
         % Right Column: Mapped Reference
         \node [block, right=1.5cm of naive_start] (mapped_start) {Reference Map Path \\ $\hat{\Omega}$};
-        \node [process, below of=mapped_start, node distance=1.6cm] (static_mesh) {Static Reference Mesh \\ $N$ is constant};
-        \node [process, below of=static_mesh, node distance=1.6cm] (pullback) {Pullback Integrals \\ Jacobian $\mat{J}(\boldsymbol{\mu})$};
+        \node [process, below of=mapped_start, node distance=1.5cm] (static_mesh) {Static Reference Mesh \\ $N$ is constant};
+        \node [process, below of=static_mesh, node distance=1.5cm] (pullback) {Pullback Integrals \\ Jacobian $\mat{J}(\boldsymbol{\mu})$};
+        \node [process, below of=pullback, node distance=1.5cm] (pullback_assemble) {Assemble Stiffness $\mat{K}(\boldsymbol{\mu})$ \\ Still High Cost, Online};
+        \node [process, below of=pullback_assemble, node distance=1.5cm] (solve_mapped) {Solve System \\ Constant Dimensions};
         
         % Connections
         \draw [arrow] (naive_start) -- (remesh);
         \draw [arrow] (remesh) -- (assemble);
+        \draw [arrow] (assemble) -- (solve_naive);
+        
         \draw [arrow] (mapped_start) -- (static_mesh);
         \draw [arrow] (static_mesh) -- (pullback);
+        \draw [arrow] (pullback) -- (pullback_assemble);
+        \draw [arrow] (pullback_assemble) -- (solve_mapped);
     \end{tikzpicture}
-    \caption{Visual workflow comparing physical-domain mesh regeneration (Naive) against static reference-configuration pullback mapping.}
+    \caption{Visual workflow comparing physical-domain mesh regeneration (Naive) against static reference-configuration pullback mapping, illustrating that online stiffness matrix assembly remains a computational bottleneck prior to model reduction.}
     \label{fig:remesh_vs_pullback}
 \end{figure}
 
-\section{Implicit Dynamics \& Incremental Newton-Raphson Solver}
-To resolve the semi-discrete second-order system of equations of motion, we couple the implicit \textbf{Newmark-$\beta$} scheme with an incremental \textbf{Newton-Raphson} solver. The dynamic tangent system is linearized and iteratively solved at each time step to trace the geometrically nonlinear deformation path. The detailed solver steps are formalized in Algorithm \ref{alg:fom_dynamics}.
+\section{Parameterized Linear Stiffness Matrix Assembly}
+In our linear formulation, the parameterized global stiffness matrix $\mat{K}(\boldsymbol{\mu})$ is assembled element-wise using pullback integration over the reference domain $\hat{\Omega}$:
+\begin{equation}
+    \mat{K}_{e, ab}(\boldsymbol{\mu}) = \int_{-1}^{1} \int_{-1}^{1} \mat{B}_a^T(\xi, \eta; \boldsymbol{\mu}) \mat{D} \mat{B}_b(\xi, \eta; \boldsymbol{\mu}) |J(\xi, \eta; \boldsymbol{\mu})| \, d\xi \, d\eta
+\end{equation}
+where $\mat{D}$ is the material constitutive matrix, and the strain-displacement matrix $\mat{B}_a$ depends on the parameters $\boldsymbol{\mu}$ through the coordinate Jacobian transformation:
+\begin{equation}
+    \mat{B}_a(\xi, \eta; \boldsymbol{\mu}) = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \\[0.3em] \frac{\partial R_a}{\partial y} & \frac{\partial R_a}{\partial x} \end{bmatrix}, \quad \text{with} \quad \begin{bmatrix} \frac{\partial R_a}{\partial x} \\[0.3em] \frac{\partial R_a}{\partial y} \end{bmatrix} = \mat{J}^{-1}(\xi, \eta; \boldsymbol{\mu}) \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix}
+\end{equation}
+As the notches shape parameter vector $\boldsymbol{\mu} = (r, \mu)^T$ varies, the physical configuration changes, altering the coordinate Jacobian mapping $\mat{J}(\xi, \eta; \boldsymbol{\mu}) = \nabla_{\boldsymbol{\xi}}\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu})$ at each Gauss point. This requires updating and re-integrating the stiffness matrix online for every design modification.
+
+\section{Enforcement of Boundary Conditions}
+Unlike traditional Lagrangian finite element basis functions, B-spline and NURBS basis functions do not possess the Kronecker delta property at the boundaries (except at the extreme ends of open knot vectors). Thus, control variables $\vect{d}_a$ do not correspond directly to physical displacement values at boundary nodes.
+
+To enforce the homogeneous Dirichlet boundary conditions (e.g., rigid clamping at $x=0$), we employ the \textbf{Penalty Method}. We modify the effective system equations $\mat{K}_{\text{eff}}\vect{U} = \vect{F}_{\text{eff}}$ by adding a large penalty stiffness parameter $k_{\text{p}} \gg 1$ (typically $10^{30}$) to the diagonal entries corresponding to the constrained boundary degrees of freedom:
+\begin{equation}
+    \mat{K}_{\text{eff}}[i, i] \gets k_{\text{p}}, \quad \vect{F}_{\text{eff}}[i] \gets 0 \quad \text{for all constrained boundary DOFs } i
+\end{equation}
+This forces the displacement at those boundary degrees of freedom to zero, accurately satisfying the clamping constraint without altering the size or structure of the system matrix.
+
+\section{Implicit Time Integration (Newmark-$\beta$)}
+To resolve the linear semi-discrete second-order system of equations of motion, we couple the implicit \textbf{Newmark-$\beta$} average acceleration scheme ($\beta=0.25$, $\gamma=0.5$). For a linear system, the equations can be solved directly at each time step without the need for iterative Newton-Raphson solvers. The detailed solver steps are formalized in Algorithm \ref{alg:fom_dynamics}.
 
 \begin{algorithm}[htbp]
 \caption{Full Order Model (FOM) Implicit Dynamics Solver}
 \label{alg:fom_dynamics}
 \begin{algorithmic}[1]
 \Procedure{StepDynamicsFOM}{$\vect{U}_n, \dot{\vect{U}}_n, \ddot{\vect{U}}_n, \mu, r, \sigma, \Delta t$}
-    \State Predict displacements and velocities using Newmark-$\beta$ ($\beta=0.25, \gamma=0.5$):
-    \State $\vect{U}_{\text{pred}} \gets \vect{U}_n + \Delta t \dot{\vect{U}}_n + \Delta t^2 (0.5 - \beta) \ddot{\vect{U}}_n$
-    \State $\dot{\vect{U}}_{\text{pred}} \gets \dot{\vect{U}}_n + \Delta t (1 - \gamma) \ddot{\vect{U}}_n$
-    \State Initialize step values: $\vect{U}^{k=0} \gets \vect{U}_{\text{pred}}$, \quad $\dot{\vect{U}}^{k=0} \gets \dot{\vect{U}}_{\text{pred}}$, \quad $\ddot{\vect{U}}^{k=0} \gets \ddot{\vect{U}}_n$
-    \State Assemble mass matrix $\mat{M}(\mu, r)$
+    \State Assemble mass matrix $\mat{M}(\mu, r)$ and stiffness matrix $\mat{K}(\mu, r)$
+    \State Compute Rayleigh damping matrix: $\mat{C} \gets \alpha_M \mat{M} + \beta_K \mat{K}$
     \State Compute external force vector $\vect{F}_{\text{ext}}^{n+1} \gets \text{calculateExternalForceVector}(t_{n+1})$
-    \For{$k = 0, 1, \dots$ to $N_{\text{max}}$}
-        \State Assemble physical or mapped tangent operators:
-        \State $\mat{K}_T, \vect{F}_{\text{int}} \gets \text{assembleNonlinearForceAndStiffness}(\mu, r, \vect{U}^k)$
-        \State Compute damping $\mat{C} \gets \alpha_M \mat{M} + \beta_K \mat{K}_T$
-        \State Update accelerations and velocities:
-        \State $\ddot{\vect{U}}^k \gets \frac{\vect{U}^k - \vect{U}_n - \Delta t \dot{\vect{U}}_n}{\beta \Delta t^2} - \frac{0.5-\beta}{\beta}\ddot{\vect{U}}_n$
-        \State $\dot{\vect{U}}^k \gets \dot{\vect{U}}_{\text{pred}} + \gamma \Delta t \ddot{\vect{U}}^k$
-        \State Compute dynamic residual:
-        \State $\vect{R}_{\text{dyn}} \gets \vect{F}_{\text{ext}}^{n+1} - \mat{M} \ddot{\vect{U}}^k - \mat{C} \dot{\vect{U}}^k - \vect{F}_{\text{int}}$
-        \State Zero out clamping boundary rows/entries in residual $\vect{R}_{\text{dyn}}$
-        \If{$\|\vect{R}_{\text{dyn}}\|_2 < \epsilon_{\text{tol}}$} \textbf{break}
-        \EndIf
-        \State Assemble effective tangent matrix: $\mat{K}_{\text{eff}} \gets \mat{K}_T (1 + \frac{\gamma \beta_K}{\beta \Delta t}) + \mat{M} (\frac{1}{\beta \Delta t^2} + \frac{\gamma \alpha_M}{\beta \Delta t})$
-        \State Apply penalty Dirichlet clamping at clamped left edge ($x=0$):
-        \State $\mat{K}_{\text{eff}}[i, i] \gets 10^{30}$, \quad $\vect{R}_{\text{dyn}}[i] \gets 0$ for all boundary DOFs $i$
-        \State Solve linear correction: $\Delta \vect{U} \gets \text{gaussianElimination}(\mat{K}_{\text{eff}}, \vect{R}_{\text{dyn}})$
-        \State Update state: $\vect{U}^{k+1} \gets \vect{U}^k + \Delta \vect{U}$
-    \EndFor
-    \State Update history: $\vect{U}_{n+1} \gets \vect{U}^k, \quad \dot{\vect{U}}_{n+1} \gets \dot{\vect{U}}^k, \quad \ddot{\vect{U}}_{n+1} \gets \ddot{\vect{U}}^k$
+    \State Set integration constants:
+    \State $a_0 = \frac{1}{\beta \Delta t^2}, \quad a_1 = \frac{\gamma}{\beta \Delta t}, \quad a_2 = \frac{1}{\beta \Delta t}, \quad a_3 = \frac{1}{2\beta} - 1, \quad a_4 = \frac{\gamma}{\beta} - 1, \quad a_5 = \Delta t \left( \frac{\gamma}{2\beta} - 1 \right)$
+    \State Formulate effective stiffness matrix:
+    \State $\mat{K}_{\text{eff}} \gets \mat{K} + a_0 \mat{M} + a_1 \mat{C}$
+    \State Formulate effective force vector:
+    \State $\vect{F}_{\text{eff}}^{n+1} \gets \vect{F}_{\text{ext}}^{n+1} + \mat{M}(a_0 \vect{U}_n + a_2 \dot{\vect{U}}_n + a_3 \ddot{\vect{U}}_n) + \mat{C}(a_1 \vect{U}_n + a_4 \dot{\vect{U}}_n + a_5 \ddot{\vect{U}}_n)$
+    \State Apply penalty Dirichlet clamping at clamped left edge ($x=0$):
+    \State $\mat{K}_{\text{eff}}[i, i] \gets 10^{30}, \quad \vect{F}_{\text{eff}}^{n+1}[i] \gets 0$ for all boundary DOFs $i$
+    \State Solve system directly: $\vect{U}_{n+1} \gets \text{gaussianElimination}(\mat{K}_{\text{eff}}, \vect{F}_{\text{eff}}^{n+1})$
+    \State Update accelerations and velocities:
+    \State $\ddot{\vect{U}}_{n+1} \gets a_0 (\vect{U}_{n+1} - \vect{U}_n) - a_2 \dot{\vect{U}}_n - a_3 \ddot{\vect{U}}_n$
+    \State $\dot{\vect{U}}_{n+1} \gets \dot{\vect{U}}_n + (1 - \gamma)\Delta t \ddot{\vect{U}}_n + \gamma \Delta t \ddot{\vect{U}}_{n+1}$
     \State \Return $\vect{U}_{n+1}, \dot{\vect{U}}_{n+1}, \ddot{\vect{U}}_{n+1}$
 \EndProcedure
 \end{algorithmic}
@@ -127,7 +111,7 @@ To resolve the semi-discrete second-order system of equations of motion, we coup
 
 For higher accuracy in transient simulations, we also support the \textbf{generalized-$\alpha$ method}. This scheme extends Newmark-$\beta$ by evaluating the system at intermediate stages $\alpha_m$ and $\alpha_f$ to introduce high-frequency numerical damping while minimizing low-frequency dissipation:
 \begin{equation}
-    \hat{\mathbf{M}}(\boldsymbol{\mu}) \underline{\ddot{\mathbf{U}}}_{t+\alpha_m} + \mathbf{F}_{\text{int}}(\underline{\mathbf{U}}_{t+\alpha_f}; \boldsymbol{\mu}) = \lambda(t+\alpha_f) \hat{\mathbf{F}}_{ext}(\boldsymbol{\mu})
+    \hat{\mathbf{M}}(\boldsymbol{\mu}) \underline{\ddot{\mathbf{U}}}_{t+\alpha_m} + \mat{C}(\boldsymbol{\mu}) \underline{\dot{\mathbf{U}}}_{t+\alpha_f} + \mat{K}(\boldsymbol{\mu}) \underline{\mathbf{U}}_{t+\alpha_f} = \lambda(t+\alpha_f) \hat{\mathbf{F}}_{ext}(\boldsymbol{\mu})
 \end{equation}
 
 \section{Quantities of Interest \& Numerical Results}
@@ -137,13 +121,168 @@ To evaluate the dynamic performance of the Full Order Model (FOM) under shape va
     \item \textbf{Maximum Von Mises Stress} $\sigma_{\text{VM}}$: Extracted at the quadrature integration points adjacent to the symmetric top and bottom circular notches to monitor stress concentration factors.
 \end{enumerate}
 
-Under a harmonic loading force $F(t) = F_0 \sin(\omega_{\text{ext}} t)$ applied at the tip, where $F_0 = 150.0$ N and $\omega_{\text{ext}} = 1.2$ rad/s, the beam undergoes large-displacement geometrically nonlinear oscillations. The average vertical deflection peaks at approximately $8.54$ mm. Due to the throat area reduction caused by the parameter-dependent circular notches, severe stress concentrations occur near the notch boundaries, where the local Von Mises stresses reach up to $210$ MPa, compared to a baseline bending stress of under $75$ MPa in unnotched regions.
 
-\begin{figure}[htbp]
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{chapters/4_simulation/images/iga_vs_fem_bending.png}
-    \caption{Full Order Model (FOM) tip bending deflection response compared against classical high-fidelity Finite Element Method (FEM) validation baseline.}
-    \label{fig:iga_vs_fem_bending}
+    \begin{tikzpicture}[scale=1.2, >=stealth]
+        % --- UNDEFORMED REFERENCE STATE (dashed) ---
+        \draw[dashed, black!25, thick]
+            (0, 1.0) -- (2.0, 1.0)
+            .. controls (2.5, 1.0) and (2.7, 0.4) .. (3.0, 0.4)
+            .. controls (3.3, 0.4) and (3.5, 1.0) .. (4.0, 1.0)
+            -- (6.0, 1.0) -- (6.0, -1.0) -- (4.0, -1.0)
+            .. controls (3.5, -1.0) and (3.3, -0.4) .. (3.0, -0.4)
+            .. controls (2.7, -0.4) and (2.5, -1.0) .. (2.0, -1.0)
+            -- (0, -1.0) -- cycle;
+        \node[black!40, font=\small] at (4.5, 0.3) {Undeformed};
+
+        % --- CLAMPED BOUNDARY HATCHING ---
+        \foreach \y in {-1.2, -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0} {
+            \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.2);
+        }
+        \draw[ultra thick, black!70] (0, -1.2) -- (0, 1.2);
+
+        % --- DEFORMED STRUCTURE WITH STRESS CONCENTRATION ---
+        \begin{scope}
+            % Clip to the deformed notched plate boundary (barely deformed)
+            \clip (0, 1.0) 
+                .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
+                .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
+                .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
+                .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
+                -- (6.0, -1.15)
+                .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
+                .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
+                .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
+                .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
+                -- cycle;
+
+            % Base color fill (low stress - blue)
+            \fill[blue!10] (-0.5, -3.0) rectangle (7.0, 2.0);
+
+            % Intermediate stress fields (greenish-yellow gradients)
+            \draw[fill=yellow!20, draw=none, opacity=0.6] (3.0, 0.37) circle (1.2);
+            \draw[fill=yellow!20, draw=none, opacity=0.6] (3.0, -0.43) circle (1.2);
+
+            % High stress concentration zones (orange/red) near the notch throats
+            \draw[fill=orange!45, draw=none, opacity=0.8] (3.0, 0.37) circle (0.6);
+            \draw[fill=red!60, draw=none, opacity=0.9] (3.0, 0.37) circle (0.28);
+
+            \draw[fill=orange!45, draw=none, opacity=0.8] (3.0, -0.43) circle (0.6);
+            \draw[fill=red!60, draw=none, opacity=0.9] (3.0, -0.43) circle (0.28);
+        \end{scope}
+
+        % Draw the boundary of the deformed notched plate
+        \draw[draw=blue!60, thick] (0, 1.0) 
+            .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
+            .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
+            .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
+            .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
+            -- (6.0, -1.15)
+            .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
+            .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
+            .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
+            .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
+            -- cycle;
+
+        % NURBS-like deformed coordinate lines (subtle)
+        \draw[blue!30, thin] (0, 0) .. controls (2.0, -0.03) and (4.0, -0.08) .. (6.0, -0.15);
+        \draw[blue!30, thin] (0, 0.5) .. controls (2.0, 0.47) and (4.0, 0.42) .. (6.0, 0.35);
+        \draw[blue!30, thin] (0, -0.5) .. controls (2.0, -0.53) and (4.0, -0.58) .. (6.0, -0.65);
+
+        % --- LOADING FORCE ARROW ---
+        \draw[->, ultra thick, red!85!black] (6.0, -1.15) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.0, -2.15);
+
+        % --- COLORBAR ---
+        \begin{scope}[xshift=7.4cm, yshift=-1.5cm]
+            \path[shading=ygradient, top color=red!80, bottom color=blue!60] (0, 0) rectangle (0.25, 2.0);
+            \draw[thick, black!50] (0, 0) rectangle (0.25, 2.0);
+            \node[right, font=\tiny] at (0.25, 2.0) {$\sigma_{\text{VM}}^{\text{max}}$ (High)};
+            \node[right, font=\tiny] at (0.25, 0.0) {$\sigma_{\text{VM}}^{\text{min}}$ (Low)};
+            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Stress \\ $\sigma_{\text{VM}}$};
+        \end{scope}
+    \end{tikzpicture}
+    \caption{Conceptual schema of the Full Order Model (FOM) transient simulation, depicting the stress concentrations ($\sigma_{\text{VM}}$) localized near the notch throats.}
+    \label{fig:fom_dynamic_response}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=1.2, >=stealth]
+        % --- UNDEFORMED REFERENCE STATE (dashed) ---
+        \draw[dashed, black!25, thick]
+            (0, 1.0) -- (2.0, 1.0)
+            .. controls (2.5, 1.0) and (2.7, 0.4) .. (3.0, 0.4)
+            .. controls (3.3, 0.4) and (3.5, 1.0) .. (4.0, 1.0)
+            -- (6.0, 1.0) -- (6.0, -1.0) -- (4.0, -1.0)
+            .. controls (3.5, -1.0) and (3.3, -0.4) .. (3.0, -0.4)
+            .. controls (2.7, -0.4) and (2.5, -1.0) .. (2.0, -1.0)
+            -- (0, -1.0) -- cycle;
+        \node[black!40, font=\small] at (4.5, 0.3) {Undeformed};
+
+        % --- CLAMPED BOUNDARY HATCHING ---
+        \foreach \y in {-1.2, -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0} {
+            \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.2);
+        }
+        \draw[ultra thick, black!70] (0, -1.2) -- (0, 1.2);
+
+        % --- DEFORMED STRUCTURE WITH DISPLACEMENT CONTOUR ---
+        \begin{scope}
+            % Clip to the deformed notched plate boundary (barely deformed)
+            \clip (0, 1.0) 
+                .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
+                .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
+                .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
+                .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
+                -- (6.0, -1.15)
+                .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
+                .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
+                .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
+                .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
+                -- cycle;
+
+            % Horizontal gradient representing displacement increasing from left to right
+            \path[shading=xgradient, left color=blue!20, right color=red!60] (0, -2.0) rectangle (6.0, 2.0);
+        \end{scope}
+
+        % Draw the boundary of the deformed notched plate
+        \draw[draw=blue!60, thick] (0, 1.0) 
+            .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
+            .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
+            .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
+            .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
+            -- (6.0, -1.15)
+            .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
+            .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
+            .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
+            .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
+            -- cycle;
+
+        % NURBS-like deformed coordinate lines (subtle)
+        \draw[blue!30, thin] (0, 0) .. controls (2.0, -0.03) and (4.0, -0.08) .. (6.0, -0.15);
+        \draw[blue!30, thin] (0, 0.5) .. controls (2.0, 0.47) and (4.0, 0.42) .. (6.0, 0.35);
+        \draw[blue!30, thin] (0, -0.5) .. controls (2.0, -0.53) and (4.0, -0.58) .. (6.0, -0.65);
+
+        % --- LOADING FORCE ARROW ---
+        \draw[->, ultra thick, red!85!black] (6.0, -1.15) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.0, -2.15);
+
+        % --- DEFLECTION INDICATORS ---
+        \draw[dashed, black!40] (6.0, -1.0) -- (6.8, -1.0);
+        \draw[dashed, black!40] (6.0, -1.15) -- (6.8, -1.15);
+        \draw[<->, thick, black!70] (6.6, -1.0) -- node[right, font=\small] {$U_y(t)$} (6.6, -1.15);
+
+        % --- COLORBAR ---
+        \begin{scope}[xshift=7.4cm, yshift=-1.5cm]
+            \path[shading=ygradient, top color=red!80, bottom color=blue!60] (0, 0) rectangle (0.25, 2.0);
+            \draw[thick, black!50] (0, 0) rectangle (0.25, 2.0);
+            \node[right, font=\tiny] at (0.25, 2.0) {$U_{\text{max}}$ (Tip)};
+            \node[right, font=\tiny] at (0.25, 0.0) {$0$ (Clamped)};
+            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Displacement \\ $U$};
+        \end{scope}
+    \end{tikzpicture}
+    \caption{Conceptual schema of the displacement field distribution, showing the smooth transition of displacement magnitude from zero at the clamped support to maximum at the loaded tip.}
+    \label{fig:fom_displacement_response}
 \end{figure}
 
 The computational costs associated with the FOM simulation are summarized as follows:
