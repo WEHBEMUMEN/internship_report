@@ -93,7 +93,7 @@ By pulling back the equations of motion to the reference configuration $\hat{\Om
 
 ### Step 4: Justifying the Mapping on Reference Configuration
 
-The reference configuration mapping is not merely an engineering convenience, but a **fundamental mathematical prerequisite** for shape-parametric Digital Twins. The justification is summarized by three core proofs:
+The reference configuration mapping is not merely an engineering convenience, but a \textbf{fundamental mathematical prerequisite} for shape-parametric Digital Twins. The justification is summarized by three core proofs:
 \begin{enumerate}
     \item \textbf{SVD Vector Space Prerequisite}: SVD-based basis extraction (POD) requires snapshot vectors to lie in the same Hilbert space $\mathcal{H}(\hat{\Omega})$. The reference mapping $\vect{\Phi}$ serves as the coordinate transform that pulls snapshots from varying spaces $\mathcal{H}(\Omega(\vect{\mu}))$ into the unified reference space $\mathcal{H}(\hat{\Omega})$.
     \item \textbf{Offline/Online Splitting}: The mapping isolates the geometric parameter $\vect{\mu}$ into low-dimensional algebraic tensors ($\mat{J}_{\vect{\Phi}}$), enabling the spatial integration terms to be precomputed offline.

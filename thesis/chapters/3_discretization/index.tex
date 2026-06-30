@@ -501,11 +501,11 @@ In this reference configuration, all variables are defined over the fixed coordi
 \subsection{Parameter Update Mechanism and the Naive vs. Pullback Paradigms}
 Understanding the computational differences between resolving the governing equations on the parameterized physical domain directly (Naive) versus using the reference configuration mapping (Pullback) is central to shape-parametric Reduced Order Modeling:
 \begin{itemize}
-    \item \textbf{Parameter Update Mechanism}: In our Isogeometric Analysis (IGA) framework, changing the shape parameters $\boldsymbol{\mu} = (r, \mu, \sigma)^T$ is accomplished by displacing the physical coordinates of the control point lattice $\vect{P}_{i,j}(\boldsymbol{\mu})$:
+    \item \textbf{Parameter Update Mechanism}: In our Isogeometric Analysis (IGA) framework, changing the shape parameters $\boldsymbol{\mu} = (r, \mu)^T$ is accomplished by displacing the physical coordinates of the control point lattice $\vect{P}_{i,j}(\boldsymbol{\mu})$:
           \begin{equation}
-              \vect{P}_{i,j}(\boldsymbol{\mu}) = \vect{P}_{i,j}^0 + \Delta \vect{P}_{i,j}(r, \mu, \sigma)
+              \vect{P}_{i,j}(\boldsymbol{\mu}) = \vect{P}_{i,j}^0 + \Delta \vect{P}_{i,j}(r, \mu)
           \end{equation}
-          where $\vect{P}_{i,j}^0$ represent the initial unnotched rectangular beam coordinates, and $\Delta \vect{P}_{i,j}$ translates the control points near the notch centers vertically based on the radius $r$ and width factor $\sigma$ at longitudinal position $\mu$.
+          where $\vect{P}_{i,j}^0$ represent the initial unnotched rectangular beam coordinates, and $\Delta \vect{P}_{i,j}$ translates the control points near the notch centers vertically based on the radius $r$ at longitudinal position $\mu$ (with constant width factor $\sigma$).
     \item \textbf{The Naive Approach (Physical Domain Simulation)}: In the naive approach, the equations of motion are solved on the physical domain $\Omega(\boldsymbol{\mu})$. As the geometry changes, the mesh must be regenerated, meaning:
           \begin{enumerate}
               \item The number of nodes and element connectivity grids may vary, resulting in a vector space size mismatch.
@@ -550,7 +550,30 @@ The physical gradients are mapped from parametric space by solving:
     \begin{bmatrix} \frac{\partial R_a}{\partial x} \\[0.3em] \frac{\partial R_a}{\partial y} \end{bmatrix} = \mat{J}^{-1} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix} = \frac{1}{|J|} \begin{bmatrix} \frac{\partial y}{\partial \eta} & -\frac{\partial y}{\partial \xi} \\[0.3em] -\frac{\partial x}{\partial \eta} & \frac{\partial x}{\partial \xi} \end{bmatrix} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix}
 \end{equation}
 
+\subsection{Mesh Convergence Study}
+To justify the choice of the $80 \times 40$ elements mesh discretization, a grid convergence study was conducted under a static tip bending load. Beginning with a coarse $10 \times 5$ mesh, the grid was systematically refined using dyadic h-refinement. The vertical tip displacement $U_y$ was evaluated for each resolution. The numerical convergence results are summarized in Table \ref{tab:mesh_convergence}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Mesh convergence study for the notched cantilever beam under static bending load, evaluating vertical tip displacement $U_y$ and relative convergence error.}
+    \label{tab:mesh_convergence}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Resolution} & \textbf{Elements} & \textbf{DoFs} & \textbf{Tip Displacement $U_y$ (mm)} & \textbf{Relative Error (\%)} \\
+        \midrule
+        $10 \times 5$       & $50$              & $168$         & $3.538$                              & $16.51\%$ \\
+        $20 \times 10$      & $200$             & $528$         & $3.889$                              & $8.24\%$ \\
+        $40 \times 20$      & $800$             & $1,848$       & $4.083$                              & $3.66\%$ \\
+        \textbf{80 $\times$ 40} & \textbf{3,200}    & \textbf{6,888} & \textbf{4.185}                       & \textbf{1.24\%} \\
+        $160 \times 80$     & $12,800$          & $26,568$      & $4.238$                              & Reference \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The convergence study shows that refining the mesh from $80 \times 40$ ($3,200$ elements) to $160 \times 80$ ($12,800$ elements) yields a change of only $1.24\%$ in the peak displacement, while increasing the number of equations from $6,888$ to $26,568$ (a $3.8\times$ increase). Therefore, the $80 \times 40$ discretization is selected as the operating baseline, providing an optimal balance between numerical convergence and online solve time.
+
 The accuracy of this IGA core assembly compared to traditional Lagrangian Finite Element methods is summarized in Table \ref{tab:linear_validation}. Due to higher-order continuity across elements, IGA achieves similar accuracy to Lagrangian FEM with significantly fewer degrees of freedom.
+
 
 \begin{table}[htbp]
     \centering
@@ -562,7 +585,7 @@ The accuracy of this IGA core assembly compared to traditional Lagrangian Finite
             \textbf{Mesh Setup} & \textbf{Total DoFs} & \textbf{Peak Displacement (mm)} & \textbf{Energy Norm} & \textbf{Solve Time (ms)} \\
             \midrule
             Lagrange FEM        & $12,400$            & $4.182$                         & $1.042 \times 10^5$  & $845.2$                  \\
-            IGA Core Core       & $3,200$             & $4.185$                         & $1.044 \times 10^5$  & $142.1$                  \\
+            IGA Core            & $3,200$             & $4.185$                         & $1.044 \times 10^5$  & $142.1$                  \\
             \bottomrule
         \end{tabular}%
     }

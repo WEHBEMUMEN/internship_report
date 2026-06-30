@@ -40,7 +40,7 @@ The final interpolation projection matrix is defined as $\mat{P} = \mat{P}_m$. T
 where $\mat{F}_{\text{int}}\vert_{\mat{P}}(\vect{u}_r) = \mat{P}^T \mat{F}_{\text{int}}(\mat{V}_r \vect{u}_r)$ maps the localized forces at the $m$ active degrees of freedom.
 
 \subsubsection{Unassembled DEIM (U-DEIM) Extension}
-Standard DEIM still exhibits an offline-online bottleneck in finite element frameworks because evaluating even a single spatial row index within a global assembled vector requires looping over all physical mesh elements connected to that node. To completely achieve element-level lifting decoupling, **Unassembled DEIM (U-DEIM)** was deployed.
+Standard DEIM still exhibits an offline-online bottleneck in finite element frameworks because evaluating even a single spatial row index within a global assembled vector requires looping over all physical mesh elements connected to that node. To completely achieve element-level lifting decoupling, \textbf{Unassembled DEIM (U-DEIM)} was deployed.
 
 Instead of reducing the global assembled vector, U-DEIM constructs a snapshot matrix out of un-assembled, localized element internal force vectors $\vect{f}_e$. The interpolation is performed directly within the localized element vector space, meaning the online physics core only needs to evaluate isolated element routines matching the interpolation index map:
 \begin{equation}

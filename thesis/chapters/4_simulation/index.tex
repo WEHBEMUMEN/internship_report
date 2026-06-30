@@ -34,8 +34,8 @@ where $\alpha_M$ and $\beta_K$ are the mass-proportional and stiffness-proportio
         process/.style={rectangle, draw=orange!70, fill=orange!5, thick, minimum width=6.5cm, minimum height=0.9cm, align=center, font=\sffamily\small},
         arrow/.style={thick,->,>=stealth}
     ]
-        % Left Column: Naive Physical
-        \node [block] (naive_start) {Naive Physical Path \\ $\Omega(\boldsymbol{\mu})$};
+        % Left Column: Classical Physical-Domain
+        \node [block] (naive_start) {Classical Physical Path \\ $\Omega(\boldsymbol{\mu})$};
         \node [process, below of=naive_start, node distance=1.5cm] (remesh) {Regenerate Mesh \\ $N(\boldsymbol{\mu})$ varies};
         \node [process, below of=remesh, node distance=1.5cm] (assemble) {Assemble Stiffness $\mat{K}(\boldsymbol{\mu})$ \\ High Cost, Online};
         \node [process, below of=assemble, node distance=1.5cm] (solve_naive) {Solve System \\ Variable Dimensions};
@@ -57,7 +57,7 @@ where $\alpha_M$ and $\beta_K$ are the mass-proportional and stiffness-proportio
         \draw [arrow] (pullback) -- (pullback_assemble);
         \draw [arrow] (pullback_assemble) -- (solve_mapped);
     \end{tikzpicture}
-    \caption{Visual workflow comparing physical-domain mesh regeneration (Naive) against static reference-configuration pullback mapping, illustrating that online stiffness matrix assembly remains a computational bottleneck prior to model reduction.}
+    \caption{Visual workflow comparing physical-domain mesh regeneration (Classical) against static reference-configuration pullback mapping, illustrating that online stiffness matrix assembly remains a computational bottleneck prior to model reduction.}
     \label{fig:remesh_vs_pullback}
 \end{figure}
 
@@ -81,7 +81,7 @@ To enforce the homogeneous Dirichlet boundary conditions (e.g., rigid clamping a
 \end{equation}
 This forces the displacement at those boundary degrees of freedom to zero, accurately satisfying the clamping constraint without altering the size or structure of the system matrix.
 
-\section{Implicit Time Integration (Newmark-$\beta$)}
+\section{Implicit Time Integration (\texorpdfstring{Newmark-$\beta$}{Newmark-beta})}
 To resolve the linear semi-discrete second-order system of equations of motion, we couple the implicit \textbf{Newmark-$\beta$} average acceleration scheme ($\beta=0.25$, $\gamma=0.5$). For a linear system, the equations can be solved directly at each time step without the need for iterative Newton-Raphson solvers. The detailed solver steps are formalized in Algorithm \ref{alg:fom_dynamics}.
 
 \begin{algorithm}[htbp]
@@ -283,6 +283,49 @@ To evaluate the dynamic performance of the Full Order Model (FOM) under shape va
     \end{tikzpicture}
     \caption{Conceptual schema of the displacement field distribution, showing the smooth transition of displacement magnitude from zero at the clamped support to maximum at the loaded tip.}
     \label{fig:fom_displacement_response}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=0.85\textwidth,
+            height=0.4\textwidth,
+            xlabel={Simulation Time $t$ [s]},
+            ylabel={Tip Vertical Deflection $U_y$ [mm]},
+            xmin=1.2, xmax=5.2,
+            ymin=-0.5, ymax=0.5,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!10},
+            major grid style={line width=.2pt, draw=gray!20},
+            axis lines=left,
+            enlargelimits=false,
+            x tick label style={font=\footnotesize},
+            y tick label style={font=\footnotesize},
+            axis line style={draw=gray!50, -},
+        ]
+            \addplot[
+                color=blue!70!black,
+                thick,
+                smooth,
+                mark=none
+            ] coordinates {
+                (1.2, 0.4014) (1.3, 0.3913) (1.4, 0.3910) (1.5, 0.3986)
+                (1.6, 0.4077) (1.7, 0.4104) (1.8, 0.3994) (1.9, 0.3710)
+                (2.0, 0.3256) (2.1, 0.2675) (2.2, 0.2037) (2.3, 0.1410)
+                (2.4, 0.0847) (2.5, 0.0368) (2.6, -0.0040) (2.7, -0.0413)
+                (2.8, -0.0794) (2.9, -0.1220) (3.0, -0.1703) (3.1, -0.2230)
+                (3.2, -0.2767) (3.3, -0.3268) (3.4, -0.3688) (3.5, -0.4000)
+                (3.6, -0.4197) (3.7, -0.4290) (3.8, -0.4306) (3.9, -0.4277)
+                (4.0, -0.4224) (4.1, -0.4158) (4.2, -0.4072) (4.3, -0.3948)
+                (4.4, -0.3764) (4.5, -0.3501) (4.6, -0.3152) (4.7, -0.2723)
+                (4.8, -0.2231) (4.9, -0.1703) (5.0, -0.1163) (5.1, -0.0633)
+                (5.15, -0.0375)
+            };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Transient vertical deflection $U_y(t)$ at the free tip of the notched cantilever beam, computed using the high-fidelity Full Order Model (FOM) under harmonic loading.}
+    \label{fig:fom_qoi_deflection}
 \end{figure}
 
 The computational costs associated with the FOM simulation are summarized as follows:

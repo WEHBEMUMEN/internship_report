@@ -3,12 +3,10 @@
 \label{ch:rom}
 % ==============================================================================
 
-To bypass the severe computational overhead of the Full Order Model (FOM) simulations, we implement a projection-based Reduced Order Modeling (ROM) framework. This chapter details the progression of the model reduction strategies across Phases 5.2, 5.3, 5.3a, and 5.3b.
+To bypass the severe computational overhead of the Full Order Model (FOM) simulations, we implement a projection-based Reduced Order Modeling (ROM) framework. This chapter details the progression of the model reduction strategies across Sections 5.1, 5.2, and 5.3.
 
-% ==============================================================================
-\section{Phase 5.2: Standard Galerkin ROM (Dimensionality Reduction)}
-% ==============================================================================
-In Phase 5.2, the high-fidelity spatial displacement vector $\underline{\mathbf{U}}(t) \in \mathbb{R}^N$ is projected onto a low-dimensional subspace spanned by a Reduced Basis matrix $\boldsymbol{\Phi} \in \mathbb{R}^{N \times r}$ ($r \ll N$):
+\section{Standard Galerkin ROM (Dimensionality Reduction)}
+In Section 5.1, the high-fidelity spatial displacement vector $\underline{\mathbf{U}}(t) \in \mathbb{R}^N$ is projected onto a low-dimensional subspace spanned by a Reduced Basis matrix $\boldsymbol{\Phi} \in \mathbb{R}^{N \times r}$ ($r \ll N$):
 \begin{equation}
     \underline{\mathbf{U}}(t) \approx \boldsymbol{\Phi} \underline{\mathbf{q}}(t)
 \end{equation}
@@ -23,11 +21,11 @@ where $\underline{\mathbf{q}}(t) \in \mathbb{R}^r$ represents the vector of redu
             xlabel={Number of POD Modes $r$},
             ylabel={Relative $L_2$ Error $\epsilon$ [\%]},
             xmin=1, xmax=10,
-            ymin=0, ymax=1.05,
+            ymin=0, ymax=2.5,
             xtick={1,2,3,4,5,6,7,8,9,10},
             xticklabels={1,2,3,4,5,6,7,8,9,10},
-            ytick={0, 0.2, 0.4, 0.6, 0.8, 1.0},
-            yticklabels={0\%, 20\%, 40\%, 60\%, 80\%, 100\%},
+            ytick={0, 0.5, 1.0, 1.5, 2.0, 2.5},
+            yticklabels={0.0\%, 0.5\%, 1.0\%, 1.5\%, 2.0\%, 2.5\%},
             grid=both,
             grid style={line width=.1pt, draw=gray!10},
             major grid style={line width=.2pt, draw=gray!20},
@@ -44,16 +42,16 @@ where $\underline{\mathbf{q}}(t) \in \mathbb{R}^r$ represents the vector of redu
                 draw=none,
                 domain=1:10,
             ] coordinates {
-                (1, 1.0)
-                (2, 0.45)
-                (3, 0.15)
-                (4, 0.05)
-                (5, 0.02)
-                (6, 0.01)
-                (7, 0.005)
-                (8, 0.003)
-                (9, 0.002)
-                (10, 0.001)
+                (1, 2.3424)
+                (2, 1.7880)
+                (3, 1.4139)
+                (4, 1.1283)
+                (5, 0.8902)
+                (6, 0.6806)
+                (7, 0.4935)
+                (8, 0.3410)
+                (9, 0.1924)
+                (10, 0.1062)
             } \closedcycle;
 
             % Plot line with pink markers
@@ -64,16 +62,16 @@ where $\underline{\mathbf{q}}(t) \in \mathbb{R}^r$ represents the vector of redu
                 smooth,
                 mark options={fill=magenta!85!purple, draw=magenta!85!purple, line width=1pt, scale=1.0}
             ] coordinates {
-                (1, 1.0)
-                (2, 0.45)
-                (3, 0.15)
-                (4, 0.05)
-                (5, 0.02)
-                (6, 0.01)
-                (7, 0.005)
-                (8, 0.003)
-                (9, 0.002)
-                (10, 0.001)
+                (1, 2.3424)
+                (2, 1.7880)
+                (3, 1.4139)
+                (4, 1.1283)
+                (5, 0.8902)
+                (6, 0.6806)
+                (7, 0.4935)
+                (8, 0.3410)
+                (9, 0.1924)
+                (10, 0.1062)
             };
             
         \end{axis}
@@ -99,10 +97,8 @@ which bypasses the expensive global Gaussian elimination solves.
 
 Despite this, the standard Galerkin ROM suffers from the \textbf{assembly bottleneck}: when the shape parameter $\boldsymbol{\mu}$ changes, the global stiffness matrix $\hat{\mathbf{K}}(\boldsymbol{\mu})$ must still be assembled in its full physical dimension $N$ before projecting it to $\mathbf{K}_r(\boldsymbol{\mu})$. Thus, the online computational cost still scales with the size of the full mesh $\mathcal{O}(N)$, preventing real-time evaluation.
 
-% ==============================================================================
-\section{Phase 5.3: Parameterized ROM and State Projection}
-% ==============================================================================
-Phase 5.3 introduces shape parameterization where the physical domain $\Omega(\boldsymbol{\mu})$ changes dynamically. This introduces a vector space incompatibility across different parameter settings. 
+\section{Parameterized ROM and State Projection}
+Section 5.2 introduces shape parameterization where the physical domain $\Omega(\boldsymbol{\mu})$ changes dynamically. This introduces a vector space incompatibility across different parameter settings. 
 
 When the notch parameters ($\mu$ or $r$) are updated mid-simulation, the structural domain $\Omega(\mu, r)$ changes, requiring a recomputation of the Reduced Basis:
 \begin{equation}
@@ -117,9 +113,8 @@ To resolve this, we enforce physical continuity by performing a \textbf{transien
 This maps the transient states dynamically across the parameter-dependent manifolds, maintaining physical state continuity.
 
 % ==============================================================================
-\section{Phase 5.3a: Reference-Mapped Linear ECSW Hyper-reduction}
-% ==============================================================================
-To resolve the online assembly bottleneck, Phase 5.3a implements the **Energy-Conserving Sampling and Weighting (ECSW)** method on the reference configuration. ECSW replaces full-mesh integration with a sparse, weighted combination evaluated over a minimal subset of active elements $\widehat{\Omega} \subset \Omega$:
+\section{Reference-Mapped Linear ECSW Hyper-reduction}
+To resolve the online assembly bottleneck, the \textbf{Energy-Conserving Sampling and Weighting (ECSW)} method \cite{Farhat2014} is implemented on the reference configuration. ECSW replaces full-mesh integration with a sparse, weighted combination evaluated over a minimal subset of active elements $\widehat{\Omega} \subset \Omega$:
 \begin{equation}
     \mathbf{K}_{r, \text{ECSW}}(\boldsymbol{\mu}) = \sum_{e \in \widehat{\Omega}} w_e \boldsymbol{\Phi}_e^T \mathbf{K}_{e}(\boldsymbol{\mu}) \boldsymbol{\Phi}_e
 \end{equation}
@@ -131,8 +126,10 @@ The weights are determined by solving a Non-Negative Least Squares (NNLS) optimi
 \end{equation}
 where the target vector $\vect{b}$ is the exact unreduced projected force, and the columns of $\mat{A}$ represent element-level force contributions.
 
+\noindent\textbf{Remark.} \textit{The training snapshot matrix is constructed using $M = 3$ representative loading configurations (tip bending load, analytical axial tension, and mid-span bending load) as defined in Algorithm \ref{alg:ecsw_training}. While $M = 3$ is a relatively small training set, it is highly representative of the primary deformation modes (bending, tension, and shear) for this cantilever structure. This sparse training set is sufficient due to the reference-mapping formulation, which shifts the shape parameterization into the coordinate Jacobian rather than requiring snapshot sweeps over the entire parameter space $\mathcal{D}$, significantly reducing the offline training cost without sacrificing online accuracy.}
+
 \subsection{Dirichlet and Notch Seeding for Coercivity}
-Standard greedy selection algorithms (such as Orthogonal Matching Pursuit) often fail to select clamped boundary elements. Without these elements, the hyper-reduced stiffness matrix $\mathbf{K}_{\text{ECSW}}$ loses its connection to the Dirichlet boundary constraints. This leads to a loss of **coercivity** (singular matrices and rigid-body modes). 
+Standard greedy selection algorithms (such as Orthogonal Matching Pursuit) often fail to select clamped boundary elements. Without these elements, the hyper-reduced stiffness matrix $\mathbf{K}_{\text{ECSW}}$ loses its connection to the Dirichlet boundary constraints. This leads to a loss of \textbf{coercivity} (singular matrices and rigid-body modes). 
 
 To guarantee coercivity and capture high-stress gradients near the defect notches, we pre-seed the active set $\widehat{\Omega}$ before initiating the greedy selection:
 \begin{equation}
@@ -140,28 +137,67 @@ To guarantee coercivity and capture high-stress gradients near the defect notche
 \end{equation}
 The offline training workflow is formalized in Algorithm \ref{alg:ecsw_training} and illustrated in Figure \ref{fig:ecsw_flowchart}.
 
-\begin{figure}[htbp]
+\begin{figure}[p]
     \centering
+    \makebox[\textwidth][c]{%
     \begin{tikzpicture}[
-        node distance=1.5cm,
-        block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=6cm, minimum height=0.85cm, align=center, font=\sffamily\small},
-        cloud/.style={ellipse, draw=green!70, fill=green!5, thick, minimum width=3.5cm, minimum height=0.85cm, align=center, font=\sffamily\small},
-        arrow/.style={thick,->,>=stealth}
+        node distance=1.1cm,
+        block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=6.5cm, minimum height=0.75cm, align=center, font=\sffamily\scriptsize},
+        case/.style={rectangle, draw=orange!70, fill=orange!5, thick, rounded corners, text width=2.6cm, minimum height=3.2cm, align=left, font=\sffamily\tiny},
+        arrow/.style={thick,->,>=stealth},
+        line/.style={thick}
     ]
-        % Nodes
-        \node [block] (snap) {Collect Snapshots \\ $\vect{U}(t_j; \boldsymbol{\mu}_k)$};
-        \node [block, below of=snap] (pod) {Orthonormalization \\ Extract POD Basis $\boldsymbol{\Phi}$};
-        \node [block, below of=pod] (nnls) {Greedy OMP Solver \\ Select Active Elements $\widehat{\Omega}$};
-        \node [block, below of=nnls] (calib) {Stiffness Calibration \\ Scale weights $w_e$};
-        \node [cloud, right=1.5cm of calib] (online) {Online Simulation \\ $\mathbf{K}_r \approx \sum_{e \in \widehat{\Omega}} w_e \mathbf{K}_{r,e}$};
+        % --- OFFLINE STAGES ---
+        \node [block] (offline1) {\textbf{Offline Stage 1: Reference Config} \\ Instantiate Flat Reference Mesh $\hat{\Omega}$ \\ Precompute basis derivatives};
+        \node [block, below=0.5cm of offline1] (offline2) {\textbf{Offline Stage 2: Snapshot Collection} \\ Run full FOM sweeps over training targets $\boldsymbol{\mu}_{\text{train}}$ \\ Save displacements to snapshot matrix $\mathbf{S}_u$};
+        \node [block, below=0.5cm of offline2] (offline3) {\textbf{Offline Stage 3: Projection \& Selection} \\ 1. SVD on $\mathbf{S}_u$ to extract reduced basis $\boldsymbol{\Phi}$ \\ 2. Run NNLS internal force balancing \\ 3. Extract active elements $E^*$ and weights $w_e$};
         
-        % Paths
-        \draw [arrow] (snap) -- (pod);
-        \draw [arrow] (pod) -- (nnls);
-        \draw [arrow] (nnls) -- (calib);
-        \draw [arrow] (calib) -- (online);
-    \end{tikzpicture}
-    \caption{Offline training vs. online real-time evaluation workflow in the ECSW hyper-reduced order modeling pipeline.}
+        \draw [arrow] (offline1) -- (offline2);
+        \draw [arrow] (offline2) -- (offline3);
+
+        % --- TRIGGER ---
+        \node [below=0.5cm of offline3, font=\sffamily\scriptsize\bfseries\color{red!85!black}] (trigger) {<<< USER RUNS ONLINE SOLVER (t=0) >>>};
+        \draw [arrow] (offline3) -- (trigger);
+
+        % --- PIPELINE HEADERS ---
+        \node [below left=0.6cm and 1.2cm of trigger, font=\sffamily\tiny\bfseries, align=center, draw=blue!40, fill=blue!2] (hdr_naive) {NAIVE PHYSICAL PIPELINE \\ (Spatial Remeshing on $\Omega(\boldsymbol{\mu})$)};
+        \node [below right=0.6cm and 1.2cm of trigger, font=\sffamily\tiny\bfseries, align=center, draw=cyan!40, fill=cyan!2] (hdr_mapped) {MAPPED PULLBACK PIPELINE \\ (Reference Assembly on $\hat{\Omega}$)};
+
+        \draw [arrow] (trigger.south) -| (hdr_naive.north);
+        \draw [arrow] (trigger.south) -| (hdr_mapped.north);
+
+        % --- CASES ---
+        % Naive Cases
+        \node [case, below left=0.4cm and -1.3cm of hdr_naive] (case1) {\textbf{Case 1: Naive FOM} \\ • Full physical remesh \\ • Assemble full size \\ \ \ $\mathbf{K} \in \mathbb{R}^{N \times N}$ \\ • Slow assembly};
+        \node [case, below right=0.4cm and -1.3cm of hdr_naive] (case2) {\textbf{Case 2: Naive ROM} \\ • Mesh warps online \\ • Project basis $\boldsymbol{\Phi}$ \\ • Slow projection: \\ \ \ $\mathbf{K}_r = \boldsymbol{\Phi}^T \mathbf{K} \boldsymbol{\Phi}$};
+        
+        % Mapped Cases
+        \node [case, below left=0.4cm and -1.3cm of hdr_mapped] (case3) {\textbf{Case 3: Mapped ROM} \\ • Flat static mesh \\ • Solve in reduced \\ \ \ subspace size $r \times r$ \\ • Loop scales with \\ \ \ full mesh $E$};
+        \node [case, below right=0.4cm and -1.3cm of hdr_mapped] (case4) {\textbf{Case 4: ECSW ROM} \\ • Flat static mesh \\ • Integrate over \\ \ \ sparse set $E^*$ only \\ • Scale weights $w_e$ \\ • Fastest solver};
+
+        \draw [arrow] (hdr_naive.south) -| (case1.north);
+        \draw [arrow] (hdr_naive.south) -| (case2.north);
+        \draw [arrow] (hdr_mapped.south) -| (case3.north);
+        \draw [arrow] (hdr_mapped.south) -| (case4.north);
+
+        % --- NEWMARK RESOLUTION BLOCK ---
+        \node [block, below=6.5cm of trigger] (newmark) {\textbf{Transient Newmark Implicit Solver} \\ Assemble effective dynamic operator (Size: $N \times N$ or $r \times r$) \\ Solve system equation $\mathbf{A}_{\text{eff}} \vect{x} = \vect{b}_{\text{eff}}$};
+
+        \draw [line] (case1.south) -- ++(0,-0.3) -| (newmark.north);
+        \draw [line] (case2.south) -- ++(0,-0.3) -| (newmark.north);
+        \draw [line] (case3.south) -- ++(0,-0.3) -| (newmark.north);
+        \draw [line] (case4.south) -- ++(0,-0.3) -| (newmark.north);
+
+        % --- OUTPUT ---
+        \node [block, below=0.5cm of newmark] (visual) {\textbf{Update State Field \& Visual Layer} \\ Reconstruct field: $\vect{U} \approx \boldsymbol{\Phi} \vect{q}$ (Case 2, 3, 4) \\ Render stress contours and update screen};
+        \node [block, below=0.5cm of visual] (advance) {\textbf{Advance Time State Step} \\ $t \leftarrow t + \Delta t$};
+
+        \draw [arrow] (newmark) -- (visual);
+        \draw [arrow] (visual) -- (advance);
+
+    \end{tikzpicture}%
+    }
+    \caption{Comprehensive offline training and online multi-pipeline hyper-reduction execution flowchart, detailing the data structures and algorithms across Cases 1 to 4.}
     \label{fig:ecsw_flowchart}
 \end{figure}
 
@@ -170,26 +206,6 @@ Because ECSW weights are trained on the reference configuration, shape transform
 \begin{equation}
     \gamma = \frac{\boldsymbol{\phi}_1^T \mathbf{K}_{\text{Full}}(\boldsymbol{\mu}) \boldsymbol{\phi}_1}{\boldsymbol{\phi}_1^T \mathbf{K}_{\text{ECSW}}(\boldsymbol{\mu}) \boldsymbol{\phi}_1}, \quad w_e \leftarrow \gamma \cdot w_e
 \end{equation}
-
-% ==============================================================================
-\section{Phase 5.3b: Reference-Mapped Non-Linear Pullback and Hyper-reduction}
-% ==============================================================================
-Phase 5.3b extends the mapped hyper-reduction to **geometric non-linearities**, enabling the simulation of large structural deflections. Displacements are modeled using the non-linear **Green-Lagrange strain tensor** $\mathbf{E}$ and its conjugate **Second Piola-Kirchhoff (PK2) stress tensor** $\mathbf{S}$:
-\begin{equation}
-    \mathbf{E} = \frac{1}{2}\left(\mathbf{F}^{\mathrm{T}}\mathbf{F} - \mathbf{I}\right), \quad \mathbf{S} = \mathbf{D} \mathbf{E}
-\end{equation}
-
-The tangent stiffness matrix $\mathbf{K}_T(\mathbf{u})$ is split into material and geometric contributions:
-\begin{equation}
-    \mathbf{K}_T(\mathbf{u}) = \mathbf{K}_M(\mathbf{u}) + \mathbf{K}_G(\mathbf{u})
-\end{equation}
-where $\mathbf{K}_G(\mathbf{u})$ accounts for local stress-stiffening effects.
-
-The non-linear dynamic equations are resolved at each time step using an online **Newton-Raphson loop** in the reduced coordinate space. The coordinates increment $\Delta \underline{\mathbf{q}}$ is solved at iteration $i$:
-\begin{equation}
-    \mathbf{K}_{\text{eff},r}^{(i)} \Delta \underline{\mathbf{q}} = \mathbf{R}_r^{(i)}, \quad \underline{\mathbf{q}}^{(i+1)} = \underline{\mathbf{q}}^{(i)} + \Delta \underline{\mathbf{q}}
-\end{equation}
-where the effective operator $\mathbf{K}_{\text{eff},r}$ and force residual $\mathbf{R}_r$ are assembled by summing only over the active ECSW element set $\widehat{\Omega}$, avoiding any high-dimensional assembly. The online solver is detailed in Algorithm \ref{alg:ecsw_online}.
 
 \begin{algorithm}[htbp]
 \caption{Offline ECSW Training and Reduced Basis Generation}
@@ -215,36 +231,6 @@ where the effective operator $\mathbf{K}_{\text{eff},r}$ and force residual $\ma
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
-
-\begin{algorithm}[htbp]
-\caption{Online Hyper-Reduced Newton-Raphson Solver (ECSW ROM)}
-\label{alg:ecsw_online}
-\begin{algorithmic}[1]
-\Procedure{StepECSWROM}{$\vect{q}_n, \dot{\vect{q}}_n, \ddot{\vect{q}}_n, \vect{w}, \mathcal{I}_{\text{act}}, \boldsymbol{\Phi}, \Delta t$}
-    \State Predict coordinates using Newmark-$\beta$:
-    \State $\vect{q}_{\text{pred}} \gets \vect{q}_n + \Delta t \dot{\vect{q}}_n + \Delta t^2 (0.5 - \beta) \ddot{\vect{q}}_n$
-    \State $\dot{\vect{q}}_{\text{pred}} \gets \dot{\vect{q}}_n + \Delta t (1 - \gamma) \ddot{\vect{q}}_n$
-    \State Initialize step values: $\vect{q}^{k=0} \gets \vect{q}_{\text{pred}}$, \quad $\dot{\vect{q}}^{k=0} \gets \dot{\vect{q}}_{\text{pred}}$, \quad $\ddot{\vect{q}}^{k=0} \gets \ddot{\vect{q}}_n$
-    \State Compute reduced mass $\mat{M}_r \gets \boldsymbol{\Phi}^T \mat{M} \boldsymbol{\Phi}$
-    \For{$k = 0, 1, \dots$ to $N_{\text{max}}$}
-        \State Reconstruct physical displacement field: $\vect{u}^k \gets \boldsymbol{\Phi} \vect{q}^k$
-        \State Assemble sparse internal force and tangent stiffness on $\mathcal{I}_{\text{act}}$:
-        \State $\vect{F}_{\text{int}} \gets \sum_{e \in \mathcal{I}_{\text{act}}} w_e \vect{f}_e(\vect{u}^k; \mu, r)$, \quad $\mat{K}_{\text{ecsw}} \gets \sum_{e \in \mathcal{I}_{\text{act}}} w_e \mat{K}_e(\vect{u}^k; \mu, r)$
-        \State Project operators to reduced subspace:
-        \State $\vect{F}_{r,\text{int}} \gets \boldsymbol{\Phi}^T \vect{F}_{\text{int}}$, \quad $\mat{K}_r \gets \boldsymbol{\Phi}^T \mat{K}_{\text{ecsw}} \boldsymbol{\Phi}$
-        \State Compute dynamic residual: $\vect{R}_r \gets \vect{F}_{r,\text{ext}} - \mat{M}_r \ddot{\vect{q}}^k - \mat{C}_r \dot{\vect{q}}^k - \vect{F}_{r,\text{int}}$
-        \If{$\|\vect{R}_r\|_2 < \epsilon_{\text{tol}}$} \textbf{break}
-        \EndIf
-        \State Assemble effective tangent matrix: $\mat{K}_{r,\text{eff}} \gets \mat{K}_r (1 + \frac{\gamma \beta_K}{\beta \Delta t}) + \mat{M}_r (\frac{1}{\beta \Delta t^2} + \frac{\gamma \alpha_M}{\beta \Delta t})$
-        \State Solve correction: $\Delta \vect{q} \gets \mat{K}_{r,\text{eff}}^{-1} \vect{R}_r$
-        \State Update coordinate: $\vect{q}^{k+1} \gets \vect{q}^k + \Delta \vect{q}$
-    \EndFor
-    \State Update history: $\vect{q}_{n+1} \gets \vect{q}^k, \quad \dot{\vect{q}}_{n+1} \gets \dot{\vect{q}}^k, \quad \ddot{\vect{q}}_{n+1} \gets \ddot{\vect{q}}^k$
-    \State \Return $\vect{q}_{n+1}, \dot{\vect{q}}_{n+1}, \ddot{\vect{q}}_{n+1}$
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
-
 % ==============================================================================
 \section{Quantitative Evaluation and Performance Comparison}
 % ==============================================================================
@@ -269,7 +255,7 @@ To validate the model reduction strategies, a performance study was conducted on
 
 The numerical results highlight the following critical behaviors:
 \begin{itemize}
-        \item \textbf{Galerkin Projection Overhead}: Without hyper-reduction, the Galerkin ROM runs slightly slower than the FOM solver ($0.92\times$ speedup) due to the full-dimensional assembly bottleneck.
-        \item \textbf{ECSW Accuracy}: ECSW achieves a relative $L_2$ error of just $0.054\%$ while integrating over only $28$ selected elements, providing a **$64.5\times$ speedup**.
+        \item \textbf{Galerkin Projection Overhead}: Without hyper-reduction, the Galerkin ROM runs slightly slower than the FOM solver ($0.92\times$ speedup) due to the full-dimensional assembly bottleneck. Even though the reduced system equations are solved in a minimal coordinate space of size $r \times r$, the parameter-dependent tangent stiffness matrix $\mat{K}(\boldsymbol{\mu})$ must still be assembled in its full physical dimension $N$ before being projected to the reduced space via $\boldsymbol{\Phi}^T \mat{K}(\boldsymbol{\mu}) \boldsymbol{\Phi}$ online. The cost of this projection scales with the full order model dimension $\mathcal{O}(N)$, which, combined with the full assembly cost, results in a net computational slowdown without hyper-reduction.
+        \item \textbf{ECSW Accuracy}: ECSW achieves a relative $L_2$ error of just $0.054\%$ while integrating over only $28$ selected elements, providing a \textbf{$64.5\times$ speedup}.
         \item \textbf{Eigenvalue Conservation}: The fundamental natural frequency computed by projecting the unreduced FOM tangent stiffness is $\omega_{n,\text{FOM}} = 1.108$ rad/s. Under the ECSW sparse mesh assembly, the fundamental natural frequency is resolved as $\omega_{n,\text{ROM}} = 1.107$ rad/s. This minimal deviation ($0.09\%$) confirms that the dynamic spectrum is preserved.
 \end{itemize}

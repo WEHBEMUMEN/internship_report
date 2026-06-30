@@ -9,8 +9,8 @@
 \usepackage[english]{babel}
 \usepackage{amsmath,amssymb,amsfonts,amsthm}
 \usepackage{graphicx}
+\graphicspath{{./}{../figures/}}
 \usepackage{bm}
-\usepackage{hyperref}
 \usepackage{geometry}
 \usepackage{booktabs}
 \usepackage[protrusion=true,expansion=false]{microtype} % disable expansion if scalable fonts aren't fully resolved
@@ -20,9 +20,22 @@
 \usetikzlibrary{shapes.geometric, arrows, positioning}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{animate}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
+\usepackage{svg}
+
+% hyperref must be loaded BEFORE animate (animate loads it internally with pdfpagelabels)
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    pdftitle={M2 Thesis: Isogeometric Analysis and Reduced Order Modeling in Structural Dynamics},
+    pdfauthor={Mumen Wehbe}
+}
+
+\usepackage{animate}
 
 % Float and spacing optimization to reduce white space
 \renewcommand{\topfraction}{0.85}      % max fraction of floats at top
@@ -46,17 +59,6 @@
     bottom=2.5cm,
     left=3cm,
     right=3cm
-}
-
-\usepackage{svg}
-
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    citecolor=blue,
-    urlcolor=blue,
-    pdftitle={M2 Thesis: Isogeometric Analysis and Reduced Order Modeling in Structural Dynamics},
-    pdfauthor={Mumen Wehbe}
 }
 
 % Custom macros for vector/matrix notations
@@ -86,8 +88,10 @@
 % ==============================================================================
 \begin{document}
 
+\pagenumbering{alph}
 \maketitle
 
+\pagenumbering{roman}
 \input{chapters/0_frontmatter/abstract}
 \newpage
 
@@ -109,6 +113,7 @@
 \input{chapters/0_frontmatter/nomenclature}
 \newpage
 
+\pagenumbering{arabic}
 \input{chapters/1_introduction/index}
 \input{chapters/2_theory/index}
 \input{chapters/3_discretization/index}
