@@ -1,0 +1,68 @@
+% Slide 2: Agenda
+\begin{frame}{Agenda}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{enumerate}
+                \item \textbf{Introduction \& Context}
+                \item \textbf{Spatial Discretization (IGA)}
+                \item \textbf{Full Order Model Dynamics}
+                \item \textbf{The Computational Bottleneck}
+                \item \textbf{Reference Configuration Pullback}
+                \item \textbf{Reduced Order Modeling (ROM)}
+            \end{enumerate}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{enumerate}
+                \setcounter{enumi}{6}
+                \item \textbf{Hyper-Reduction (ECSW)}
+                \item \textbf{ECSW Calibration \& Training}
+                \item \textbf{Numerical Speedup Results}
+                \item \textbf{Client-Side Web Architecture}
+                \item \textbf{Conclusion \& Perspectives}
+            \end{enumerate}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% Slide 3: Introduction & Industrial Context
+\begin{frame}{Introduction \& Industrial Context}
+    \textbf{Structural Health Monitoring (SHM) in Industry 4.0}
+    \begin{itemize}
+        \item Continuous telemetry (strain gages, accelerometers) monitors structural loads.
+        \item Real-time decision-making requires simulating the physical asset instantly under current conditions.
+        \item \textbf{Digital Twin Concept}: An interactive, local computational replica that mirrors the physical state.
+    \end{itemize}
+    \vspace{0.3cm}
+    \textbf{The Challenge of Parametric Changes:}
+    \begin{itemize}
+        \item Notches, cracks, and physical defects evolve over time (parameterized by location $\mu$ and depth $r$).
+        \item Traditional offline ROMs fail because the physical mesh changes with the parameters $\to$ requires a new simulation grid every time.
+    \end{itemize}
+\end{frame}
+
+% Slide 4: Problem Statement: The Geometric Challenge
+\begin{frame}{Problem Statement: The Geometric Challenge}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+            \textbf{Why Traditional Finite Element Method (FEM) Fails:}
+            \begin{itemize}
+                \item \textbf{Mesh Incompatibility}: Shape parameter changes distort the grid, requiring expensive remeshing algorithms.
+                \item \textbf{Projection Breakdown}: Proper Orthogonal Decomposition (POD) projects displacements onto a fixed vector subspace $\boldsymbol{\Phi}$. If mesh coordinates or node counts change, projection is mathematically undefined.
+            \end{itemize}
+            \vspace{0.3cm}
+            \textbf{Requirements for Real-Time Digital Twins:}
+            \begin{enumerate}
+                \item Geometry must represent curved notches exactly without mesh approximations.
+                \item Sub-second solving: $\Delta t_{\text{solve}} < 2\text{ ms}$ to fit within browser rendering loop.
+            \end{enumerate}
+        \end{column}
+        \begin{column}{0.38\textwidth}
+            \centering
+            \begin{tikzpicture}[scale=0.85]
+                \draw[draw=red, fill=red!5, thick, dashed] (0,0) rectangle (3.5,3.5);
+                \node[align=center, font=\scriptsize\bfseries, color=red!80!black] at (1.75, 2.5) {Parameter Change\\$\boldsymbol{\mu} \neq \boldsymbol{\mu}_0$};
+                \node[align=center, font=\tiny] at (1.75, 1.2) {Grid Nodes Shift!\\$N(\boldsymbol{\mu}) \neq N(\boldsymbol{\mu}_0)$\\\textbf{SVD Basis Projection} \\ \textbf{Breakdown!}};
+            \end{tikzpicture}
+        \end{column}
+    \end{columns}
+\end{frame}

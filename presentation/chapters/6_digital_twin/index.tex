@@ -1,0 +1,71 @@
+% Slide 19: Digital Twin Client-Side Web Architecture
+\begin{frame}{Digital Twin Client-Side Web Architecture}
+    \begin{columns}
+        \begin{column}{0.55\textwidth}
+            \textbf{HTML5 Model-View-Controller (MVC) Flow:}
+            \begin{itemize}
+                \item \textbf{Model}: NURBS dynamic core + ECSW hyper-reduced solver. Implemented in optimized vanilla JavaScript.
+                \item \textbf{View}: WebGL renderer depicting deformation states and stress contour maps.
+                \item \textbf{Controller}: Interface slider bindings allowing real-time shape parameterization.
+            \end{itemize}
+            \vspace{0.2cm}
+            \textbf{Zero Backend Dependencies}: Runs entirely client-side, enabling mobile/tablet deployment.
+        \end{column}
+        \begin{column}{0.42\textwidth}
+            \centering
+            \begin{tikzpicture}[
+                node distance=0.8cm,
+                box/.style={rectangle, draw=navyblue, fill=navyblue!5, thick, rounded corners, minimum width=4.2cm, minimum height=0.6cm, align=center, font=\footnotesize}
+            ]
+                \node [box] (model) {\textbf{Model} (JavaScript Core) \\ IGA-ROM Solves ($<1\text{ ms}$)};
+                \node [box, below=of model] (controller) {\textbf{Controller} (User Sliders) \\ Captures $\mu$ and $r$ values};
+                \node [box, below=of controller] (view) {\textbf{View} (WebGL Engine) \\ Renders at 20+ FPS};
+                
+                \draw[<->, thick, cyansec] (model) -- (controller);
+                \draw[<->, thick, cyansec] (controller) -- (view);
+            \end{tikzpicture}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% Slide 20: Digital Twin Live Dashboard Demonstration
+\begin{frame}{Digital Twin Live Dashboard Demonstration}
+    \textbf{Real-Time Interactive Capabilities:}
+    \begin{itemize}
+        \item When sliders shift, the reference configuration pullback recalculates stiffness on the active element subset ($E^*=28$ elements) in \textbf{0.5 ms (500 $\mu$s)}.
+        \item WebGL viewport morphs the visual geometry and updates stress field heatmaps in under \textbf{10 ms}.
+        \item Provides instantaneous feedback for engineers to identify critical stress concentrations on site.
+    \end{itemize}
+    \centering
+    \vspace{0.3cm}
+    \begin{tikzpicture}
+        \draw[draw=navyblue, fill=navyblue!5, thick, rounded corners] (0,0) rectangle (8,1.2);
+        \node[font=\small\bfseries] at (4,0.6) {Interactive Live Web App Dashboard Demo};
+    \end{tikzpicture}
+\end{frame}
+
+% Slide 21: Conclusion & Summary of Thesis Contributions
+\begin{frame}{Conclusion \& Summary of Thesis Contributions}
+    \textbf{Core Contributions of the Thesis:}
+    \begin{enumerate}
+        \item Developed a unified framework linking \textbf{Isogeometric Analysis (IGA)} exact boundary CAD geometries with \textbf{Reduced Order Modeling (ROM)}.
+        \item Formulated the \textbf{Reference Configuration Pullback} to resolve the shape-parameter mesh update incompatibility.
+        \item Applied pre-seeded, dynamically calibrated \textbf{ECSW hyper-reduction} to achieve a \textbf{$64.5\times$ speedup} and \textbf{$0.054\%$} error.
+        \item Built and validated a serverless, client-side interactive \textbf{digital twin web application}.
+    \end{enumerate}
+\end{frame}
+
+% Slide 22: Future Research Perspectives
+\begin{frame}{Future Research Perspectives}
+    \textbf{Perspectives for Future Work:}
+    \begin{enumerate}
+        \item \textbf{Material Damage Models}: Incorporating plastic deformation, cracking, and fatigue damage models within the hyper-reduction loop.
+        \item \textbf{Sensor Telemetry Integration}: Connecting physical strain gauges and accelerometers to dynamically update the twin parameters via WebSockets.
+        \item \textbf{Three-Dimensional Shells}: Extending the reference configuration pullback formulation to complex 3D shell geometries (e.g. pressure vessels, fuselage panels).
+    \end{enumerate}
+    \vspace{0.4cm}
+    \centering
+    \begin{tikzpicture} % wait, did I need a tikzpicture here or was it just text? Ah, the original slide had centering and large text.
+    \end{tikzpicture}
+    {\Large \color{navyblue} \textbf{Thank you for your attention!}}
+\end{frame}

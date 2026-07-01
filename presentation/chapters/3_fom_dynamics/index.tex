@@ -1,0 +1,22 @@
+% Slide 7: Full Order Model (FOM) Dynamics
+\begin{frame}{Full Order Model (FOM) Dynamics}
+    \textbf{Governing Equation of Motion:}
+    \begin{equation*}
+        \mat{M} \ddot{\underline{\mathbf{U}}}(t) + \mat{C} \dot{\underline{\mathbf{U}}}(t) + \mathbf{F}_{\text{int}}(\underline{\mathbf{U}}(t); \boldsymbol{\mu}) = \mathbf{F}_{\text{ext}}(t; \boldsymbol{\mu})
+    \end{equation*}
+    \begin{itemize}
+        \item \textbf{Implicit Solver}: Newmark method ($\beta = 0.25$, $\gamma = 0.5$) ensures unconditional stability.
+        \item \textbf{Damping Formulation}: Rayleigh model ($\mat{C} = \alpha_M \mat{M} + \beta_K \mat{K}$) matching structural decay.
+        \item \textbf{Stiffness assembly}: Performed at each timestep to compute the internal force vector $\mathbf{F}_{\text{int}}$ using Gauss integration over the physical coordinates.
+    \end{itemize}
+\end{frame}
+
+% Slide 8: The Assembly Bottleneck in Parameterized Systems
+\begin{frame}{The Assembly Bottleneck in Parameterized Systems}
+    \begin{itemize}
+        \item \textbf{The Bottleneck}: At each timestep $t_k$, physical coordinate modifications from parameters $\boldsymbol{\mu} = (r, \mu)^T$ require recalculating the B-matrix $\mat{B}(\vect{x})$ and Jacobians $\mat{J}(\boldsymbol{\xi})$ at every integration point.
+        \item \textbf{Full-Order Assembly Time}: Takes \textbf{$142.1\text{ ms}$} per step on a single-threaded processor.
+        \item \textbf{Total Window Time}: Simulating a standard 2.0-second window ($200$ steps) requires \textbf{$28.4\text{ seconds}$}!
+        \item \textbf{Digital Twin Constraint}: Online user interaction requires real-time response under parameter shifts. This bottleneck must be eliminated.
+    \end{itemize}
+\end{frame}

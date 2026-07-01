@@ -1,0 +1,103 @@
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+% ─── Packages ───
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% Custom Math Macros
+\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\vect}[1]{\mathbf{#1}}
+
+% ─── Premium Theme & Colors ───
+\usetheme{Madrid}
+\usecolortheme{whale}
+
+% Custom Color Palette (Sleek Dark Navy & Cyan)
+\definecolor{navyblue}{RGB}{12, 35, 64}
+\definecolor{cyansec}{RGB}{0, 150, 136}
+\definecolor{graybg}{RGB}{245, 247, 250}
+
+\setbeamercolor{palette primary}{bg=navyblue, fg=white}
+\setbeamercolor{palette secondary}{bg=cyansec, fg=white}
+\setbeamercolor{palette tertiary}{bg=navyblue!90, fg=white}
+\setbeamercolor{structure}{fg=navyblue}
+\setbeamercolor{title}{bg=navyblue, fg=white}
+
+% Remove default navigation symbols for a clean look
+\setbeamertemplate{navigation symbols}{}
+
+% Footline configuration: single-row infolines layout to prevent overflow
+\setbeamertemplate{footline}{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=0.75ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor~~(\insertshortinstitute)
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=0.75ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=0.75ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
+    \insertframenumber{} / \inserttotalframenumber\hspace*{2ex} 
+  \end{beamercolorbox}}%
+  \vskip4pt%
+}
+
+% ─── Title Page Information ───
+\title[Digital Twin \& ROM Defense]{Digital Twin \& Reduced Order Modelling for Parameterized Structural Dynamics}
+\subtitle{Thesis Defense --- 30-Minute Oral Presentation}
+\author[Mumen Wehbe]{Mumen Wehbe}
+\institute[Cnam Paris]{
+    Conservatoire National des Arts et Métiers (Cnam) \\
+    Équipement for the Performance et le Numérique (EPN04)
+}
+\date{June 30, 2026}
+
+% ─── Slide Setup ───
+\begin{document}
+
+% Slide 1: Title Slide
+\begin{frame}[plain]
+    \centering
+    \vspace{0.4cm}
+    \includegraphics[width=3cm]{../thesis/CNAM_Logo.pdf} \\
+    \vspace{0.4cm}
+    \usebeamerfont{title}{\color{navyblue}\Huge \textbf{\inserttitle}} \\
+    \vspace{0.2cm}
+    \usebeamerfont{subtitle}{\color{cyansec}\large \insertsubtitle} \\
+    \vspace{0.6cm}
+    \usebeamerfont{author}{\insertauthor} \\
+    \vspace{0.1cm}
+    \usebeamerfont{institute}{\small \insertinstitute} \\
+    \vspace{0.4cm}
+    \usebeamerfont{date}{\scriptsize \insertdate}
+\end{frame}
+
+\section{Introduction}
+\input{chapters/1_introduction/index}
+
+\section{Discretization}
+\input{chapters/2_discretization/index}
+
+\section{FOM Dynamics}
+\input{chapters/3_fom_dynamics/index}
+
+\section{Reduced Order Modeling}
+\input{chapters/4_rom/index}
+
+\section{Hyper-Reduction}
+\input{chapters/5_hyper_reduction/index}
+
+\section{Digital Twin}
+\input{chapters/6_digital_twin/index}
+
+\end{document}
