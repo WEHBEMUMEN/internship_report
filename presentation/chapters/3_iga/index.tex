@@ -64,6 +64,50 @@
   \end{columns}
 \end{frame}
 
+% Slide: B-Spline Curve Concept
+\begin{frame}{B-Spline Curve Concept}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \small
+      A B-spline/NURBS curve $\vect{C}(\xi)$ is defined as:
+      \[
+        \vect{C}(\xi) = \sum_{i=0}^{n-1} R_{i,p}(\xi) \vect{P}_i
+      \]
+      \begin{itemize}
+        \item $\vect{P}_i$ represent the \textbf{control points}.
+        \item The control points form a piecewise linear \textbf{control polygon}.
+        \item Lack of Kronecker delta property: $\vect{C}(\xi_i) \neq \vect{P}_i$ in general, except at the clamped boundary ends.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \scalebox{0.9}{
+      \begin{tikzpicture}[scale=1.0, >=stealth]
+        \coordinate (P0) at (0, 0);
+        \coordinate (P1) at (1.5, 2.5);
+        \coordinate (P2) at (3.5, 3.0);
+        \coordinate (P3) at (5.0, 1.0);
+        \coordinate (P4) at (7.0, 2.5);
+
+        % Draw control polygon (dashed)
+        \draw[thick, gray, dashed] (P0) -- (P1) -- (P2) -- (P3) -- (P4);
+
+        % Draw actual B-spline curve
+        \draw[ultra thick, blue!70!black] (P0) .. controls (1.0,1.8) and (2.5,2.5) .. (3.5,2.1) .. controls (4.5,1.7) and (5.8,1.2) .. (P4);
+
+        % Draw control points
+        \foreach \p/\l/\pos in {P0/P_0/left, P1/P_1/above, P2/P_2/above, P3/P_3/below, P4/P_4/right} {
+            \fill[red!80!black] (\p) circle (2.5pt);
+            \node[\pos, font=\scriptsize] at (\p) {$\vect{\l}$};
+        }
+        \node[blue!70!black, above, font=\small] at (3, 1.2) {$\vect{C}(\xi)$};
+      \end{tikzpicture}
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
 % Slide: Isogeometric Paradigm & Mesh
 \begin{frame}{The Isogeometric Paradigm \& Mesh}
   \small
@@ -343,51 +387,140 @@
 
 % Slide: h-Refinement (Knot Insertion)
 \begin{frame}{$h$-Refinement (Knot Insertion)}
-  \small
-  New elements (knot spans) are created by inserting new values into the knot vectors without modifying the polynomial degree $p$ or the geometric shape.
-  
-  \begin{block}{Boehm's Knot Insertion Algorithm}
-    \footnotesize
-    For a new knot $\bar{\xi}$, the refined control points $\vect{P}_i^{\text{new}}$ are computed locally:
-    \[
-      \vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}
-    \]
-    where the blending coefficients $\alpha_i$ are determined by the knot layout:
-    \[
-      \alpha_i = \text{1 (if } i \le k - p), \quad \tfrac{\bar{\xi} - \xi_i}{\xi_{i+p} - \xi_i} \text{ (if } k - p + 1 \le i \le k), \quad \text{0 (if } i \ge k + 1)
-    \]
-  \end{block}
-  \vspace{-0.1cm}
-  For a 2D control lattice grid $\mat{P}$, refinement is applied tensorially:
-  \[
-    \vect{P}^{\text{new}} = \left( \mat{T}_{\eta} \otimes \mat{T}_{\xi} \right) \vect{P}, \quad \text{where } \mat{P}^{\text{new}} = \mat{T}_{\xi} \mat{P} \mat{T}_{\eta}^T
-  \]
-  Refined bases retain $C^{p-1}$ continuity at the inserted knot coordinates.
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \small
+      New elements (knot spans) are created by inserting new values into the knot vectors without modifying the polynomial degree $p$ or the geometric shape.
+      
+      \begin{block}{Boehm's Knot Insertion}
+        \scriptsize
+        $\vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}$\\
+        $\alpha_i = \tfrac{\bar{\xi} - \xi_i}{\xi_{i+p} - \xi_i}$
+      \end{block}
+      \begin{block}{2D Tensor Update}
+        \scriptsize
+        $\mat{P}^{\text{new}} = \mat{T}_{\xi} \mat{P} \mat{T}_{\eta}^T$
+      \end{block}
+      \scriptsize
+      Mesh refined locally (e.g. near notches) while maintaining exact boundary geometry. Continuity at new knot is $C^{p-1}$.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \scalebox{0.52}{
+      \begin{tikzpicture}[scale=0.85, >=stealth]
+        % Row 1: Basis functions before/after
+        \begin{scope}[yshift=3.6cm]
+          \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
+          \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
+          \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
+          \draw[blue, line width=1.2pt, domain=0:4] plot (\x, {2*(1 - \x/4)^2});
+          \draw[green!60!black, line width=1.2pt, domain=0:4] plot (\x, {2*2*(\x/4)*(1 - \x/4)});
+          \draw[orange, line width=1.2pt, domain=0:4] plot (\x, {2*(\x/4)^2});
+          \node[font=\tiny, below] at (2, -0.1) {$\Xi = \{0,0,0,1,1,1\}$};
+        \end{scope}
+        \begin{scope}[xshift=4.6cm, yshift=3.6cm]
+          \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
+          \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
+          \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
+          \draw[blue, line width=1.2pt, domain=0:2] plot (\x, {2*(1 - \x/2)^2});
+          \draw[green!60!black, line width=1.2pt, domain=0:2] plot (\x, {2*(4*(\x/4) - 6*(\x/4)^2)});
+          \draw[green!60!black, line width=1.2pt, domain=2:4] plot (\x, {2*(2*(1-\x/4)^2)});
+          \draw[orange, line width=1.2pt, domain=0:2] plot (\x, {2*(2*(\x/4)^2)});
+          \draw[orange, line width=1.2pt, domain=2:4] plot (\x, {2*(4*(1-\x/4) - 6*(1-\x/4)^2)});
+          \draw[red, line width=1.2pt, domain=2:4] plot (\x, {2*((\x-2)/2)^2});
+          \node[font=\tiny, below] at (2, -0.1) {$\Xi = \{0,0,0,0.5,1,1,1\}$};
+        \end{scope}
+        
+        % Row 2: Curves and control polygons before/after
+        \begin{scope}[xshift=0cm, yshift=0cm]
+          \draw[gray!20, thin] (0,0) grid (3.6,2.5);
+          \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (1.8,2.2) -- (3.6,0);
+          \fill[red] (0,0) circle (2pt);
+          \fill[red] (1.8,2.2) circle (2pt);
+          \fill[red] (3.6,0) circle (2pt);
+          \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+          \node[font=\tiny, below] at (1.8, -0.1) {Original polygon \& curve};
+        \end{scope}
+        \begin{scope}[xshift=4.6cm, yshift=0cm]
+          \draw[gray!20, thin] (0,0) grid (3.6,2.5);
+          \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (0.9,1.1) -- (2.7,1.1) -- (3.6,0);
+          \fill[red] (0,0) circle (2pt);
+          \fill[red] (0.9,1.1) circle (2pt);
+          \fill[red] (2.7,1.1) circle (2pt);
+          \fill[red] (3.6,0) circle (2pt);
+          \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+          \node[font=\tiny, below] at (1.8, -0.1) {Refined polygon (knot inserted)};
+        \end{scope}
+      \end{tikzpicture}
+      }
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % Slide: p-Refinement (Degree Elevation)
 \begin{frame}{$p$-Refinement (Degree Elevation)}
-  \small
-  Polynomial degree is elevated from $p$ to $p + \Delta p$ without changing the geometry or the parametric coordinates of existing knot spans.
-  
-  \begin{block}{Linear Operator Mapping}
-    \footnotesize
-    The new elevated control points are related to the original grid by a linear operator:
-    \[
-      \vect{P}^{\text{new}} = \mat{T}_p \vect{P}
-    \]
-    To preserve the geometric boundary shape and continuity properties, the multiplicity of all existing knots must be increased by $\Delta p$.
-  \end{block}
-  \vspace{-0.1cm}
-  \begin{exampleblock}{Advantages of IGA Degree Elevation}
-    \footnotesize
-    \begin{itemize}
-      \setlength{\itemsep}{1pt}
-      \item Adds degrees of freedom and expands basis support.
-      \item Preserves the non-negativity and variation-diminishing properties.
-      \item Avoids high-order oscillations (Runge's phenomenon) common in classical Lagrange-based FEM $p$-refinement.
-    \end{itemize}
-  \end{exampleblock}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \small
+      Polynomial degree is elevated from $p$ to $p + \Delta p$ without changing the physical geometry shape.
+      
+      \begin{block}{Linear Operator Mapping}
+        \scriptsize
+        $\vect{P}^{\text{new}} = \mat{T}_p \vect{P}$\\
+        The multiplicity of existing knots must be increased by $\Delta p$ to preserve continuity.
+      \end{block}
+      \begin{block}{Continuity Preservation}
+        \scriptsize
+        IGA degree elevation preserves non-negativity and avoids high-order Runge oscillations common in Lagrange FEM $p$-refinement.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \scalebox{0.52}{
+      \begin{tikzpicture}[scale=0.85, >=stealth]
+        % Row 1: Basis functions before/after
+        \begin{scope}[yshift=3.6cm]
+          \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
+          \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,1}$};
+          \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
+          \draw[blue, line width=1.2pt] (0,2) -- (4,0);
+          \draw[green!60!black, line width=1.2pt] (0,0) -- (4,2);
+          \node[font=\tiny, below] at (2, -0.1) {$p=1$, $\Xi = \{0,0,1,1\}$};
+        \end{scope}
+        \begin{scope}[xshift=4.6cm, yshift=3.6cm]
+          \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
+          \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
+          \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
+          \draw[blue, line width=1.2pt, domain=0:4] plot (\x, {2*(1 - \x/4)^2});
+          \draw[green!60!black, line width=1.2pt, domain=0:4] plot (\x, {2*2*(\x/4)*(1 - \x/4)});
+          \draw[orange, line width=1.2pt, domain=0:4] plot (\x, {2*(\x/4)^2});
+          \node[font=\tiny, below] at (2, -0.1) {$p=2$, $\Xi = \{0,0,0,1,1,1\}$};
+        \end{scope}
+        
+        % Row 2: Curves and control polygons before/after
+        \begin{scope}[xshift=0cm, yshift=0cm]
+          \draw[gray!20, thin] (0,0) grid (3.6,2.5);
+          \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (1.8,2.2) -- (3.6,0);
+          \fill[red] (0,0) circle (2pt);
+          \fill[red] (1.8,2.2) circle (2pt);
+          \fill[red] (3.6,0) circle (2pt);
+          \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+          \node[font=\tiny, below] at (1.8, -0.1) {Original curve ($p=2$)};
+        \end{scope}
+        \begin{scope}[xshift=4.6cm, yshift=0cm]
+          \draw[gray!20, thin] (0,0) grid (3.6,2.5);
+          \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (1.2,1.5) -- (2.4,1.5) -- (3.6,0);
+          \fill[red] (0,0) circle (2pt);
+          \fill[red] (1.2,1.5) circle (2pt);
+          \fill[red] (2.4,1.5) circle (2pt);
+          \fill[red] (3.6,0) circle (2pt);
+          \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+          \node[font=\tiny, below] at (1.8, -0.1) {Degree elevated ($p=3$)};
+        \end{scope}
+      \end{tikzpicture}
+      }
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % Slide: k-Refinement (Order Elevation)
@@ -408,6 +541,50 @@
     \footnotesize
     Degree elevation first followed by knot insertion yields basis functions with $\mathbf{C^{p + \Delta p - 1}}$ continuity at all internal element boundaries. Provides superior accuracy per degree of freedom for dynamics.
   \end{alertblock}
+\end{frame}
+
+% Slide: NURBS Circle Exact Parameterization (Fig 3.7)
+\begin{frame}{Exact CAD Geometry: NURBS Circle}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \small
+      Traditional FEA approximates curved boundaries using piecewise linear facets, causing geometric errors.
+      
+      \begin{block}{Rational Basis and Projective Weights}
+        \scriptsize
+        By injecting non-unity weights $w_i$, NURBS represents conic sections (circles, ellipses) \textbf{exactly}.
+      \end{block}
+      \begin{block}{Circle Construction}
+        \scriptsize
+        An exact circle is parameterized using a quadratic NURBS basis with 9 control points (8 active + 1 closing) forming a square octagon control net. 
+      \end{block}
+      \scriptsize
+      Weights on the diagonal vertices are scaled to $w = \cos(45^\circ) = \frac{\sqrt{2}}{2} \approx 0.707$ to preserve radius.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \scalebox{0.68}{
+      \begin{tikzpicture}[scale=1.4, >=stealth]
+        \draw[gray!15, thin, step=0.5] (-1.5, -1.5) grid (1.5, 1.5);
+        \draw[->, black!40, line width=0.5pt] (-1.6, 0) -- (1.6, 0) node[right, font=\tiny] {$x$};
+        \draw[->, black!40, line width=0.5pt] (0, -1.6) -- (0, 1.6) node[above, font=\tiny] {$y$};
+
+        \draw[blue!70!black, thick] (0,0) circle (1.0);
+        \draw[gray!70, dashed, thick] (1,0) -- (1,1) -- (0,1) -- (-1,1) -- (-1,0) -- (-1,-1) -- (0,-1) -- (1,-1) -- cycle;
+
+        \foreach \x/\y in {1/0, 0/1, -1/0, 0/-1} {
+            \fill[orange] (\x, \y) circle (2.2pt);
+        }
+        \foreach \x/\y in {1/1, -1/1, -1/-1, 1/-1} {
+            \fill[orange] (\x, \y) circle (2.2pt);
+        }
+        
+        \node[font=\tiny, fill=white, inner sep=1pt, rounded corners=1pt, draw=gray!20] at (1.3, 0) {$w=1$};
+        \node[font=\tiny, fill=white, inner sep=1pt, rounded corners=1pt, draw=gray!20] at (1.1, 1.1) {$w\approx 0.707$};
+      \end{tikzpicture}
+      }
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % Slide: Mesh Convergence Study

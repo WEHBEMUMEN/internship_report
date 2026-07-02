@@ -80,6 +80,96 @@
   \end{itemize}
 \end{frame}
 
+% Slide: Continuum Kinematics & Boundary Conditions
+\begin{frame}{Continuum Kinematics \& Boundary Conditions}
+  \centering
+  \scalebox{0.62}{
+  \begin{tikzpicture}[scale=0.85, >=stealth]
+      % Styles
+      \tikzset{
+          reference/.style={thick, draw=black, fill=gray!5},
+          deformed/.style={thick, draw=blue!70!black, fill=blue!10, fill opacity=0.5},
+          dimension/.style={blue!70!black, <->, >=latex, line width=0.8pt},
+          dimline/.style={blue!70!black, dashed, line width=0.5pt},
+          force/.style={->, line width=1.5pt, red!70!black},
+          displ/.style={->, line width=1.2pt, green!60!black}
+      }
+
+      % --- PANEL 1: UNDEFORMED CONFIGURATION ---
+      \begin{scope}[xshift=0cm]
+          % Left Wall Hatching (Clamped Support)
+          \draw[line width=1.5pt] (0,0.8) -- (0,-0.8);
+          \foreach \y in {-0.7,-0.5,...,0.7} {
+              \draw (0,\y) -- (-0.2,\y-0.15);
+          }
+          \node[left, font=\scriptsize] at (-0.25, 0) {$\Gamma_D(\boldsymbol{\mu})$};
+
+          % Reference (Undeformed) Configuration \Omega(\mu)
+          \draw[reference] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
+          \node[black, font=\scriptsize] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
+
+          % Dimension: \mu
+          \draw[dimline] (0, 0.6) -- (0, 1.1);
+          \draw[dimline] (2.2, 0.6) -- (2.2, 1.1);
+          \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above] {$\mu$};
+
+          % Dimension: r
+          \draw[dimline] (2.2, 0.6) -- (2.8, 0.6); 
+          \draw[blue!70!black, ->, >=latex, line width=0.8pt] (2.5, 0.6) -- (2.5, 0.3) node[midway, right] {$r$};
+
+          % Point x
+          \coordinate (X) at (3.5, 0.0);
+          \fill[black] (X) circle (1.5pt) node[above, font=\scriptsize] {$\vect{x}$};
+          
+          \node[below, font=\scriptsize\bfseries] at (2.4, -2.1) {(a) Reference Configuration};
+      \end{scope}
+
+      % --- PANEL 2: DEFORMED CONFIGURATION ---
+      \begin{scope}[xshift=9.2cm]
+          % Left Wall Hatching
+          \draw[line width=1.5pt] (0,0.8) -- (0,-0.8);
+          \foreach \y in {-0.7,-0.5,...,0.7} {
+              \draw (0,\y) -- (-0.2,\y-0.15);
+          }
+          \node[left, font=\scriptsize] at (-0.25, 0) {$\Gamma_D(\boldsymbol{\mu})$};
+
+          % Light reference dashed contour
+          \draw[dashed, gray!40] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
+
+          % Parameterized Configuration \Omega(\mu)
+          \draw[deformed] 
+              (0,0.6) .. controls (1.5,0.6) and (2.1,0.4) .. (2.2,0.3) 
+              arc (165:345:0.3) 
+              .. controls (4.0,0.15) and (5.5,-0.3) .. (5.8,-0.5) -- 
+              (5.5,-1.6) 
+              .. controls (5.2,-1.4) and (3.8,-0.9) .. (2.8,-0.9) 
+              arc (-15:165:0.3) 
+              .. controls (2.1,-0.75) and (1.5,-0.6) .. (0,-0.6) -- cycle;
+          \node[blue!70!black, font=\scriptsize] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
+
+          % Neumann Boundary \Gamma_N and Traction \vect{h}_N
+          \node[right, red!70!black, font=\scriptsize] at (5.6, -1.0) {$\Gamma_N(\boldsymbol{\mu})$};
+          \draw[force] (5.65, -1.05) -- (5.65, -1.65) node[right, font=\scriptsize] {$\vect{h}_N$};
+
+          % Body Force \vect{f}_b
+          \draw[->, line width=1.2pt, orange!80!black] (3.6, -0.4) -- (3.6, -1.0) node[right, font=\scriptsize] {$\vect{f}_b$};
+
+          % Outward normal vector \vect{n}
+          \draw[->, line width=1.0pt, purple!80!black] (5.8, -0.5) -- (6.3, -0.64) node[right, font=\scriptsize] {$\vect{n}$};
+
+          % Kinematic point mapping
+          \coordinate (X_ref) at (3.5, 0.0);
+          \coordinate (x) at (3.8, -0.5);
+          \fill[gray!60] (X_ref) circle (1.2pt) node[above, gray!60, font=\scriptsize] {$\vect{x}$};
+          \fill[blue!70!black] (x) circle (1.5pt) node[right, font=\scriptsize] {$\vect{x} + \vect{u}$};
+          \draw[displ] (X_ref) -- (x) node[midway, left, font=\scriptsize] {$\vect{u}$};
+
+          \node[below, font=\scriptsize\bfseries] at (3.6, -2.1) {(b) Deformed Configuration};
+      \end{scope}
+  \end{tikzpicture}
+  }
+\end{frame}
+
 % Slide: Pullback Mapping
 \begin{frame}{Pullback Mapping to Reference Configuration}
   \small

@@ -251,6 +251,63 @@
   \end{columns}
 \end{frame}
 
+% Slide: ECSW Offline-Online Flowchart
+\begin{frame}{ECSW Offline-Online Flowchart}
+  \centering
+  \scalebox{0.50}{
+  \begin{tikzpicture}[
+      node distance=0.9cm,
+      block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=6.5cm, minimum height=0.6cm, align=center, font=\sffamily\scriptsize},
+      case/.style={rectangle, draw=orange!70, fill=orange!5, thick, rounded corners, text width=2.0cm, minimum height=2.4cm, align=left, font=\sffamily\tiny},
+      arrow/.style={thick,->,>=stealth},
+      line/.style={thick}
+  ]
+      % --- OFFLINE STAGES ---
+      \node [block] (offline1) {\textbf{Offline Stage 1: Reference Config} \\ Instantiate Flat Reference Mesh $\hat{\Omega}$ \\ Precompute basis derivatives};
+      \node [block, below=0.3cm of offline1] (offline2) {\textbf{Offline Stage 2: Snapshot Collection} \\ Run full FOM sweeps over training targets $\boldsymbol{\mu}_{\text{train}}$ \\ Save displacements to snapshot matrix $\mathbf{S}_u$};
+      \node [block, below=0.3cm of offline2] (offline3) {\textbf{Offline Stage 3: Projection \& Selection} \\ 1. SVD on $\mathbf{S}_u$ to extract reduced basis $\boldsymbol{\Phi}$ \\ 2. Run NNLS internal force balancing \\ 3. Extract active elements $E^*$ and weights $w_e$};
+      
+      \draw [arrow] (offline1) -- (offline2);
+      \draw [arrow] (offline2) -- (offline3);
+
+      % --- TRIGGER ---
+      \node [below=0.3cm of offline3, font=\sffamily\scriptsize\bfseries\color{red!85!black}] (trigger) {<<< USER RUNS ONLINE SOLVER (t=0) >>>};
+      \draw [arrow] (offline3) -- (trigger);
+
+      % --- PIPELINE HEADERS ---
+      \node [below=0.4cm of trigger, xshift=-2.4cm, font=\sffamily\tiny\bfseries, align=center, draw=blue!40, fill=blue!2] (hdr_naive) {NAIVE PHYSICAL PIPELINE \\ (Spatial Remeshing on $\Omega(\boldsymbol{\mu})$)};
+      \node [below=0.4cm of trigger, xshift=2.4cm, font=\sffamily\tiny\bfseries, align=center, draw=cyan!40, fill=cyan!2] (hdr_mapped) {MAPPED PULLBACK PIPELINE \\ (Reference Assembly on $\hat{\Omega}$)};
+
+      \draw [arrow] (trigger.south) -| (hdr_naive.north);
+      \draw [arrow] (trigger.south) -| (hdr_mapped.north);
+
+      % --- CASES ---
+      \node [case, below=0.3cm of hdr_naive] (case1) {\textbf{Case 1: Naive FOM} \\ • Physical remesh \\ • Size $N \times N$ \\ • Slow assembly};
+      
+      \node [case, below=0.3cm of hdr_mapped, xshift=-2.2cm] (case2) {\textbf{Case 2: Mapped FOM} \\ • Flat static mesh \\ • Size $N \times N$ \\ • Slow assembly};
+      \node [case, below=0.3cm of hdr_mapped] (case3) {\textbf{Case 3: Mapped ROM} \\ • Flat static mesh \\ • Size $r \times r$ \\ • Loop scales with $E$};
+      \node [case, below=0.3cm of hdr_mapped, xshift=2.2cm] (case4) {\textbf{Case 4: ECSW ROM} \\ • Flat static mesh \\ • Integrate on $E^*$ only \\ • Scale weights $w_e$ \\ • Fastest solver};
+
+      \draw [arrow] (hdr_naive.south) -- (case1.north);
+      \draw [arrow] (hdr_mapped.south) -| (case2.north);
+      \draw [arrow] (hdr_mapped.south) -- (case3.north);
+      \draw [arrow] (hdr_mapped.south) -| (case4.north);
+
+      % --- NEWMARK RESOLUTION BLOCK ---
+      \node [block, below=4.2cm of trigger] (newmark) {\textbf{Transient Newmark Implicit Solver} \\ Assemble effective dynamic operator (Size: $N \times N$ or $r \times r$) \\ Solve system equation $\mathbf{A}_{\text{eff}} \vect{x} = \vect{b}_{\text{eff}}$};
+
+      \draw [line] (case1.south) -- ++(0,-0.2) -| (newmark.north);
+      \draw [line] (case2.south) -- ++(0,-0.2) -| (newmark.north);
+      \draw [line] (case3.south) -- ++(0,-0.2) -| (newmark.north);
+      \draw [line] (case4.south) -- ++(0,-0.2) -| (newmark.north);
+
+      % --- OUTPUT ---
+      \node [block, below=0.3cm of newmark] (visual) {\textbf{Update State Field \& Visual Layer} \\ Reconstruct field: $\vect{U}$ (Case 1, 2) or $\vect{U} \approx \boldsymbol{\Phi} \vect{q}$ (Case 3, 4)};
+      \draw [arrow] (newmark) -- (visual);
+  \end{tikzpicture}
+  }
+\end{frame}
+
 % Slide: Dynamic Stiffness Calibration & State Projection
 \begin{frame}{Parameterized ROM — State Projection \& Stiffness Calibration}
   \begin{columns}[T]

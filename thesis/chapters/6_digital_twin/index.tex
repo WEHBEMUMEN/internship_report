@@ -124,24 +124,22 @@ The benchmark highlights that the classical physical-domain configuration suffer
                 \fill[red!70!black] (-3.3, \y) -- (-3.5, \y+0.12) -- (-3.5, \y-0.12) -- cycle;
             }
             
-            % Deflected notched beam (same as left)
-            \shade[left color=blue!90!black, middle color=cyan!80, right color=yellow!80!orange] 
+            % Straight notched beam (Undeformed Reference configuration)
+            \shade[left color=gray!30, right color=gray!15, draw=black!70, thick] 
             (-3, -1) -- (-1.2, -1) 
-            .. controls (-0.6, -1.0) and (-0.4, -0.6) .. (0, -0.6)
-            .. controls (0.4, -0.6) and (0.6, -1.2) .. (1.2, -1.2)
-            -- (3, -1.5) -- (3, 0.5) -- (1.2, 0.8)
-            .. controls (0.6, 0.8) and (0.4, 0.2) .. (0, 0.2)
-            .. controls (-0.4, 0.2) and (-0.6, 1.0) .. (-1.2, 1.0)
-            -- (-3, 1) -- cycle;
+            .. controls (-0.6, -1.0) and (-0.4, -0.4) .. (0, -0.4)
+            .. controls (0.4, -0.4) and (0.6, -1.0) .. (1.2, -1.0)
+            -- (3, -1.0) -- (3, 1.0) -- (1.2, 1.0)
+            .. controls (0.6, 1.0) and (0.4, 0.4) .. (0, 0.4)
+            .. controls (-0.4, 0.4) and (-0.6, 1.0) .. (-1.2, 1.0)
+            -- (-3, 1.0) -- cycle;
             
-            % Isoparametric mesh lines (same as left)
+            % Straight mesh lines
             \foreach \y in {-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75} {
-                \draw[white, opacity=0.35, thin] (-3, \y)
-                .. controls (-1.2, \y) and (-0.5, \y*0.4 - 0.2) .. (0, \y*0.4 - 0.2)
-                .. controls (0.5, \y*0.4 - 0.2) and (1.2, \y - 0.25) .. (3, \y - 0.5);
+                \draw[white, opacity=0.35, thin] (-3, \y) -- (3, \y);
             }
             \foreach \x in {-2.4, -1.8, -1.2, -0.6, 0, 0.6, 1.2, 1.8, 2.4} {
-                \draw[white, opacity=0.35, thin] (\x, -1.1 - 0.1*\x) -- (\x, 0.9 - 0.1*\x);
+                \draw[white, opacity=0.35, thin] (\x, -1.0) -- (\x, 1.0);
             }
         \end{scope}
     \end{tikzpicture}
