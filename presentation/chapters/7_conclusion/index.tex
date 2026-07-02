@@ -1,0 +1,38 @@
+% ─── Chapter 7: Conclusion ───────────────────────────────────────────────────
+
+% Slide: Summary of Achievements (from thesis Ch.7)
+\begin{frame}{Summary of Achievements}
+  \small
+  \begin{enumerate}
+    \setlength{\itemsep}{3pt}
+    \item \textbf{Theoretical Foundation}: Established the structural baseline kernels for smooth NURBS evaluations and verified baseline projection errors via POD.
+    \item \textbf{Full Order Model Construction}: Built a 2D tensor-product IGA physical solver ($N=6{,}564$ DOFs) with accurate displacement behaviors under open uniform knot distributions.
+    \item \textbf{High-Dimensional Verification}: Verified accuracy and computational speedup of linear hyper-reduced models against high-fidelity FOM formulations (ECSW: \textbf{$64.5\times$ speedup}, $L_2$ error $0.054\%$).
+    \item \textbf{Hyper-Reduction Optimization}: Deployed ECSW to break the classical online assembly bottleneck while preserving topological alignment across shape updates.
+    \item \textbf{Digital Twin Deployment}: Asynchronous client-side JS app with JSON-serialized ROM payloads achieving stable responses in \textbf{under 1 ms} (20+ FPS rendering).
+  \end{enumerate}
+\end{frame}
+
+% Slide: Connection to Research Objectives (from thesis Ch.7)
+\begin{frame}{Connection to Research Objectives}
+  \small
+  \begin{enumerate}
+    \footnotesize
+    \setlength{\itemsep}{2pt}
+    \item \textbf{Exact Geometry Tracking}: Pullback mapping maps notch modifications via control point translation. Mesh topology is preserved, maintaining exact CAD boundaries.
+    \item \textbf{Dimension Reduction}: $r=15$ POD modes capture $>99.98\%$ energy, with a reconstruction error of $0.012\%$.
+    \item \textbf{Hyper-Reduction}: ECSW on 28 elements (vs 3,200). Assembly speedup of \textbf{$64.5\times$} ($154.5\to 2.2$ ms) with $L_2$ error $<0.054\%$.
+    \item \textbf{Real-Time Implementation}: Full client-side JS pipeline, $< 1$ ms solve, 20+ FPS on standard browsers.
+  \end{enumerate}
+  \vspace{0.05cm}
+  \begin{block}{Future Perspectives}
+    \footnotesize
+    \begin{itemize}
+      \setlength{\itemsep}{1pt}
+      \item \textbf{Nonlinear kinematics}: Green-Lagrange strains, PK2 stress, Newton-Raphson in ROM
+      \item \textbf{3D continuum}: Trivariate NURBS solids and Multi-patch topology blending
+      \item \textbf{Adaptive ECSW}: Online Kriging interpolation for out-of-bounds parameters
+    \end{itemize}
+  \end{block}
+\end{frame}
+

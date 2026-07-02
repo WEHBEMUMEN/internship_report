@@ -8,7 +8,7 @@ To ensure maximum accessibility for pedagogical and research purposes, the Digit
 
 The application follows the classic Model-View-Controller (MVC) design pattern:
 \begin{itemize}
-    \item \textbf{The Model}: Consists of the IGA-ROM engine, which manages the reduced state vectors $\underline{\mathbf{q}}$ and executes the hyper-reduced integration loops. High-speed mathematical operations are performed using native JavaScript \texttt{Float64Array} typed arrays to minimize overhead.
+    \item \textbf{The Model}: Consists of the IGA-ROM engine, which manages the reduced state vectors $\vect{q}$ and executes the hyper-reduced integration loops. High-speed mathematical operations are performed using native JavaScript \texttt{Float64Array} typed arrays to minimize overhead.
     \item \textbf{The View}: A responsive user interface featuring an HTML5 Canvas viewport for rendering the structural deformation and real-time Von Mises stress heatmaps.
     \item \textbf{The Controller}: Listers that monitor user inputs (parameter sliders for $\mu$ and $r$), trigger the ROM solver, and update the view dynamically.
 \end{itemize}
@@ -21,7 +21,7 @@ Constructing a shape-parametric Digital Twin capable of real-time predictions un
 \subsection{Physical-Domain FOM (The Classical Remeshing Approach)}
 In a classical physical-domain formulation, the Full Order Model (FOM) equations of motion are resolved directly on the physical parameter-dependent domain $\Omega(\boldsymbol{\mu})$:
 \begin{equation}
-\mat{M}(\boldsymbol{\mu})\ddot{\underline{\mathbf{U}}}(t) + \mat{C}(\boldsymbol{\mu})\dot{\underline{\mathbf{U}}}(t) + \mathbf{F}_{\text{int}}(\underline{\mathbf{U}}(t); \boldsymbol{\mu}) = \mathbf{F}_{\text{ext}}(t; \boldsymbol{\mu})
+\mat{M}(\boldsymbol{\mu})\ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu})\dot{\vect{U}}(t) + \mathbf{F}_{\text{int}}(\vect{U}(t); \boldsymbol{\mu}) = \mathbf{F}_{\text{ext}}(t; \boldsymbol{\mu})
 \end{equation}
 This approach presents severe limitations:
 \begin{enumerate}
@@ -528,9 +528,9 @@ Under the naive configuration, calculating the parameterized internal forces req
 \section{Real-Time Parameter Synchronization and Interactivity}
 The core feature of the Digital Twin is the bi-directional link between user inputs and the virtual model. As the user modifies a parameter slider (e.g., notch position $\mu$ or radius $r$), the ROM engine performs an instantaneous state reconstruction:
 \begin{equation}
-    \underline{\mathbf{U}}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \underline{\mathbf{q}}(\boldsymbol{\mu})
+    \vect{U}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \vect{q}(\boldsymbol{\mu})
 \end{equation}
-Because the hyper-reduced online solver operates on a generalized coordinate vector $\underline{\mathbf{q}}$ of minimal dimension (typically $r = 15$), the linear system is solved directly in under 1ms, enabling a smooth 20 FPS average graphics refresh rate (with a 60 FPS user input polling rate). The visual mesh is then updated in real-time by pushing the displacements forward to the physical control points.
+Because the hyper-reduced online solver operates on a generalized coordinate vector $\vect{q}$ of minimal dimension (typically $r = 15$), the linear system is solved directly in under 1ms, enabling a smooth 20 FPS average graphics refresh rate (with a 60 FPS user input polling rate). The visual mesh is then updated in real-time by pushing the displacements forward to the physical control points.
 
 The visualization engine includes several interactive features:
 \begin{itemize}

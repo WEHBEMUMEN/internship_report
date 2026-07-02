@@ -1,15 +1,16 @@
 \documentclass[aspectratio=169, 10pt]{beamer}
 
-% ─── Packages ───
+% ─── Packages ───────────────────────────────────────────────────────────────
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage[english]{babel}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{bm}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows, positioning}
+\usetikzlibrary{shapes.geometric, arrows, positioning, calc}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
@@ -17,87 +18,206 @@
 \newcommand{\mat}[1]{\mathbf{#1}}
 \newcommand{\vect}[1]{\mathbf{#1}}
 
-% ─── Premium Theme & Colors ───
-\usetheme{Madrid}
-\usecolortheme{whale}
+% ─── Metropolis Theme + Miniframes Navigation ──────────────────────────────
+\usetheme{metropolis}
+\useoutertheme[subsection=false]{miniframes}
 
-% Custom Color Palette (Sleek Dark Navy & Cyan)
-\definecolor{navyblue}{RGB}{12, 35, 64}
-\definecolor{cyansec}{RGB}{0, 150, 136}
-\definecolor{graybg}{RGB}{245, 247, 250}
+% CNAM Institutional Colors
+\definecolor{cnamred}{RGB}{196, 18, 45}      % #c4122d — CNAM crimson
+\definecolor{cnamdark}{RGB}{120, 10, 28}     % Darker variant for hover/accents
+\definecolor{cnamlightbg}{RGB}{252, 245, 246} % Very light warm background
+\definecolor{cnamneutral}{RGB}{80, 80, 80}   % Neutral dark gray for body text
 
-\setbeamercolor{palette primary}{bg=navyblue, fg=white}
-\setbeamercolor{palette secondary}{bg=cyansec, fg=white}
-\setbeamercolor{palette tertiary}{bg=navyblue!90, fg=white}
-\setbeamercolor{structure}{fg=navyblue}
-\setbeamercolor{title}{bg=navyblue, fg=white}
+% Override metropolis palette to CNAM red
+\setbeamercolor{normal text}{fg=cnamneutral, bg=white}
+\setbeamercolor{alerted text}{fg=cnamred}
+\setbeamercolor{example text}{fg=cnamdark}
 
-% Remove default navigation symbols for a clean look
-\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{frametitle}{bg=cnamred, fg=white}
+\setbeamercolor{progress bar}{fg=cnamred, bg=cnamred!30}
+\setbeamercolor{title separator}{fg=cnamred}
 
-% Footline configuration: single-row infolines layout to prevent overflow
-\setbeamertemplate{footline}{
-  \leavevmode%
-  \hbox{%
-  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=0.75ex,center]{author in head/foot}%
-    \usebeamerfont{author in head/foot}\insertshortauthor~~(\insertshortinstitute)
+% ─── Miniframes navigation bar colors ───────────────────────────────────────
+\setbeamercolor{section in head/foot}{fg=white, bg=cnamred}
+\setbeamercolor{mini frame}{fg=white, bg=cnamred}
+\setbeamercolor{headline}{bg=cnamdark}
+% Custom mini-frame templates to ensure they are always circles of the correct size
+\makeatletter
+\defbeamertemplate*{mini frame}{custom}
+{%
+  \begin{pgfpicture}{0pt}{0pt}{\the\beamer@boxsize}{\the\beamer@boxsize}
+    \pgfsetfillopacity{1.0}%
+    \pgfsetstrokeopacity{1.0}%
+    \pgfpathcircle{\pgfpoint{0.5\beamer@boxsize}{0.5\beamer@boxsize}}{0.45\beamer@boxsize}
+    \pgfusepath{fill,stroke}%
+  \end{pgfpicture}%
+}
+\defbeamertemplate*{mini frame in current subsection}{custom}
+{%
+  \begin{pgfpicture}{0pt}{0pt}{\the\beamer@boxsize}{\the\beamer@boxsize}
+    \pgfsetstrokeopacity{0.4}%
+    \pgfpathcircle{\pgfpoint{0.5\beamer@boxsize}{0.5\beamer@boxsize}}{0.45\beamer@boxsize}
+    \pgfusepath{stroke}%
+  \end{pgfpicture}%
+}
+\defbeamertemplate*{mini frame in other subsection}{custom}
+{%
+  \begin{pgfpicture}{0pt}{0pt}{\the\beamer@boxsize}{\the\beamer@boxsize}
+    \pgfsetstrokeopacity{0.4}%
+    \pgfpathcircle{\pgfpoint{0.5\beamer@boxsize}{0.5\beamer@boxsize}}{0.45\beamer@boxsize}
+    \pgfusepath{stroke}%
+  \end{pgfpicture}%
+}
+\defbeamertemplate*{mini frame in other section}{custom}[1][50]
+{%
+  \begin{pgfpicture}{0pt}{0pt}{\the\beamer@boxsize}{\the\beamer@boxsize}
+    \pgfsetstrokeopacity{0.4}%
+    \pgfpathcircle{\pgfpoint{0.5\beamer@boxsize}{0.5\beamer@boxsize}}{0.45\beamer@boxsize}
+    \pgfusepath{stroke}%
+  \end{pgfpicture}%
+}
+\makeatother
+
+\setbeamertemplate{mini frame}[custom]
+\setbeamertemplate{mini frame in current subsection}[custom]
+\setbeamertemplate{mini frame in other subsection}[custom]
+\setbeamertemplate{mini frame in other section}[custom]
+
+% Increase dot size
+\setbeamersize{mini frame size=0.18cm, mini frame offset=0.06cm}
+% Headline: let miniframes render the bar — it natively uses the short section
+% title from \section[short]{long}. We only need to style the color boxes.
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\slideentry}
+  {\advance\beamer@tempdim by -.05cm}
+  {\advance\beamer@tempdim by -0.10cm}
+  {\message{^^JPATCH SUCCEEDED^^J}}
+  {\message{^^JPATCH FAILED^^J}}
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,center]{headline}%
+    \usebeamerfont{section in head/foot}%
+    \vskip1.5ex%
+    \insertnavigation{\paperwidth}%
+    \vskip1.5ex%
   \end{beamercolorbox}%
-  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=0.75ex,center]{title in head/foot}%
-    \usebeamerfont{title in head/foot}\insertshorttitle
-  \end{beamercolorbox}%
-  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=0.75ex,right]{date in head/foot}%
-    \usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
-    \insertframenumber{} / \inserttotalframenumber\hspace*{2ex} 
-  \end{beamercolorbox}}%
-  \vskip4pt%
+}
+\makeatother
+
+% Block colors
+\setbeamercolor{block title}{bg=cnamred, fg=white}
+\setbeamercolor{block body}{bg=cnamlightbg}
+\setbeamercolor{block title alerted}{bg=cnamdark, fg=white}
+\setbeamercolor{block body alerted}{bg=red!5}
+\setbeamercolor{block title example}{bg=gray!70, fg=white}
+\setbeamercolor{block body example}{bg=gray!10}
+
+% Chapter/section splash title color
+\setbeamercolor{title}{fg=white, bg=cnamred}
+\setbeamercolor{subtitle}{fg=white}
+\setbeamercolor{author}{fg=white}
+\setbeamercolor{date}{fg=white}
+\setbeamercolor{institute}{fg=white}
+
+% ─── Footline ────────────────────────────────────────────────────────────────
+
+% ─── Section Splash Slides ───────────────────────────────────────────────────
+% Show a full-page chapter announcement at each \section
+\AtBeginSection[]{
+  {
+  \setbeamercolor{background canvas}{bg=cnamred}
+  \setbeamertemplate{headline}{}
+  \setbeamertemplate{frame footer}{}
+  \begin{frame}[plain, noframenumbering]
+    \begin{columns}[T]
+      \begin{column}{\textwidth}
+        \hfill\includegraphics[height=0.8cm]{../thesis/CNAM_Logo.pdf}\\[1.5cm]
+        \centering
+        {\color{white!75}\large\bfseries\sffamily\MakeUppercase{Chapter~\thesection}}\\[0.5cm]
+        {\color{white}\huge\bfseries\sffamily\insertsection}
+      \end{column}
+    \end{columns}
+  \end{frame}
+  }
 }
 
-% ─── Title Page Information ───
-\title[Digital Twin \& ROM Defense]{Digital Twin \& Reduced Order Modelling for Parameterized Structural Dynamics}
-\subtitle{Thesis Defense --- 30-Minute Oral Presentation}
-\author[Mumen Wehbe]{Mumen Wehbe}
-\institute[Cnam Paris]{
-    Conservatoire National des Arts et Métiers (Cnam) \\
-    Équipement for the Performance et le Numérique (EPN04)
-}
-\date{June 30, 2026}
+% ─── Title Page Info ─────────────────────────────────────────────────────────
+\title{IGA \& ROM for Parameterized\\Structural Dynamics}
+\subtitle{Lecture — M2 Thesis Defense}
+\author[M.~Wehbe]{Mumen Wehbe}
+\institute[Cnam Paris]{Conservatoire National des Arts et Métiers}
+\date{July 2026}
 
-% ─── Slide Setup ───
+% ─── Document ────────────────────────────────────────────────────────────────
 \begin{document}
 
-% Slide 1: Title Slide
-\begin{frame}[plain]
-    \centering
-    \vspace{0.4cm}
-    \includegraphics[width=3cm]{../thesis/CNAM_Logo.pdf} \\
-    \vspace{0.4cm}
-    \usebeamerfont{title}{\color{navyblue}\Huge \textbf{\inserttitle}} \\
-    \vspace{0.2cm}
-    \usebeamerfont{subtitle}{\color{cyansec}\large \insertsubtitle} \\
-    \vspace{0.6cm}
-    \usebeamerfont{author}{\insertauthor} \\
-    \vspace{0.1cm}
-    \usebeamerfont{institute}{\small \insertinstitute} \\
-    \vspace{0.4cm}
-    \usebeamerfont{date}{\scriptsize \insertdate}
+% ── Title Slide ──────────────────────────────────────────────────────────────
+{
+\setbeamercolor{background canvas}{bg=cnamred}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{frame footer}{}
+\begin{frame}[plain, noframenumbering]
+  \centering
+  \vfill
+  \includegraphics[height=1.2cm]{../thesis/CNAM_Logo.pdf}\\[0.6cm]
+  {\color{white}\huge\bfseries\sffamily IGA \& Reduced Order Modeling}\\[0.2cm]
+  {\color{white}\large\sffamily for Parameterized Structural Dynamics}\\[0.5cm]
+  {\color{white!80}\normalsize M2 Thesis Defense — Lecture Presentation}\\[0.5cm]
+  \hfill\rule{0.8\textwidth}{0.5pt}\hfill\\[0.5cm]
+  {\color{white}\large Mumen Wehbe}\\[0.15cm]
+  {\color{white!80}\small Supervisor: Christophe Hoareau}\\[0.05cm]
+  {\color{white!80}\small Conservatoire National des Arts et Métiers}\\[0.05cm]
+  {\color{white!70}\footnotesize July 2026}
+  \vfill
+\end{frame}
+}
+
+
+
+% ── Table of Contents ─────────────────────────────────────────────────────────
+\begin{frame}{Lecture Overview}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents
 \end{frame}
 
-\section{Introduction}
+% ─── Chapters ────────────────────────────────────────────────────────────────
+\section[Intro]{Introduction \& State of the Art}
 \input{chapters/1_introduction/index}
 
-\section{Discretization}
-\input{chapters/2_discretization/index}
+\section[Theory]{Theory: Problem Definition}
+\input{chapters/2_theory/index}
 
-\section{FOM Dynamics}
-\input{chapters/3_fom_dynamics/index}
+\section[IGA]{Discretization: Isogeometric Analysis}
+\input{chapters/3_iga/index}
 
-\section{Reduced Order Modeling}
-\input{chapters/4_rom/index}
+\section[FOM]{Simulation: Full Order Model}
+\input{chapters/4_simulation/index}
 
-\section{Hyper-Reduction}
-\input{chapters/5_hyper_reduction/index}
+\section[ROM]{Reduced Order Modeling \& Hyper-Reduction}
+\input{chapters/5_rom/index}
 
-\section{Digital Twin}
+\section[Digital Twin]{Real-Time Web Application}
 \input{chapters/6_digital_twin/index}
 
+\section[Conclusion]{Conclusion \& Future Perspectives}
+\input{chapters/7_conclusion/index}
+
+
+% ── Questions Slide ───────────────────────────────────────────────────────────
+{
+\setbeamercolor{background canvas}{bg=cnamred}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{frame footer}{}
+\begin{frame}[plain, noframenumbering]
+  \begin{columns}[T]
+    \begin{column}{\textwidth}
+      \hfill\includegraphics[height=0.8cm]{../thesis/CNAM_Logo.pdf}\\[1.2cm]
+      \centering
+      {\color{white}\Huge\bfseries\sffamily Thank You}\\[0.6cm]
+      {\color{white!85}\large\sffamily Questions \& Discussion}
+    \end{column}
+  \end{columns}
+\end{frame}
+}
 \end{document}
+

@@ -1,0 +1,440 @@
+% ─── Chapter 3: IGA Discretization ───────────────────────────────────────────
+
+% Slide: B-Spline Basis Functions — figure copied from thesis Ch.3
+\begin{frame}{B-Spline Basis Functions}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      Over open knot vector $\Xi=\{\xi_0,\ldots,\xi_m\}$, the \textbf{Cox-de Boor recurrence}:
+      \[
+        N_{i,0}(\xi) = \begin{cases}1 & \xi_i\le\xi<\xi_{i+1}\\0&\text{otherwise}\end{cases}
+      \]
+      \[
+        N_{i,p} = \tfrac{\xi-\xi_i}{\xi_{i+p}-\xi_i}N_{i,p-1} + \tfrac{\xi_{i+p+1}-\xi}{\xi_{i+p+1}-\xi_{i+1}}N_{i+1,p-1}
+      \]
+      NURBS rational basis with weights $w_i$:
+      \[
+        R_{i,p}(\xi) = \frac{N_{i,p}(\xi)\,w_i}{\sum_j N_{j,p}(\xi)\,w_j}
+      \]
+      Physical curve: $\vect{C}(\xi) = \sum_i R_{i,p}(\xi)\,\vect{P}_i$
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      % B-spline plot — copied from thesis Fig 3.1
+      \begin{tikzpicture}[scale=1.0, >=stealth]
+        \definecolor{n0color}{RGB}{37,99,235}
+        \definecolor{n1color}{RGB}{5,150,105}
+        \definecolor{n2color}{RGB}{217,119,6}
+        \definecolor{n3color}{RGB}{220,38,38}
+        \definecolor{n4color}{RGB}{124,58,237}
+        \definecolor{n5color}{RGB}{219,39,119}
+        \begin{axis}[
+          width=5.8cm, height=4.0cm,
+          xmin=0, xmax=1, ymin=0, ymax=1.05,
+          xlabel={$\xi$}, ylabel={$N_{i,2}(\xi)$},
+          tick label style={font=\tiny},
+          xlabel style={font=\scriptsize},
+          ylabel style={font=\scriptsize},
+          xtick={0,0.25,0.5,0.75,1.0},
+          xticklabels={0, 0.25, 0.5, 0.75, 1.0},
+          grid=both, grid style={gray!15},
+          axis lines=left
+        ]
+          % N_{0,2}
+          \addplot[n0color, thick, domain=0:0.25, samples=50] {(1-4*x)^2};
+          % N_{1,2}
+          \addplot[n1color, thick, domain=0:0.25, samples=50] {8*x-24*x^2};
+          \addplot[n1color, thick, domain=0.25:0.5, samples=50] {8*(0.5-x)^2};
+          % N_{2,2}
+          \addplot[n2color, thick, domain=0:0.25, samples=50] {8*x^2};
+          \addplot[n2color, thick, domain=0.25:0.5, samples=50] {12*x-16*x^2-1.5};
+          \addplot[n2color, thick, domain=0.5:0.75, samples=50] {8*(0.75-x)^2};
+          % N_{3,2}
+          \addplot[n3color, thick, domain=0.25:0.5, samples=50] {8*(x-0.25)^2};
+          \addplot[n3color, thick, domain=0.5:0.75, samples=50] {12*(1-x)-16*(1-x)^2-1.5};
+          \addplot[n3color, thick, domain=0.75:1.0, samples=50] {8*(1-x)^2};
+          % N_{4,2}
+          \addplot[n4color, thick, domain=0.5:0.75, samples=50] {8*(x-0.5)^2};
+          \addplot[n4color, thick, domain=0.75:1.0, samples=50] {8*(1-x)-24*(1-x)^2};
+          % N_{5,2}
+          \addplot[n5color, thick, domain=0.75:1.0, samples=50] {(4*x-3)^2};
+        \end{axis}
+      \end{tikzpicture}\\[2pt]
+      {\scriptsize Degree-$p=2$ basis, $\Xi=\{0,0,0,0.25,0.5,0.75,1,1,1\}$}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide: Isogeometric Paradigm & Mesh
+\begin{frame}{The Isogeometric Paradigm \& Mesh}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \textbf{Key principle}: same NURBS basis for geometry \textit{and} field.
+      \begin{block}{Geometry (exact CAD)}
+        \vspace{-0.1cm}
+        \[
+          \vect{x}(\boldsymbol{\xi};\boldsymbol{\mu}) = \sum_{i,j} R_{i,j}(\boldsymbol{\xi})\,\vect{P}_{ij}(\boldsymbol{\mu})
+        \]
+        \vspace{-0.2cm}
+      \end{block}
+      \vspace{0.05cm}
+      \begin{block}{Field approximation}
+        \vspace{-0.1cm}
+        \[
+          \vect{U}^h(\boldsymbol{\xi},t) = \sum_{a} R_a(\boldsymbol{\xi})\,\vect{d}_a(t)
+        \]
+        \vspace{-0.2cm}
+      \end{block}
+      \vspace{0.05cm}
+      \begin{exampleblock}{Chosen Discretization}
+        $80\times40$ elements, degree $p=2$,\\
+        $N=6{,}564$ DOFs, $E=3{,}200$ elements
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{alertblock}{Why IGA for Shape ROM?}
+        \footnotesize
+        \begin{itemize}
+          \setlength{\itemsep}{2pt}
+          \item $C^{p-1}$ continuity — superior accuracy/DOF vs.\ $C^0$ FEM
+          \item Shape change = control point update only (mesh topology remains fixed)
+          \item Parametric space $[0,1]^2 \equiv$ reference domain $\hat{\Omega}$
+          \item No remeshing — exact CAD boundary at all parameter values
+        \end{itemize}
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide: Diffeomorphic Coordinate Mappings (thesis Fig. 3.8)
+\begin{frame}{Diffeomorphic Coordinate Mappings}
+  \centering
+  \scalebox{0.78}{
+  \begin{tikzpicture}[scale=1.0, >=stealth]
+      % --- PARAMETRIC DOMAIN (left) ---
+      \begin{scope}[xshift=0cm, yshift=0cm]
+          \draw[fill=blue!5, draw=blue!50, thick] (0,0) rectangle (2.5,2.0);
+          % Grid lines
+          \foreach \x in {0.5, 1.0, 1.5, 2.0} {
+              \draw[blue!30, thin] (\x, 0) -- (\x, 2.0);
+          }
+          \foreach \y in {0.5, 1.0, 1.5} {
+              \draw[blue!30, thin] (0, \y) -- (2.5, \y);
+          }
+          % Labels
+          \node[below=2pt] at (1.25, 0) {$\xi$};
+          \node[left=4pt] at (0, 1.0) {$\eta$};
+          \node[fill=blue!5, inner sep=2.5pt, rounded corners=1pt] at (1.25, 1.0) {\large $\hat{\Omega}_{\text{param}}$};
+          \node[below=12pt, align=center, font=\scriptsize] at (1.25, 0) {Parametric Space \\ $\boldsymbol{\xi} = (\xi, \eta)^T$};
+      \end{scope}
+
+      % --- REFERENCE CONFIGURATION (top right) ---
+      \begin{scope}[xshift=7.0cm, yshift=2.2cm, scale=0.6]
+          % Drawing reference notched beam
+          \draw[fill=gray!5, draw=black, thick]
+          (0, -1.0) -- (2.0, -1.0)
+          .. controls (2.5, -1.0) and (2.7, -0.4) .. (3.0, -0.4)
+          .. controls (3.3, -0.4) and (3.5, -1.0) .. (4.0, -1.0)
+          -- (6.0, -1.0) -- (6.0, 1.0) -- (4.0, 1.0)
+          .. controls (3.5, 1.0) and (3.3, 0.4) .. (3.0, 0.4)
+          .. controls (2.7, 0.4) and (2.5, 1.0) .. (2.0, 1.0)
+          -- (0, 1.0) -- cycle;
+          
+          % Grid lines
+          \foreach \x in {1, 2, 3, 4, 5} {
+              \draw[black!20, thin] (\x, -1.0) -- (\x, 1.0);
+          }
+          \draw[black!20, thin] (0, -0.5) -- (6.0, -0.5);
+          \draw[black!20, thin] (0, 0) -- (6.0, 0);
+          \draw[black!20, thin] (0, 0.5) -- (6.0, 0.5);
+          
+          \fill[black] (4.5, 0.3) circle (2.0pt) node[above] {$\hat{\vect{x}}$};
+          \node[fill=gray!5, inner sep=2.5pt, rounded corners=1pt] at (3.0, 0) {\large $\hat{\Omega}$};
+          \node[right=15pt, align=left, font=\scriptsize] at (6.0, 0) {Reference Domain \\ (Static, $\hat{\vect{x}}$)};
+      \end{scope}
+
+      % --- PARAMETERIZED PHYSICAL DOMAIN (bottom right) ---
+      \begin{scope}[xshift=7.0cm, yshift=-1.5cm, scale=0.6]
+          % Drawing physical notched beam (deeper notches for parameter variation)
+          \draw[fill=blue!5, draw=blue!50, thick]
+          (0, -1.0) -- (2.0, -1.0)
+          .. controls (2.4, -1.0) and (2.6, -0.2) .. (3.0, -0.2)
+          .. controls (3.4, -0.2) and (3.6, -1.0) .. (4.0, -1.0)
+          -- (6.0, -1.0) -- (6.0, 1.0) -- (4.0, 1.0)
+          .. controls (3.6, 1.0) and (3.4, 0.2) .. (3.0, 0.2)
+          .. controls (2.6, 0.2) and (2.4, 1.0) .. (2.0, 1.0)
+          -- (0, 1.0) -- cycle;
+          
+          % Grid lines (curved near the notches)
+          \foreach \x in {1, 2, 3, 4, 5} {
+              \draw[blue!20, thin] (\x, -1.0) -- (\x, 1.0);
+          }
+          \draw[blue!20, thin] (0, -0.5) .. controls (2, -0.5) and (2.5, -0.15) .. (3.0, -0.15) .. controls (3.5, -0.15) and (4, -0.5) .. (6, -0.5);
+          \draw[blue!20, thin] (0, 0) -- (6.0, 0);
+          \draw[blue!20, thin] (0, 0.5) .. controls (2, 0.5) and (2.5, 0.15) .. (3.0, 0.15) .. controls (3.5, 0.15) and (4, 0.5) .. (6, 0.5);
+          
+          \fill[blue!70!black] (4.5, 0.3) circle (2.0pt) node[above] {$\vect{x}$};
+          \node[fill=blue!5, inner sep=2.5pt, rounded corners=1pt] at (3.0, 0) {\large $\Omega(\boldsymbol{\mu})$};
+          \node[right=15pt, align=left, font=\scriptsize] at (6.0, 0) {Physical Domain \\ (Parameterized, $\vect{x}$)};
+      \end{scope}
+
+      % --- MAPPING ARROWS ---
+      % Parametric to Reference
+      \draw[->, ultra thick, black!60] (2.7, 1.5) to[out=25, in=195] node[midway, above left, black, font=\small] {$\hat{\boldsymbol{\Psi}}(\boldsymbol{\xi})$} (6.8, 2.5);
+      
+      % Parametric to Physical
+      \draw[->, ultra thick, black!60] (2.7, 0.5) to[out=-25, in=165] node[midway, below left, black, font=\small] {$\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu})$} (6.8, -0.6);
+      
+      % Reference to Physical (Displacement parameterization d(\mu))
+      \draw[->, ultra thick, red!70!black] (8.8, 1.5) to[out=-90, in=90] node[midway, right, red!70!black, font=\small] {$\vect{d}(\boldsymbol{\mu})$} (8.8, -0.2);
+      
+      % Mathematical relation text
+      \node[below, font=\small] at (8.8, -2.5) {$\vect{x} = \hat{\vect{x}} + \vect{d} = \hat{\boldsymbol{\Psi}}(\boldsymbol{\xi}) + \vect{d}(\boldsymbol{\mu})$};
+  \end{tikzpicture}
+  }
+  \par\vspace{0.1cm}
+  {\footnotesize Shape change = control point displacement $\vect{d}(\boldsymbol{\mu})$ on a \textbf{static} reference mesh $\hat{\Omega}$.}
+\end{frame}
+
+% Slide: 2D Bivariate IGA Mapping
+\begin{frame}{2D Bivariate IGA Mapping}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \small
+      \textbf{Tensor-Product NURBS}:
+      \begin{itemize}
+        \item Bivariate rational basis functions $R_{i,j}^{p,q}(\xi, \eta)$ extend 1D B-splines to 2D surfaces:
+        \[
+          R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k} \sum_{l} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
+        \]
+        \item Geometric mapping $\vect{S}(\xi, \eta)$ maps the parametric square $[0,1]^2$ to the physical 2D domain:
+        \[
+          \vect{S}(\xi, \eta) = \sum_{i} \sum_{j} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
+        \]
+        \item $\vect{P}_{i,j}$ forms a bidimensional control net lattice.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \scalebox{0.85}{
+      \begin{tikzpicture}[scale=1.0, >=stealth]
+        % Row 0
+        \coordinate (P00) at (0, 0);
+        \coordinate (P01) at (0.8, 0.6);
+        \coordinate (P02) at (1.6, 1.2);
+        % Row 1
+        \coordinate (P10) at (2.0, 1.0);
+        \coordinate (P11) at (2.8, 2.2); % raised in the middle
+        \coordinate (P12) at (3.6, 2.2);
+        % Row 2
+        \coordinate (P20) at (4.0, 0.5);
+        \coordinate (P21) at (4.8, 1.4);
+        \coordinate (P22) at (5.6, 2.0);
+
+        % Draw control net (dashed grid)
+        \draw[thick, gray!60, dashed] (P00) -- (P01) -- (P02);
+        \draw[thick, gray!60, dashed] (P10) -- (P11) -- (P12);
+        \draw[thick, gray!60, dashed] (P20) -- (P21) -- (P22);
+        \draw[thick, gray!60, dashed] (P00) -- (P10) -- (P20);
+        \draw[thick, gray!60, dashed] (P01) -- (P11) -- (P21);
+        \draw[thick, gray!60, dashed] (P02) -- (P12) -- (P22);
+
+        % Draw the smooth surface patch (colored patch)
+        \fill[blue!10, opacity=0.7, draw=blue!70!black, thick]
+        (0.5, 0.2) .. controls (1.5, 1.2) and (3.0, 1.2) .. (4.5, 0.7)
+        .. controls (5.0, 1.3) and (5.2, 1.6) .. (5.3, 1.8)
+        .. controls (3.8, 1.9) and (2.5, 1.8) .. (1.2, 1.0)
+        .. controls (0.8, 0.6) and (0.6, 0.4) .. (0.5, 0.2);
+
+        % Draw grid lines on the surface patch to show parameter lines
+        \draw[blue!40, thin] (1.8, 0.6) .. controls (2.6, 1.4) and (3.3, 1.4) .. (4.8, 1.0);
+        \draw[blue!40, thin] (1.0, 1.0) .. controls (2.2, 1.5) and (3.6, 1.5) .. (5.0, 1.4);
+
+        % Draw control points
+        \foreach \p in {P00, P01, P02, P10, P11, P12, P20, P21, P22} {
+            \fill[red!80!black] (\p) circle (2.5pt);
+        }
+
+        \node[red!80!black, above] at (P11) {$\vect{P}_{i,j}$};
+        \node[blue!70!black] at (3.0, 1.1) {$\vect{S}(\xi,\eta)$};
+      \end{tikzpicture}
+      }
+      \\[6pt]
+      {\scriptsize 2D B-spline surface patch mapping concept}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide: 2D Bivariate Basis Functions
+\begin{frame}{2D Bivariate Basis Functions}
+  \begin{columns}[T]
+    \begin{column}{0.42\textwidth}
+      \small
+      \textbf{Basis Function Shapes}:
+      \begin{itemize}
+        \item Bivariate basis shape depends on location in control net.
+        \item \textbf{Boundary Basis} $R_{0,2}(\xi,\eta)$: Edge-supported, peaks at boundaries.
+        \item \textbf{Internal Basis} $R_{2,2}(\xi,\eta)$: Fully internal support, peaks at center of element grid.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \centering
+      \scalebox{0.55}{
+      \begin{tikzpicture}[
+              declare function={
+                      n0(\t) = (\t < 0.25) * ((1-4*\t)^2);
+                      n2(\t) = (\t < 0.25) * (8*\t^2) +
+                      (\t >= 0.25) * (\t < 0.5) * (12*\t - 16*\t^2 - 1.5) +
+                      (\t >= 0.5) * (\t < 0.75) * (8*(0.75-\t)^2);
+                  }
+          ]
+          % Panel (a) Axis
+          \begin{axis}[
+                  at={(0,0)},
+                  width=5.8cm,
+                  height=4.8cm,
+                  grid=major,
+                  xlabel={$\xi$},
+                  ylabel={$\eta$},
+                  zlabel={$R_{0,2}$},
+                  colormap/viridis,
+                  view={60}{30},
+                  zmin=0, zmax=0.8,
+                  title={\scriptsize (a) Boundary basis function $R_{0,2}$}
+              ]
+              \addplot3[
+                  surf,
+                  domain=0:0.8,
+                  domain y=0:0.8,
+                  samples=15,
+                  shader=faceted
+              ] {n0(x)*n2(y)};
+          \end{axis}
+
+          % Panel (b) Axis
+          \begin{axis}[
+                  at={(6.5cm,0)},
+                  width=5.8cm,
+                  height=4.8cm,
+                  grid=major,
+                  xlabel={$\xi$},
+                  ylabel={$\eta$},
+                  zlabel={$R_{2,2}$},
+                  colormap/viridis,
+                  view={60}{30},
+                  zmin=0, zmax=0.8,
+                  title={\scriptsize (b) Internal basis function $R_{2,2}$}
+              ]
+              \addplot3[
+                  surf,
+                  domain=0:0.8,
+                  domain y=0:0.8,
+                  samples=15,
+                  shader=faceted
+              ] {n2(x)*n2(y)};
+          \end{axis}
+      \end{tikzpicture}
+      }
+      \\[2pt]
+      {\scriptsize 3D surface plot of boundary vs. internal bivariate B-spline functions}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide: h-Refinement (Knot Insertion)
+\begin{frame}{$h$-Refinement (Knot Insertion)}
+  \small
+  New elements (knot spans) are created by inserting new values into the knot vectors without modifying the polynomial degree $p$ or the geometric shape.
+  
+  \begin{block}{Boehm's Knot Insertion Algorithm}
+    \footnotesize
+    For a new knot $\bar{\xi}$, the refined control points $\vect{P}_i^{\text{new}}$ are computed locally:
+    \[
+      \vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}
+    \]
+    where the blending coefficients $\alpha_i$ are determined by the knot layout:
+    \[
+      \alpha_i = \text{1 (if } i \le k - p), \quad \tfrac{\bar{\xi} - \xi_i}{\xi_{i+p} - \xi_i} \text{ (if } k - p + 1 \le i \le k), \quad \text{0 (if } i \ge k + 1)
+    \]
+  \end{block}
+  \vspace{-0.1cm}
+  For a 2D control lattice grid $\mat{P}$, refinement is applied tensorially:
+  \[
+    \vect{P}^{\text{new}} = \left( \mat{T}_{\eta} \otimes \mat{T}_{\xi} \right) \vect{P}, \quad \text{where } \mat{P}^{\text{new}} = \mat{T}_{\xi} \mat{P} \mat{T}_{\eta}^T
+  \]
+  Refined bases retain $C^{p-1}$ continuity at the inserted knot coordinates.
+\end{frame}
+
+% Slide: p-Refinement (Degree Elevation)
+\begin{frame}{$p$-Refinement (Degree Elevation)}
+  \small
+  Polynomial degree is elevated from $p$ to $p + \Delta p$ without changing the geometry or the parametric coordinates of existing knot spans.
+  
+  \begin{block}{Linear Operator Mapping}
+    \footnotesize
+    The new elevated control points are related to the original grid by a linear operator:
+    \[
+      \vect{P}^{\text{new}} = \mat{T}_p \vect{P}
+    \]
+    To preserve the geometric boundary shape and continuity properties, the multiplicity of all existing knots must be increased by $\Delta p$.
+  \end{block}
+  \vspace{-0.1cm}
+  \begin{exampleblock}{Advantages of IGA Degree Elevation}
+    \footnotesize
+    \begin{itemize}
+      \setlength{\itemsep}{1pt}
+      \item Adds degrees of freedom and expands basis support.
+      \item Preserves the non-negativity and variation-diminishing properties.
+      \item Avoids high-order oscillations (Runge's phenomenon) common in classical Lagrange-based FEM $p$-refinement.
+    \end{itemize}
+  \end{exampleblock}
+\end{frame}
+
+% Slide: k-Refinement (Order Elevation)
+\begin{frame}{$k$-Refinement (Order Elevation)}
+  \small
+  Unique to IGA (no analogue in classical FEA). Allows increasing polynomial degree while maintaining maximum inter-element continuity.
+  
+  \begin{block}{Sequence of Operations (Non-Commutative)}
+    \footnotesize
+    \begin{enumerate}
+      \setlength{\itemsep}{1pt}
+      \item \textbf{Degree Elevation}: Elevate degree from $p$ to $p + \Delta p$ on the coarse boundary-only knot vector.
+      \item \textbf{Knot Insertion}: Insert internal knots into the elevated vector.
+    \end{enumerate}
+  \end{block}
+  \vspace{-0.1cm}
+  \begin{alertblock}{Continuity Advantage}
+    \footnotesize
+    Degree elevation first followed by knot insertion yields basis functions with $\mathbf{C^{p + \Delta p - 1}}$ continuity at all internal element boundaries. Provides superior accuracy per degree of freedom for dynamics.
+  \end{alertblock}
+\end{frame}
+
+% Slide: Mesh Convergence Study
+\begin{frame}{Mesh Convergence Study}
+  \small
+  A dyadic grid convergence study was conducted under static tip bending load to justify the choice of the $80 \times 40$ elements mesh baseline.
+  
+  \begin{table}[htbp]
+    \centering\footnotesize
+    \begin{tabular}{lcccc}
+      \toprule
+      \textbf{Resolution} & \textbf{Elements} & \textbf{DoFs} & \textbf{Tip Disp. $U_y$ (mm)} & \textbf{Relative Error} \\
+      \midrule
+      $10 \times 5$       & 50                & 168           & 3.538                         & 16.51\% \\
+      $20 \times 10$      & 200               & 528           & 3.889                         & 8.24\%  \\
+      $40 \times 20$      & 800               & 1,848         & 4.083                         & 3.66\%  \\
+      \textbf{80 $\times$ 40} & \textbf{3,200}    & \textbf{6,888} & \textbf{4.185}           & \textbf{1.24\%} \\
+      $160 \times 80$     & 12,800            & 26,568        & 4.238                         & Reference \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  The $80 \times 40$ discretization is selected as the operating baseline because:
+  \begin{itemize}
+    \setlength{\itemsep}{1pt}
+    \item Refining to $160 \times 80$ elements yields a change of only $1.24\%$ in displacement.
+    \item Avoids a $3.8\times$ increase in equations ($6,888 \to 26,568$ DOFs).
+  \end{itemize}
+\end{frame}
+

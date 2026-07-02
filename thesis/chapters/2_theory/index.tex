@@ -151,22 +151,22 @@ $\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
                 .. controls (2.1,-0.75) and (1.5,-0.6) .. (0,-0.6) -- cycle;
             \node[blue!70!black] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
 
-            % Neumann Boundary \Gamma_N and Traction \underline{h}_N
+            % Neumann Boundary \Gamma_N and Traction \vect{h}_N
             \node[right, red!70!black] at (5.6, -1.0) {$\Gamma_N(\boldsymbol{\mu})$};
-            \draw[force] (5.65, -1.05) -- (5.65, -1.65) node[right] {$\underline{h}_N$};
+            \draw[force] (5.65, -1.05) -- (5.65, -1.65) node[right] {$\vect{h}_N$};
 
-            % Body Force \underline{f}_b
-            \draw[->, line width=1.2pt, orange!80!black] (3.6, -0.4) -- (3.6, -1.0) node[right] {$\underline{f}_b$};
+            % Body Force \vect{f}_b
+            \draw[->, line width=1.2pt, orange!80!black] (3.6, -0.4) -- (3.6, -1.0) node[right] {$\vect{f}_b$};
 
-            % Outward normal vector \underline{n}
-            \draw[->, line width=1.0pt, purple!80!black] (5.8, -0.5) -- (6.3, -0.64) node[right] {$\underline{n}$};
+            % Outward normal vector \vect{n}
+            \draw[->, line width=1.0pt, purple!80!black] (5.8, -0.5) -- (6.3, -0.64) node[right] {$\vect{n}$};
 
             % Kinematic point mapping
             \coordinate (X_ref) at (3.5, 0.0);
             \coordinate (x) at (3.8, -0.5);
             \fill[gray!60] (X_ref) circle (1.2pt) node[above, gray!60] {$\vect{x}$};
-            \fill[blue!70!black] (x) circle (1.5pt) node[right] {$\vect{x} + \underline{u}$};
-            \draw[displ] (X_ref) -- (x) node[midway, left] {$\underline{u}$};
+            \fill[blue!70!black] (x) circle (1.5pt) node[right] {$\vect{x} + \vect{u}$};
+            \draw[displ] (X_ref) -- (x) node[midway, left] {$\vect{u}$};
 
             \node[below, font=\bfseries] at (3.6, -2.1) {(b) Deformed Configuration};
         \end{scope}
@@ -183,15 +183,15 @@ $\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
         \midrule
         $\Omega_0$ & Undeformed reference configuration \\
         $\Omega(\boldsymbol{\mu})$ & Parameterized physical configuration (depending on $\boldsymbol{\mu}$) \\
-        $\Gamma_D(\boldsymbol{\mu})$ & Dirichlet boundary (clamped left edge where $\underline{u} = \underline{0}$) \\
+        $\Gamma_D(\boldsymbol{\mu})$ & Dirichlet boundary (clamped left edge where $\vect{u} = \vect{0}$) \\
         $\Gamma_N(\boldsymbol{\mu})$ & Neumann boundary (surface under traction forces) \\
         $\mu$ & Geometric parameter: notch longitudinal starting position \\
         $r$ & Geometric parameter: radius of the symmetric notches \\
-        $\underline{u}$ & Displacement field vector $\underline{u}(\vect{x}, t; \boldsymbol{\mu})$ \\
-        $\underline{h}_N$ & Boundary traction load vector applied on $\Gamma_N(\boldsymbol{\mu})$ \\
-        $\underline{f}_b$ & Volumetric body force vector \\
-        $\underline{n}$ & Outward unit normal vector to the boundary \\
-        $\vect{x}$ and $\vect{x} + \underline{u}$ & Spatial coordinates in reference and deformed configurations \\
+        $\vect{u}$ & Displacement field vector $\vect{u}(\vect{x}, t; \boldsymbol{\mu})$ \\
+        $\vect{h}_N$ & Boundary traction load vector applied on $\Gamma_N(\boldsymbol{\mu})$ \\
+        $\vect{f}_b$ & Volumetric body force vector \\
+        $\vect{n}$ & Outward unit normal vector to the boundary \\
+        $\vect{x}$ and $\vect{x} + \vect{u}$ & Spatial coordinates in reference and deformed configurations \\
         \bottomrule
     \end{tabular}
     \caption{Kinematic description and boundary conditions of the parameterized notched cantilever beam.}
@@ -199,23 +199,23 @@ $\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
 \end{figure}
 
 
-The displacement field of the structure is denoted by $\underline{u}(\vect{x}, t; \boldsymbol{\mu})$ for $\vect{x} \in \Omega(\boldsymbol{\mu})$, and the stress state is represented by the Cauchy stress tensor $\boldsymbol{\sigma}$.
+The displacement field of the structure is denoted by $\vect{u}(\vect{x}, t; \boldsymbol{\mu})$ for $\vect{x} \in \Omega(\boldsymbol{\mu})$, and the stress state is represented by the Cauchy stress tensor $\boldsymbol{\sigma}$.
 Assuming small strains and linear elastic isotropic material behavior, the strong form governing the transient response of the structural continuum on the parameterized physical domain $\Omega(\boldsymbol{\mu})$ over the time interval $(0, T]$ is given by the balance of linear momentum:
 \begin{equation}
-    \rho \ddot{\underline{u}} - \nabla \cdot \boldsymbol{\sigma}(\underline{u}) = \underline{f}_b \quad \text{in } \Omega(\boldsymbol{\mu}) \times (0, T]
+    \rho \ddot{\vect{u}} - \nabla \cdot \boldsymbol{\sigma}(\vect{u}) = \vect{f}_b \quad \text{in } \Omega(\boldsymbol{\mu}) \times (0, T]
 \end{equation}
 subject to the parameterized Dirichlet boundary conditions on $\Gamma_D(\boldsymbol{\mu})$ (fixed support at the left end) and Neumann boundary conditions on $\Gamma_N(\boldsymbol{\mu})$ (external loads applied to the boundaries):
 \begin{align}
-    \underline{u} &= \underline{0} \quad \text{on } \Gamma_D(\boldsymbol{\mu}) \times (0, T] \\
-    \boldsymbol{\sigma}(\underline{u}) \cdot \underline{n} &= \underline{h}_N \quad \text{on } \Gamma_N(\boldsymbol{\mu}) \times (0, T]
+    \vect{u} &= \vect{0} \quad \text{on } \Gamma_D(\boldsymbol{\mu}) \times (0, T] \\
+    \boldsymbol{\sigma}(\vect{u}) \cdot \vect{n} &= \vect{h}_N \quad \text{on } \Gamma_N(\boldsymbol{\mu}) \times (0, T]
 \end{align}
-where $\rho$ is the material density, $\underline{f}_b$ is the body force vector, and $\underline{n}$ is the outward unit normal vector. The kinematic relation defines the linearized strain tensor $\boldsymbol{\varepsilon}(\underline{u})$ as:
+where $\rho$ is the material density, $\vect{f}_b$ is the body force vector, and $\vect{n}$ is the outward unit normal vector. The kinematic relation defines the linearized strain tensor $\boldsymbol{\varepsilon}(\vect{u})$ as:
 \begin{equation}
-    \boldsymbol{\varepsilon}(\underline{u}) = \frac{1}{2}\left(\nabla\underline{u} + (\nabla\underline{u})^T\right)
+    \boldsymbol{\varepsilon}(\vect{u}) = \frac{1}{2}\left(\nabla\vect{u} + (\nabla\vect{u})^T\right)
 \end{equation}
 For an isotropic material, the Cauchy stress tensor $\boldsymbol{\sigma}$ is related to the strain tensor via Hooke's law:
 \begin{equation}
-    \boldsymbol{\sigma}(\underline{u}) = \mat{D} : \boldsymbol{\varepsilon}(\underline{u})
+    \boldsymbol{\sigma}(\vect{u}) = \mat{D} : \boldsymbol{\varepsilon}(\vect{u})
 \end{equation}
 where $\mat{D}$ is the fourth-order elasticity tensor (which under plane stress assumptions reduces to a $3 \times 3$ constitutive matrix).
 
@@ -223,54 +223,54 @@ where $\mat{D}$ is the fourth-order elasticity tensor (which under plane stress 
 
 \newpage
 \section{Weak Formulation at the Continuum Level}
-To derive the variational statement, we multiply the momentum balance equation by a test function $\delta\underline{u}$ belonging to the space of kinematically admissible variations:
+To derive the variational statement, we multiply the momentum balance equation by a test function $\delta\vect{u}$ belonging to the space of kinematically admissible variations:
 \begin{equation}
-    \mathcal{V}_0(\Omega(\boldsymbol{\mu})) = \{ \underline{v} \in [H^1(\Omega(\boldsymbol{\mu}))]^2 \mid \underline{v} = \underline{0} \text{ on } \Gamma_D(\boldsymbol{\mu}) \}
+    \mathcal{V}_0(\Omega(\boldsymbol{\mu})) = \{ \vect{v} \in [H^1(\Omega(\boldsymbol{\mu}))]^2 \mid \vect{v} = \vect{0} \text{ on } \Gamma_D(\boldsymbol{\mu}) \}
 \end{equation}
 Integrating by parts over the parameterized spatial domain $\Omega(\boldsymbol{\mu})$ yields the weak form:
 \begin{equation}
-    m(\ddot{\underline{u}}, \delta\underline{u}; \boldsymbol{\mu}) + k(\underline{u}, \delta\underline{u}; \boldsymbol{\mu}) = f(\delta\underline{u}; \boldsymbol{\mu}) \quad \forall \delta\underline{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu}))
+    m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = f(\delta\vect{u}; \boldsymbol{\mu}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu}))
 \end{equation}
 where the bilinear mass and stiffness forms, and the linear load form are defined respectively as:
 \begin{align}
-    m(\ddot{\underline{u}}, \delta\underline{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \rho \ddot{\underline{u}} \cdot \delta\underline{u} \, d\Omega \\
-    k(\underline{u}, \delta\underline{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\sigma}(\underline{u}) : \boldsymbol{\varepsilon}(\delta\underline{u}) \, d\Omega \\
-    f(\delta\underline{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \underline{f}_b \cdot \delta\underline{u} \, d\Omega + \int_{\Gamma_N(\boldsymbol{\mu})} \underline{h}_N \cdot \delta\underline{u} \, d\Gamma
+    m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, d\Omega \\
+    k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\sigma}(\vect{u}) : \boldsymbol{\varepsilon}(\delta\vect{u}) \, d\Omega \\
+    f(\delta\vect{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \vect{f}_b \cdot \delta\vect{u} \, d\Omega + \int_{\Gamma_N(\boldsymbol{\mu})} \vect{h}_N \cdot \delta\vect{u} \, d\Gamma
 \end{align}
 
 
 
 \section{Pullback Mapping at the Continuum Level}
-To perform shape reduced-order modeling, the governing equations formulated on the parameter-dependent physical domain $\Omega(\boldsymbol{\mu})$ must be mapped to a parameter-independent domain. At the continuum level, this is achieved by defining a smooth, bijective parameterized geometric mapping (diffeomorphism) $\boldsymbol{\Phi}(\cdot; \boldsymbol{\mu}) : \hat{\Omega} \to \Omega(\boldsymbol{\mu})$ that maps any point $\boldsymbol{\xi} \in \hat{\Omega}$ in the parameter-independent reference configuration $\hat{\Omega}$ to its counterpart $\vect{x} \in \Omega(\boldsymbol{\mu})$ in the parameterized physical configuration:
+To perform shape reduced-order modeling, the governing equations formulated on the parameter-dependent physical domain $\Omega(\boldsymbol{\mu})$ must be mapped to a parameter-independent domain. At the continuum level, this is achieved by defining a smooth, bijective parameterized geometric mapping (diffeomorphism) $\boldsymbol{\Phi}(\cdot; \boldsymbol{\mu}) : \hat{\Omega} \to \Omega(\boldsymbol{\mu})$ that maps any point $\hat{\vect{x}} \in \hat{\Omega}$ in the parameter-independent reference configuration $\hat{\Omega}$ to its counterpart $\vect{x} \in \Omega(\boldsymbol{\mu})$ in the parameterized physical configuration:
 \begin{equation}
-    \vect{x} = \boldsymbol{\Phi}(\boldsymbol{\xi}; \boldsymbol{\mu})
+    \vect{x} = \boldsymbol{\Phi}(\hat{\vect{x}}; \boldsymbol{\mu})
 \end{equation}
-The spatial gradient of this mapping is the coordinate Jacobian matrix $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$:
+The spatial gradient of this mapping is the coordinate Jacobian matrix $\mathbf{J}(\hat{\vect{x}}; \boldsymbol{\mu})$:
 \begin{equation}
-    \mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \frac{\partial \boldsymbol{\Phi}(\boldsymbol{\xi}; \boldsymbol{\mu})}{\partial \boldsymbol{\xi}}
+    \mathbf{J}(\hat{\vect{x}}; \boldsymbol{\mu}) = \frac{\partial \boldsymbol{\Phi}(\hat{\vect{x}}; \boldsymbol{\mu})}{\partial \hat{\vect{x}}}
 \end{equation}
 We assume that the mapping preserves orientation and is invertible, which requires a strictly positive Jacobian determinant:
 \begin{equation}
-    J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) = \det \mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) > 0 \quad \forall \boldsymbol{\xi} \in \hat{\Omega}
+    J_{\boldsymbol{\mu}}(\hat{\vect{x}}) = \det \mathbf{J}(\hat{\vect{x}}; \boldsymbol{\mu}) > 0 \quad \forall \hat{\vect{x}} \in \hat{\Omega}
 \end{equation}
 Using the chain rule, the gradients of any physical field $u$ and the differential volume elements are pulled back to the reference configuration via:
 \begin{equation}
-    \nabla_{\vect{x}} u = \mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \hat{u}, \quad \mathrm{d}\Omega = J_{\boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega}
+    \nabla_{\vect{x}} u = \mathbf{J}^{-T} \nabla_{\hat{\vect{x}}} \hat{u}, \quad \mathrm{d}\Omega = J_{\boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega}
 \end{equation}
-where $\hat{u}(\boldsymbol{\xi}) = u(\boldsymbol{\Phi}(\boldsymbol{\xi}; \boldsymbol{\mu}))$ represents the pulled-back field.
+where $\hat{u}(\hat{\vect{x}}) = u(\boldsymbol{\Phi}(\hat{\vect{x}}; \boldsymbol{\mu}))$ represents the pulled-back field.
 
 \section{Weak Formulation on the Reference Configuration}
 By substituting the pullback relations into the variational statement (Eq. 2.7), we project the weak formulation onto the parameter-independent reference configuration $\hat{\Omega}$. The pulled-back weak form reads:
 \begin{equation}
-    \hat{m}(\ddot{\underline{u}}, \delta\underline{u}; \boldsymbol{\mu}) + \hat{k}(\underline{u}, \delta\underline{u}; \boldsymbol{\mu}) = \hat{f}(\delta\underline{u}; \boldsymbol{\mu}) \quad \forall \delta\underline{u} \in \mathcal{V}_0(\hat{\Omega})
+    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \hat{f}(\delta\vect{u}; \boldsymbol{\mu}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\hat{\Omega})
 \end{equation}
 where the mass, stiffness, and load forms are evaluated as integrals over the static reference configuration $\hat{\Omega}$:
 \begin{align}
-    \hat{m}(\ddot{\underline{u}}, \delta\underline{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \rho \ddot{\underline{u}} \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, \mathrm{d}\hat{\Omega} \\
-    \hat{k}(\underline{u}, \delta\underline{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \left( \mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \underline{u} \right) : \mat{D} : \left( \mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \delta\underline{u} \right) J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, \mathrm{d}\hat{\Omega} \\
-    \hat{f}(\delta\underline{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \underline{\hat{f}}_b \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, \mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \underline{\hat{h}}_N \cdot \delta\underline{u} \, J_{\boldsymbol{\mu}, \Gamma}(\boldsymbol{\xi}) \, \mathrm{d}\hat{\Gamma}
+    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} \\
+    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \left( \mathbf{J}^{-T} \nabla_{\hat{\vect{x}}} \vect{u} \right) : \mat{D} : \left( \mathbf{J}^{-T} \nabla_{\hat{\vect{x}}} \delta\vect{u} \right) J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} \\
+    \hat{f}(\delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}, \Gamma}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Gamma}
 \end{align}
-Here, $\hat{\Gamma}_N$ represents the reference Neumann boundary, and $J_{\boldsymbol{\mu}, \Gamma}(\boldsymbol{\xi})$ is the boundary Jacobian determinant representing the surface area scaling factor. This formulation shifts the entire parameter dependency of the continuum system from the domain geometry into the Jacobian terms $\mathbf{J}$ and its determinant $J_{\boldsymbol{\mu}}$.
+Here, $\hat{\Gamma}_N$ represents the reference Neumann boundary, and $J_{\boldsymbol{\mu}, \Gamma}(\hat{\vect{x}})$ is the boundary Jacobian determinant representing the surface area scaling factor. This formulation shifts the entire parameter dependency of the continuum system from the domain geometry into the Jacobian terms $\mathbf{J}$ and its determinant $J_{\boldsymbol{\mu}}$.
 
 \section{Summary}
 In this chapter, we established the mathematical framework for the parameterized continuum model of the notched cantilever beam. By defining the strong form equations of motion and pulling them back to a static reference configuration $\hat{\Omega}$, we isolated the parameter dependency into coordinate transformation Jacobians. In the next chapter, we will discretize these forms using Isogeometric Analysis (IGA) and discuss the mapping from the parametric parent domain $\hat{\Omega}$ to the physical space.

@@ -1,0 +1,310 @@
+% ─── Chapter 5: ROM & Hyper-Reduction ────────────────────────────────────────
+
+% Slide: Standard Galerkin ROM (from thesis Ch.5)
+\begin{frame}{Standard Galerkin ROM — Dimensionality Reduction}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      The high-fidelity displacement $\vect{U}(t)\in\mathbb{R}^N$ is projected:
+      \[
+        \vect{U}(t) \approx \boldsymbol{\Phi}\,\vect{q}(t), \quad \boldsymbol{\Phi}\in\mathbb{R}^{N\times r},\; r\ll N
+      \]
+      $\boldsymbol{\Phi}$ is built via \textbf{POD} from FOM snapshots.
+      
+      \vspace{0.05cm}
+      \begin{block}{POD Convergence Metrics}
+        \footnotesize
+        \[
+          \eta(r) = \frac{\sum_{i=1}^r\sigma_i^2}{\sum_{j=1}^d\sigma_j^2}, \quad \epsilon(r) = \sqrt{1-\eta(r)}
+        \]
+        \centering
+        \begin{tabular}{lcc}
+          \toprule
+          $r$ & $\epsilon(r)$ & $\eta(r)$ \\
+          \midrule
+          1  & 2.34\% & 99.945\% \\
+          5  & 0.89\% & 99.992\% \\
+          10 & 0.11\% & 99.999\% \\
+          \bottomrule
+        \end{tabular}
+      \end{block}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{exampleblock}{Galerkin Projection ($r\times r$)}
+        \footnotesize
+        \[
+          \mat{M}_r\ddot{\vect{q}} + \mat{C}_r\dot{\vect{q}} + \mat{K}_r(\boldsymbol{\mu})\vect{q} = \vect{F}_r(t)
+        \]
+        where $\mat{K}_r = \boldsymbol{\Phi}^T\hat{\mat{K}}(\boldsymbol{\mu})\boldsymbol{\Phi}$.
+      \end{exampleblock}
+      \vspace{0.05cm}
+      \begin{alertblock}{Assembly Bottleneck Remains!}
+        \footnotesize
+        $\mat{K}_r(\boldsymbol{\mu})$ requires full-dim assembly of $\hat{\mat{K}}(\boldsymbol{\mu})\in\mathbb{R}^{N\times N}$ before projection.\\[2pt]
+        Galerkin ROM speedup: only $\mathbf{0.92\times}$ — \alert{slower than FOM}.
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide: POD Basis Projection Error
+\begin{frame}{POD Basis Projection Error}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \small
+      \textbf{Singular Value Decay}:
+      \begin{itemize}
+        \item The relative $L_2$ projection error $\epsilon(r)$ represents the remaining snapshot information:
+        \[
+          \epsilon(r) = \sqrt{1 - \eta(r)}
+        \]
+        \item Evaluates accuracy of the SVD-reconstructed state space.
+        \item At $r = 10$ modes, the projection error drops to \textbf{$0.11\%$}, confirming excellent basis representation.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \scalebox{0.68}{
+      \begin{tikzpicture}
+          \begin{axis}[
+              width=7.5cm,
+              height=4.8cm,
+              xlabel={Number of POD Modes $r$},
+              ylabel={Relative $L_2$ Error $\epsilon$ [\%]},
+              xmin=1, xmax=10,
+              ymin=0, ymax=2.5,
+              xtick={1,2,3,4,5,6,7,8,9,10},
+              ytick={0, 0.5, 1.0, 1.5, 2.0, 2.5},
+              yticklabels={0.0\%, 0.5\%, 1.0\%, 1.5\%, 2.0\%, 2.5\%},
+              grid=both,
+              grid style={line width=.1pt, draw=gray!15},
+              major grid style={line width=.2pt, draw=gray!30},
+              axis lines=left,
+              enlargelimits=false,
+              tick label style={font=\tiny},
+              xlabel style={font=\scriptsize},
+              ylabel style={font=\scriptsize, yshift=0.2em},
+          ]
+              \addplot[
+                  fill=magenta!10,
+                  draw=none,
+              ] coordinates {
+                  (1, 2.3424)
+                  (2, 1.7880)
+                  (3, 1.4139)
+                  (4, 1.1283)
+                  (5, 0.8902)
+                  (6, 0.6806)
+                  (7, 0.4935)
+                  (8, 0.3410)
+                  (9, 0.1924)
+                  (10, 0.1062)
+              } \closedcycle;
+
+              \addplot[
+                  color=magenta!85!purple,
+                  mark=*,
+                  thick,
+                  smooth,
+                  mark options={fill=magenta!85!purple, draw=magenta!85!purple, line width=1pt, scale=0.8}
+              ] coordinates {
+                  (1, 2.3424)
+                  (2, 1.7880)
+                  (3, 1.4139)
+                  (4, 1.1283)
+                  (5, 0.8902)
+                  (6, 0.6806)
+                  (7, 0.4935)
+                  (8, 0.3410)
+                  (9, 0.1924)
+                  (10, 0.1062)
+              };
+          \end{axis}
+      \end{tikzpicture}
+      }
+      \\[2pt]
+      {\scriptsize Relative $L_2$ projection error $\epsilon(r)$ decay}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide: POD Cumulative Energy Fraction
+\begin{frame}{POD Cumulative Energy Fraction}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \small
+      \textbf{Cumulative Energy}:
+      \begin{itemize}
+        \item The cumulative energy fraction $\eta(r)$ measures the system variance captured:
+        \[
+          \eta(r) = \frac{\sum_{i=1}^r \sigma_i^2}{\sum_{j=1}^d \sigma_j^2}
+        \]
+        \item Measures information content contained in the first $r$ modes.
+        \item The first mode alone ($r=1$) contains \textbf{$99.945\%$} of the system's dynamic energy.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \scalebox{0.68}{
+      \begin{tikzpicture}
+          \begin{axis}[
+              width=7.5cm,
+              height=4.8cm,
+              xlabel={Number of POD Modes $r$},
+              ylabel={Cumulative Energy $\eta$ [\%]},
+              xmin=1, xmax=10,
+              ymin=99.9, ymax=100.0,
+              xtick={1,2,3,4,5,6,7,8,9,10},
+              ytick={99.9, 99.92, 99.94, 99.96, 99.98, 100.0},
+              yticklabels={99.90\%, 99.92\%, 99.94\%, 99.96\%, 99.98\%, 100.00\%},
+              grid=both,
+              grid style={line width=.1pt, draw=gray!15},
+              major grid style={line width=.2pt, draw=gray!30},
+              axis lines=left,
+              enlargelimits=false,
+              tick label style={font=\tiny},
+              xlabel style={font=\scriptsize},
+              ylabel style={font=\scriptsize, yshift=0.8em},
+          ]
+              \addplot[
+                  fill=cyan!10,
+                  draw=none,
+              ] coordinates {
+                  (1, 99.9451)
+                  (2, 99.9680)
+                  (3, 99.9800)
+                  (4, 99.9873)
+                  (5, 99.9921)
+                  (6, 99.9954)
+                  (7, 99.9976)
+                  (8, 99.9988)
+                  (9, 99.9996)
+                  (10, 99.9999)
+              } \closedcycle;
+
+              \addplot[
+                  color=cyan!80!blue,
+                  mark=*,
+                  thick,
+                  smooth,
+                  mark options={fill=cyan!80!blue, draw=cyan!80!blue, line width=1pt, scale=0.8}
+              ] coordinates {
+                  (1, 99.9451)
+                  (2, 99.9680)
+                  (3, 99.9800)
+                  (4, 99.9873)
+                  (5, 99.9921)
+                  (6, 99.9954)
+                  (7, 99.9976)
+                  (8, 99.9988)
+                  (9, 99.9996)
+                  (10, 99.9999)
+              };
+          \end{axis}
+      \end{tikzpicture}
+      }
+      \\[2pt]
+      {\scriptsize Cumulative energy fraction $\eta(r)$ growth}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide: ECSW Hyper-Reduction (from thesis Ch.5)
+
+\begin{frame}{ECSW Hyper-Reduction}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{ECSW} replaces full-mesh integration with a sparse weighted sum over active elements $\hat{\Omega}\subset\Omega$:
+      \[
+        \mat{K}_{r,\text{ECSW}}(\boldsymbol{\mu}) = \sum_{e\in\hat{\Omega}} w_e\,\boldsymbol{\Phi}_e^T\mat{K}_e(\boldsymbol{\mu})\boldsymbol{\Phi}_e
+      \]
+      Weights $w_e$ found by \textbf{Non-Negative Least Squares}:
+      \[
+        \min_{\vect{w}\ge\mathbf{0}}\;\|\mat{A}\vect{w}-\vect{b}\|_2^2
+      \]
+      \footnotesize
+      \textbf{Coercivity seeding}: pre-include clamped boundary + notch elements before greedy selection.
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{block}{Quantitative Results}
+        \centering\footnotesize
+        \begin{tabular}{lcc}
+          \toprule
+          \textbf{Solver} & \textbf{Cells} & \textbf{Speedup} \\
+          \midrule
+          FOM             & 3,200 & $1\times$      \\
+          Galerkin ROM    & 3,200 & $0.92\times$   \\
+          \alert{ECSW ROM}& \alert{28} & \alert{$64.5\times$} \\
+          \bottomrule
+        \end{tabular}
+        \vspace{0.1cm}
+        \begin{itemize}
+          \setlength{\itemsep}{1pt}
+          \scriptsize
+          \item Rel.\ $L_2$ error: $0.054\%$
+          \item Assembly: $142.1\to 2.2$ ms
+          \item Eigenfrequency error: $0.09\%$
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide: Dynamic Stiffness Calibration & State Projection
+\begin{frame}{Parameterized ROM — State Projection \& Stiffness Calibration}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{block}{State Projection on Parameter Change}
+        When $\boldsymbol{\mu}$ updates mid-simulation, $\boldsymbol{\Phi}_\text{old}\neq\boldsymbol{\Phi}_\text{new}$.\\
+        Directly applying old $\vect{q}$ to new basis causes a non-physical jump. Solution — \textbf{transient state projection}:
+        \[
+          q_{i,\text{new}} = \sum_{k=1}^N \phi_{i,k,\text{new}}\,u_{\text{phys},k}
+        \]
+        Maps transient states across parameter manifolds, maintaining continuity.
+      \end{block}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{block}{Dynamic Stiffness Calibration}
+        ECSW weights trained on reference config may underestimate stiffness at deformed $\boldsymbol{\mu}$. Correction factor:
+        \[
+          \gamma = \frac{\boldsymbol{\phi}_1^T\mat{K}_\text{Full}(\boldsymbol{\mu})\boldsymbol{\phi}_1}{\boldsymbol{\phi}_1^T\mat{K}_\text{ECSW}(\boldsymbol{\mu})\boldsymbol{\phi}_1}
+        \]
+        \[
+          w_e \leftarrow \gamma\cdot w_e
+        \]
+        Preserves accuracy under shape deformation.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide: Dirichlet and Notch Seeding for Coercivity
+\begin{frame}{Dirichlet \& Notch Seeding for Coercivity}
+  \small
+  Standard greedy selection (e.g., OMP) often misses boundary elements, causing rigid-body modes.
+  
+  \begin{alertblock}{The Loss of Coercivity}
+    \footnotesize
+    Without boundary elements in the hyper-reduced mesh $\widehat{\Omega}$, the ECSW stiffness matrix $\mat{K}_{\text{ECSW}}$ loses its connection to the Dirichlet constraints.
+  \end{alertblock}
+  \vspace{-0.15cm}
+  
+  \begin{block}{Coercivity Seeding Solution}
+    \footnotesize
+    To guarantee stability (coercivity) and capture high stress concentrations, we \textbf{pre-seed} the active integration element set $\widehat{\Omega}$ before starting greedy selection:
+    \[
+      \widehat{\Omega}_{\text{seed}} = \{e_{\text{clamp}}\} \cup \{e_{\text{notch}}\}
+    \]
+  \end{block}
+  \vspace{-0.15cm}
+  \begin{itemize}
+    \setlength{\itemsep}{1pt}
+    \footnotesize
+    \item \textbf{Clamp elements}: Enforces rigid boundary constraints at clamped boundary.
+    \item \textbf{Notch elements}: Captures stress concentrations near notches under deformation.
+    \item \textbf{Greedy selection}: Starts selection with $\widehat{\Omega}_{\text{seed}}$ as its initial set.
+  \end{itemize}
+\end{frame}
+
+

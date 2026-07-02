@@ -6,7 +6,7 @@
 \section{Governing Dynamic Equations}
 To simulate the dynamic response of the parameterized structure, we resolve the semi-discrete second-order system of equations of motion:
 \begin{equation}
-        \mat{M}(\boldsymbol{\mu}) \ddot{\underline{\mathbf{U}}}(t) + \mat{C}(\boldsymbol{\mu}) \dot{\underline{\mathbf{U}}}(t) + \mat{K}(\boldsymbol{\mu}) \underline{\mathbf{U}}(t) = \lambda(t) \mathbf{F}_{\text{ext}}(\boldsymbol{\mu})
+        \mat{M}(\boldsymbol{\mu}) \ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu}) \dot{\vect{U}}(t) + \mat{K}(\boldsymbol{\mu}) \vect{U}(t) = \lambda(t) \mathbf{F}_{\text{ext}}(\boldsymbol{\mu})
 \end{equation}
 where:
 \begin{itemize}
@@ -111,7 +111,7 @@ To resolve the linear semi-discrete second-order system of equations of motion, 
 
 For higher accuracy in transient simulations, we also support the \textbf{generalized-$\alpha$ method}. This scheme extends Newmark-$\beta$ by evaluating the system at intermediate stages $\alpha_m$ and $\alpha_f$ to introduce high-frequency numerical damping while minimizing low-frequency dissipation:
 \begin{equation}
-    \hat{\mathbf{M}}(\boldsymbol{\mu}) \underline{\ddot{\mathbf{U}}}_{t+\alpha_m} + \mat{C}(\boldsymbol{\mu}) \underline{\dot{\mathbf{U}}}_{t+\alpha_f} + \mat{K}(\boldsymbol{\mu}) \underline{\mathbf{U}}_{t+\alpha_f} = \lambda(t+\alpha_f) \hat{\mathbf{F}}_{ext}(\boldsymbol{\mu})
+    \hat{\mathbf{M}}(\boldsymbol{\mu}) \ddot{\vect{U}}_{t+\alpha_m} + \mat{C}(\boldsymbol{\mu}) \dot{\vect{U}}_{t+\alpha_f} + \mat{K}(\boldsymbol{\mu}) \vect{U}_{t+\alpha_f} = \lambda(t+\alpha_f) \hat{\mathbf{F}}_{ext}(\boldsymbol{\mu})
 \end{equation}
 
 \section{Quantities of Interest \& Numerical Results}
