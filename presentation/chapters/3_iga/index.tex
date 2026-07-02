@@ -439,6 +439,7 @@
           \fill[red] (1.8,2.2) circle (2pt);
           \fill[red] (3.6,0) circle (2pt);
           \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+          \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
           \node[font=\tiny, below] at (1.8, -0.1) {Original polygon \& curve};
         \end{scope}
         \begin{scope}[xshift=4.6cm, yshift=0cm]
@@ -449,6 +450,7 @@
           \fill[red] (2.7,1.1) circle (2pt);
           \fill[red] (3.6,0) circle (2pt);
           \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+          \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
           \node[font=\tiny, below] at (1.8, -0.1) {Refined polygon (knot inserted)};
         \end{scope}
       \end{tikzpicture}
@@ -505,6 +507,7 @@
           \fill[red] (1.8,2.2) circle (2pt);
           \fill[red] (3.6,0) circle (2pt);
           \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+          \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
           \node[font=\tiny, below] at (1.8, -0.1) {Original curve ($p=2$)};
         \end{scope}
         \begin{scope}[xshift=4.6cm, yshift=0cm]
@@ -515,6 +518,7 @@
           \fill[red] (2.4,1.5) circle (2pt);
           \fill[red] (3.6,0) circle (2pt);
           \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+          \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
           \node[font=\tiny, below] at (1.8, -0.1) {Degree elevated ($p=3$)};
         \end{scope}
       \end{tikzpicture}
@@ -545,46 +549,54 @@
 
 % Slide: NURBS Circle Exact Parameterization (Fig 3.7)
 \begin{frame}{Exact CAD Geometry: NURBS Circle}
-  \begin{columns}[T]
-    \begin{column}{0.50\textwidth}
-      \small
-      Traditional FEA approximates curved boundaries using piecewise linear facets, causing geometric errors.
-      
-      \begin{block}{Rational Basis and Projective Weights}
-        \scriptsize
-        By injecting non-unity weights $w_i$, NURBS represents conic sections (circles, ellipses) \textbf{exactly}.
-      \end{block}
-      \begin{block}{Circle Construction}
-        \scriptsize
-        An exact circle is parameterized using a quadratic NURBS basis with 9 control points (8 active + 1 closing) forming a square octagon control net. 
-      \end{block}
-      \scriptsize
-      Weights on the diagonal vertices are scaled to $w = \cos(45^\circ) = \frac{\sqrt{2}}{2} \approx 0.707$ to preserve radius.
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering
-      \scalebox{0.68}{
-      \begin{tikzpicture}[scale=1.4, >=stealth]
-        \draw[gray!15, thin, step=0.5] (-1.5, -1.5) grid (1.5, 1.5);
-        \draw[->, black!40, line width=0.5pt] (-1.6, 0) -- (1.6, 0) node[right, font=\tiny] {$x$};
-        \draw[->, black!40, line width=0.5pt] (0, -1.6) -- (0, 1.6) node[above, font=\tiny] {$y$};
+  \centering
+  \scalebox{0.68}{
+  \begin{tikzpicture}[scale=1.3, >=stealth]
+    % --- PANEL (a) BEFORE ---
+    \begin{scope}[xshift=0cm]
+      \draw[gray!15, thin, step=0.5] (-1.5, -1.5) grid (1.5, 1.5);
+      \draw[->, black!40, line width=0.5pt] (-1.6, 0) -- (1.6, 0) node[right, font=\tiny] {$x$};
+      \draw[->, black!40, line width=0.5pt] (0, -1.6) -- (0, 1.6) node[above, font=\tiny] {$y$};
 
-        \draw[blue!70!black, thick] (0,0) circle (1.0);
-        \draw[gray!70, dashed, thick] (1,0) -- (1,1) -- (0,1) -- (-1,1) -- (-1,0) -- (-1,-1) -- (0,-1) -- (1,-1) -- cycle;
+      \draw[blue!70!black, thick] (0,0) circle (1.0);
+      \draw[gray!70, dashed, thick] (1,0) -- (1,1) -- (0,1) -- (-1,1) -- (-1,0) -- (-1,-1) -- (0,-1) -- (1,-1) -- cycle;
 
-        \foreach \x/\y in {1/0, 0/1, -1/0, 0/-1} {
-            \fill[orange] (\x, \y) circle (2.2pt);
-        }
-        \foreach \x/\y in {1/1, -1/1, -1/-1, 1/-1} {
-            \fill[orange] (\x, \y) circle (2.2pt);
-        }
-        
-        \node[font=\tiny, fill=white, inner sep=1pt, rounded corners=1pt, draw=gray!20] at (1.3, 0) {$w=1$};
-        \node[font=\tiny, fill=white, inner sep=1pt, rounded corners=1pt, draw=gray!20] at (1.1, 1.1) {$w\approx 0.707$};
-      \end{tikzpicture}
+      \foreach \x/\y in {1/0, 0/1, -1/0, 0/-1} {
+          \fill[orange] (\x, \y) circle (2.2pt);
       }
-    \end{column}
-  \end{columns}
+      \foreach \x/\y in {1/1, -1/1, -1/-1, 1/-1} {
+          \fill[orange] (\x, \y) circle (2.2pt);
+      }
+      
+      \node[font=\tiny, fill=white, inner sep=1pt, rounded corners=1pt, draw=gray!20] at (1.3, 0) {$w=1$};
+      \node[font=\tiny, fill=white, inner sep=1pt, rounded corners=1pt, draw=gray!20] at (1.1, 1.1) {$w\approx 0.707$};
+      \node[below=1.8cm, font=\scriptsize\bfseries] at (0,0) {(a) Before refinement (8 control points)};
+    \end{scope}
+
+    % --- PANEL (b) AFTER ---
+    \begin{scope}[xshift=4.2cm]
+      \draw[gray!15, thin, step=0.5] (-1.5, -1.5) grid (1.5, 1.5);
+      \draw[->, black!40, line width=0.5pt] (-1.6, 0) -- (1.6, 0) node[right, font=\tiny] {$x$};
+      \draw[->, black!40, line width=0.5pt] (0, -1.6) -- (0, 1.6) node[above, font=\tiny] {$y$};
+
+      \draw[blue!70!black, thick] (0,0) circle (1.0);
+
+      % Refined control polygon (closer to circle)
+      \draw[gray!70, dashed, thick] (0:1.025)
+      \foreach \angle in {22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5, 360} {
+          -- (\angle:1.025)
+      };
+
+      % Refined control points
+      \foreach \angle in {0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5} {
+          \fill[orange] (\angle:1.025) circle (2.2pt);
+      }
+      \node[below=1.8cm, font=\scriptsize\bfseries] at (0,0) {(b) After refinement (16 control points)};
+    \end{scope}
+  \end{tikzpicture}
+  }
+  \par\vspace{0.05cm}
+  {\scriptsize Diagonal weights $w = \frac{\sqrt{2}}{2} \approx 0.707$ define the exact circle. Knot insertion converges the net to the curve.}
 \end{frame}
 
 % Slide: Mesh Convergence Study

@@ -24,15 +24,26 @@
     \item \textbf{Hyper-Reduction}: ECSW on 28 elements (vs 3,200). Assembly speedup of \textbf{$64.5\times$} ($154.5\to 2.2$ ms) with $L_2$ error $<0.054\%$.
     \item \textbf{Real-Time Implementation}: Full client-side JS pipeline, $< 1$ ms solve, 20+ FPS on standard browsers.
   \end{enumerate}
-  \vspace{0.05cm}
-  \begin{block}{Future Perspectives}
+\end{frame}
+
+% Slide: Future Perspectives & Research Paths
+\begin{frame}{Future Perspectives \& Research Paths}
+  \small
+  To extend the capabilities of the interactive Digital Twin, four main research vectors are identified:
+  
+  \begin{block}{1. Geometrically Nonlinear Kinematics}
     \footnotesize
-    \begin{itemize}
-      \setlength{\itemsep}{1pt}
-      \item \textbf{Nonlinear kinematics}: Green-Lagrange strains, PK2 stress, Newton-Raphson in ROM
-      \item \textbf{3D continuum}: Trivariate NURBS solids and Multi-patch topology blending
-      \item \textbf{Adaptive ECSW}: Online Kriging interpolation for out-of-bounds parameters
-    \end{itemize}
+    Green-Lagrange strain tensor $\mat{E}$, PK2 stress tensor $\mat{S}$, state-dependent stiffness $\mat{K}_T(\vect{u})$, and Newton-Raphson iterations directly in the reduced space.
+  \end{block}
+  
+  \begin{block}{2. 3D Solids \& Multi-Patch Assembly}
+    \footnotesize
+    Trivariate NURBS solids for 3D components, and multi-patch blending via G-continuity or penalty/Mortar constraints.
+  \end{block}
+  
+  \begin{block}{3. Adaptive Online Hyper-Reduction}
+    \footnotesize
+    On-the-fly basis enrichment (kriging interpolation / local snapshot sampling) to preserve accuracy outside offline training bounds.
   \end{block}
 \end{frame}
 
