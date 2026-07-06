@@ -9,6 +9,10 @@
     \[
       \mat{M}(\boldsymbol{\mu})\,\ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu})\,\dot{\vect{U}}(t) + \mat{K}(\boldsymbol{\mu})\,\vect{U}(t) = \lambda(t)\,\vect{F}_{\text{ext}}(\boldsymbol{\mu})
     \]
+    \vspace{-0.45cm}
+    \[
+      \text{with initial conditions: } \vect{U}(0) = \vect{U}_0, \quad \dot{\vect{U}}(0) = \vect{V}_0
+    \]
     \vspace{-0.15cm}
   \end{block}
   \begin{columns}[T]
@@ -34,33 +38,37 @@
   \end{columns}
 \end{frame}
 
-% Slide: Simulation Path: Naive vs. Mapped Pullback
-\begin{frame}{Simulation Path: Naive vs. Mapped Pullback}
+% Slide: Simulation Path & Solver Workflow
+\begin{frame}{Simulation Path \& Solver Workflow}
   \centering
-  \scalebox{0.70}{
+  \scalebox{0.63}{
   \begin{tikzpicture}[
-      node distance=1.2cm,
-      block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=5.5cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
-      process/.style={rectangle, draw=orange!70, fill=orange!5, thick, minimum width=5.5cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
+      node distance=1.3cm,
+      block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=6.2cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
+      process/.style={rectangle, draw=orange!70, fill=orange!5, thick, minimum width=6.2cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
+      math/.style={rectangle, draw=purple!70, fill=purple!5, thick, rounded corners, minimum width=6.2cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
       arrow/.style={thick,->,>=stealth}
   ]
       % Left Column: Classical Physical-Domain
-      \node [block] (naive_start) {Classical Physical Path \\ $\Omega(\boldsymbol{\mu})$};
-      \node [process, below of=naive_start, node distance=1.2cm] (remesh) {Regenerate Mesh \\ $N(\boldsymbol{\mu})$ varies};
-      \node [process, below of=remesh, node distance=1.2cm] (assemble) {Assemble Stiffness $\mat{K}(\boldsymbol{\mu})$ \\ High Cost, Online};
-      \node [process, below of=assemble, node distance=1.2cm] (solve_naive) {Solve System \\ Variable Dimensions};
+      \node [block] (naive_start) {\textbf{Classical Physical Path} \\ Physical Domain $\Omega(\boldsymbol{\mu})$};
+      \node [process, below of=naive_start] (remesh) {Regenerate Mesh \\ Number of DOFs $N(\boldsymbol{\mu})$ varies};
+      \node [process, below of=remesh] (assemble) {Assemble $\mat{K}(\boldsymbol{\mu})$ and $\mat{M}(\boldsymbol{\mu})$ \\ High Cost, Online};
+      \node [math, below of=assemble] (solve_naive) {Implicit Newmark Step \\ $\mat{K}_{\text{eff}} \vect{U}_{n+1} = \vect{F}_{\text{eff}}^{n+1}$};
+      \node [process, below of=solve_naive] (output_naive) {Tip deflection $U_y(t)$ \& $\sigma_{\text{VM}}$ \\ Variable Dimensions};
       
       % Right Column: Mapped Reference
-      \node [block, right=1.2cm of naive_start] (mapped_start) {Reference Map Path \\ $\hat{\Omega}$};
-      \node [process, below of=mapped_start, node distance=1.2cm] (static_mesh) {Static Reference Mesh \\ $N$ is constant};
-      \node [process, below of=static_mesh, node distance=1.2cm] (pullback) {Pullback Integrals \\ Jacobian $\mat{J}(\boldsymbol{\mu})$};
-      \node [process, below of=pullback, node distance=1.2cm] (pullback_assemble) {Assemble Stiffness $\mat{K}(\boldsymbol{\mu})$ \\ Still High Cost, Online};
-      \node [process, below of=pullback_assemble, node distance=1.2cm] (solve_mapped) {Solve System \\ Constant Dimensions};
+      \node [block, right=1.6cm of naive_start] (mapped_start) {\textbf{Reference Map Path} \\ Fixed Reference Domain $\hat{\Omega}$};
+      \node [process, below of=mapped_start] (static_mesh) {Static Reference Mesh \\ Constant DOFs $N$ (no remeshing)};
+      \node [process, below of=static_mesh] (pullback) {Pullback Integrals \\ Coordinate Jacobian $\mat{J}(\boldsymbol{\mu})$};
+      \node [process, below of=pullback] (pullback_assemble) {Assemble Stiffness $\mat{K}(\boldsymbol{\mu})$ \\ Online Integrals (still costly)};
+      \node [math, below of=pullback_assemble] (solve_mapped) {Apply Penalty Clamping BCs \\ $\mat{K}_{\text{eff}}[i,i] \gets k_p = 10^{30}$, $\vect{F}_{\text{eff}}[i] \gets 0$};
+      \node [process, below of=solve_mapped] (output_mapped) {Extract QoI ($U_y(t)$, $\sigma_{\text{VM}}$) \\ $T=10\text{ s}$, $200$ time steps ($\Delta t = 0.05\text{ s}$)};
       
       % Connections
       \draw [arrow] (naive_start) -- (remesh);
       \draw [arrow] (remesh) -- (assemble);
       \draw [arrow] (assemble) -- (solve_naive);
+      \draw [arrow] (solve_naive) -- (output_naive);
       
       \draw [arrow] (mapped_start) -- (static_mesh);
       \draw [arrow] (static_mesh) -- (pullback);
@@ -68,183 +76,6 @@
       \draw [arrow] (pullback_assemble) -- (solve_mapped);
   \end{tikzpicture}
   }
-\end{frame}
-
-% Slide: Newmark-β Integration & Boundary Conditions
-\begin{frame}{Implicit Time Integration \& Boundary Conditions}
-  \small
-  \begin{columns}[T]
-    \begin{column}{0.56\textwidth}
-      \begin{block}{Newmark-$\beta$ Average Acceleration ($\beta=0.25$, $\gamma=0.5$)}
-        \footnotesize
-        Effective stiffness system per step:
-        \[
-          \mat{K}_{\text{eff}}\,\vect{U}_{n+1} = \vect{F}_{\text{eff}}^{n+1}
-        \]
-        where $\mat{K}_{\text{eff}} = \mat{K} + a_0\mat{M} + a_1\mat{C}$ and $a_0 = \tfrac{1}{\beta\Delta t^2}$, $a_1 = \tfrac{\gamma}{\beta\Delta t}$. Unconditionally stable (no Newton loops needed).
-      \end{block}
-      \vspace{0.05cm}
-      \begin{block}{Dirichlet BCs via Penalty Method}
-        \footnotesize
-        NURBS lack Kronecker delta at boundaries. Enforce clamping by modifying boundary DOFs:
-        \[
-          \mat{K}_{\text{eff}}[i,i] \gets k_p = 10^{30}, \quad \vect{F}_{\text{eff}}[i] \gets 0
-        \]
-      \end{block}
-    \end{column}
-    \begin{column}{0.40\textwidth}
-      \begin{alertblock}{FOM Performance}
-        \centering\footnotesize
-        \begin{tabular}{lr}
-          \toprule
-          \textbf{Quantity} & \textbf{Value} \\
-          \midrule
-          Mesh elements & 3,200 \\
-          DOFs ($N$)    & 6,564 \\
-          Assembly/step & 142.1 ms \\
-          Time steps    & 200 \\
-          \midrule
-          \textbf{Total wall time} & \textbf{28.4 s} \\
-          \bottomrule
-        \end{tabular}
-        \vspace{0.1cm}
-        \newline
-        \textit{Far too slow for real-time use.}
-      \end{alertblock}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide: Dynamic Transient Loading Setup
-\begin{frame}{Dynamic Transient Loading Setup}
-  \small
-  To evaluate the structure under dynamic conditions, a transient simulation is executed on the notched cantilever plate over the time interval $t \in [0, 10]$ seconds.
-  
-  \begin{block}{Excitation Profile}
-    \footnotesize
-    A time-dependent harmonic bending force is applied at the free tip boundary ($x = L$):
-    \[
-      \vect{F}(t) = \lambda(t)\,\vect{F}_{\text{ext}} = \sin(\omega t)\,\vect{F}_{\text{ext}} \quad \text{with } \omega = \pi\,\text{rad/s}
-    \]
-  \end{block}
-  \vspace{-0.1cm}
-  
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \footnotesize
-      \textbf{Temporal Discretization}:
-      \begin{itemize}
-        \item Total window: $T = 10$ seconds
-        \item Time steps: $200$ ($\Delta t = 0.05$ s)
-      \end{itemize}
-      \vspace{0.05cm}
-      \textbf{Rayleigh Damping Parameters}:
-      \[
-        \alpha_M = 0.05, \quad \beta_K = 0.001
-      \]
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \footnotesize
-      \textbf{Quantities of Interest (QoI)}:
-      \begin{itemize}
-        \item \textbf{Tip Deflection $U_y(t)$}: Average vertical displacement along the rightmost edge.
-        \item \textbf{Von Mises Stress $\sigma_{\text{VM}}$}: Monitored at quadrature points adjacent to the notches.
-        \end{itemize}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide: Model Stress & Von Mises Definition
-\begin{frame}{Model Stress \& Von Mises Definition}
-  \begin{columns}[T]
-    \begin{column}{0.45\textwidth}
-      \small
-      \textbf{Stress Concentrations}:
-      \begin{itemize}
-        \item Localized at notch throats.
-        \item \textbf{Von Mises Stress $\sigma_{\text{VM}}$} is used as the yield criterion:
-        \[
-          \sigma_{\text{VM}} = \sqrt{ \sigma_{xx}^2 - \sigma_{xx}\sigma_{yy} + \sigma_{yy}^2 + 3\tau_{xy}^2 }
-        \]
-        \item Evaluated at quadrature integration points to monitor mechanical fatigue risk.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.52\textwidth}
-      \centering
-      \scalebox{0.65}{
-      \begin{tikzpicture}[scale=1.2, >=stealth]
-        % --- UNDEFORMED REFERENCE STATE (dashed) ---
-        \draw[dashed, black!25, thick]
-            (0, 1.0) -- (2.0, 1.0)
-            .. controls (2.5, 1.0) and (2.7, 0.4) .. (3.0, 0.4)
-            .. controls (3.3, 0.4) and (3.5, 1.0) .. (4.0, 1.0)
-            -- (6.0, 1.0) -- (6.0, -1.0) -- (4.0, -1.0)
-            .. controls (3.5, -1.0) and (3.3, -0.4) .. (3.0, -0.4)
-            .. controls (2.7, -0.4) and (2.5, -1.0) .. (2.0, -1.0)
-            -- (0, -1.0) -- cycle;
-        \node[black!40, font=\small] at (4.5, 0.3) {Undeformed};
-
-        % --- CLAMPED BOUNDARY HATCHING ---
-        \foreach \y in {-1.2, -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0} {
-            \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.2);
-        }
-        \draw[ultra thick, black!70] (0, -1.2) -- (0, 1.2);
-
-        % --- DEFORMED STRUCTURE WITH STRESS CONCENTRATION ---
-        \begin{scope}
-            \clip (0, 1.0) 
-                .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
-                .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
-                .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
-                .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
-                -- (6.0, -1.15)
-                .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
-                .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
-                .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
-                .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
-                -- cycle;
-
-            \fill[blue!10] (-0.5, -3.0) rectangle (7.0, 2.0);
-            \draw[fill=yellow!20, draw=none, opacity=0.6] (3.0, 0.37) circle (1.2);
-            \draw[fill=yellow!20, draw=none, opacity=0.6] (3.0, -0.43) circle (1.2);
-            \draw[fill=orange!45, draw=none, opacity=0.8] (3.0, 0.37) circle (0.6);
-            \draw[fill=red!60, draw=none, opacity=0.9] (3.0, 0.37) circle (0.28);
-            \draw[fill=orange!45, draw=none, opacity=0.8] (3.0, -0.43) circle (0.6);
-            \draw[fill=red!60, draw=none, opacity=0.9] (3.0, -0.43) circle (0.28);
-        \end{scope}
-
-        % Draw the boundary of the deformed notched plate
-        \draw[draw=blue!60, thick] (0, 1.0) 
-            .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
-            .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
-            .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
-            .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
-            -- (6.0, -1.15)
-            .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
-            .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
-            .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
-            .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
-            -- cycle;
-
-        \draw[blue!30, thin] (0, 0) .. controls (2.0, -0.03) and (4.0, -0.08) .. (6.0, -0.15);
-        \draw[blue!30, thin] (0, 0.5) .. controls (2.0, 0.47) and (4.0, 0.42) .. (6.0, 0.35);
-        \draw[blue!30, thin] (0, -0.5) .. controls (2.0, -0.53) and (4.0, -0.58) .. (6.0, -0.65);
-
-        % --- LOADING FORCE ARROW ---
-        \draw[->, ultra thick, red!85!black] (6.0, -1.15) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.0, -2.15);
-
-        % --- COLORBAR ---
-        \begin{scope}[xshift=7.4cm, yshift=-1.0cm]
-            \path[shading=ygradient, top color=red!80, bottom color=blue!60] (0, 0) rectangle (0.25, 2.0);
-            \draw[thick, black!50] (0, 0) rectangle (0.25, 2.0);
-            \node[right, font=\tiny] at (0.25, 2.0) {$\sigma_{\text{VM}}^{\text{max}}$ (High)};
-            \node[right, font=\tiny] at (0.25, 0.0) {$\sigma_{\text{VM}}^{\text{min}}$ (Low)};
-            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Stress $\sigma_{\text{VM}}$};
-        \end{scope}
-      \end{tikzpicture}
-      }
-    \end{column}
-  \end{columns}
 \end{frame}
 
 % Slide: Model Displacement Field
@@ -337,6 +168,99 @@
   \end{columns}
 \end{frame}
 
+% Slide: Model Stress & Von Mises Definition
+\begin{frame}{Model Stress \& Von Mises Definition}
+  \begin{columns}[T]
+    \begin{column}{0.45\textwidth}
+      \small
+      \textbf{Stress Reconstruction}:
+      \begin{itemize}
+        \item \textbf{Key Relation}: Once the displacement field $\vect{u}$ is solved, we evaluate strain $\boldsymbol{\varepsilon}(\vect{u})$, constitutive stress $\boldsymbol{\sigma} = \mat{D}:\boldsymbol{\varepsilon}$, and reconstructed yield criteria.
+        \item \textbf{Von Mises Stress $\sigma_{\text{VM}}$}:
+        \[
+          \sigma_{\text{VM}} = \sqrt{ \sigma_{xx}^2 - \sigma_{xx}\sigma_{yy} + \sigma_{yy}^2 + 3\tau_{xy}^2 }
+        \]
+        \item \textbf{Stress Concentration}: Localized at notch throats (mechanical fatigue risk).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \centering
+      \scalebox{0.65}{
+      \begin{tikzpicture}[scale=1.2, >=stealth]
+        % --- UNDEFORMED REFERENCE STATE (dashed) ---
+        \draw[dashed, black!25, thick]
+            (0, 1.0) -- (2.0, 1.0)
+            .. controls (2.5, 1.0) and (2.7, 0.4) .. (3.0, 0.4)
+            .. controls (3.3, 0.4) and (3.5, 1.0) .. (4.0, 1.0)
+            -- (6.0, 1.0) -- (6.0, -1.0) -- (4.0, -1.0)
+            .. controls (3.5, -1.0) and (3.3, -0.4) .. (3.0, -0.4)
+            .. controls (2.7, -0.4) and (2.5, -1.0) .. (2.0, -1.0)
+            -- (0, -1.0) -- cycle;
+        \node[black!40, font=\small] at (4.5, 0.3) {Undeformed};
+
+        % --- CLAMPED BOUNDARY HATCHING ---
+        \foreach \y in {-1.2, -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0} {
+            \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.2);
+        }
+        \draw[ultra thick, black!70] (0, -1.2) -- (0, 1.2);
+
+        % --- DEFORMED STRUCTURE WITH STRESS CONCENTRATION ---
+        \begin{scope}
+            \clip (0, 1.0) 
+                .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
+                .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
+                .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
+                .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
+                -- (6.0, -1.15)
+                .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
+                .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
+                .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
+                .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
+                -- cycle;
+
+            \fill[blue!10] (-0.5, -3.0) rectangle (7.0, 2.0);
+            \draw[fill=yellow!20, draw=none, opacity=0.6] (3.0, 0.37) circle (1.2);
+            \draw[fill=yellow!20, draw=none, opacity=0.6] (3.0, -0.43) circle (1.2);
+            \draw[fill=orange!45, draw=none, opacity=0.8] (3.0, 0.37) circle (0.6);
+            \draw[fill=red!60, draw=none, opacity=0.9] (3.0, 0.37) circle (0.28);
+            \draw[fill=orange!45, draw=none, opacity=0.8] (3.0, -0.43) circle (0.6);
+            \draw[fill=red!60, draw=none, opacity=0.9] (3.0, -0.43) circle (0.28);
+        \end{scope}
+
+        % Draw the boundary of the deformed notched plate
+        \draw[draw=blue!60, thick] (0, 1.0) 
+            .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
+            .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
+            .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
+            .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
+            -- (6.0, -1.15)
+            .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
+            .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
+            .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
+            .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
+            -- cycle;
+
+        \draw[blue!30, thin] (0, 0) .. controls (2.0, -0.03) and (4.0, -0.08) .. (6.0, -0.15);
+        \draw[blue!30, thin] (0, 0.5) .. controls (2.0, 0.47) and (4.0, 0.42) .. (6.0, 0.35);
+        \draw[blue!30, thin] (0, -0.5) .. controls (2.0, -0.53) and (4.0, -0.58) .. (6.0, -0.65);
+
+        % --- LOADING FORCE ARROW ---
+        \draw[->, ultra thick, red!85!black] (6.0, -1.15) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.0, -2.15);
+
+        % --- COLORBAR ---
+        \begin{scope}[xshift=7.4cm, yshift=-1.0cm]
+            \path[shading=ygradient, top color=red!80, bottom color=blue!60] (0, 0) rectangle (0.25, 2.0);
+            \draw[thick, black!50] (0, 0) rectangle (0.25, 2.0);
+            \node[right, font=\tiny] at (0.25, 2.0) {$\sigma_{\text{VM}}^{\text{max}}$ (High)};
+            \node[right, font=\tiny] at (0.25, 0.0) {$\sigma_{\text{VM}}^{\text{min}}$ (Low)};
+            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Stress $\sigma_{\text{VM}}$};
+        \end{scope}
+      \end{tikzpicture}
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
 % Slide: Full Order Model: Transient Response
 \begin{frame}{Full Order Model: Transient Response}
   \begin{columns}[T]
@@ -346,12 +270,11 @@
       \begin{itemize}
         \item Shows the transient vertical deflection $U_y(t)$ at the free tip of the notched cantilever beam.
         \item Harmonic loading induces oscillatory structural response.
-        \item \textbf{Computational Cost}:
+        \item \textbf{Computational Bottleneck}:
           \begin{itemize}
-            \item $142.1$ ms per time-step.
-            \item Total window (200 steps) requires \textbf{28.4 seconds} of CPU time.
+            \item Performing the high-fidelity Full Order Model (FOM) simulations online remains computationally expensive.
+            \item This offline/online CPU overhead motivates the use of projection-based Reduced Order Models (ROM).
           \end{itemize}
-        \item High computational cost motivates the use of ROM.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}

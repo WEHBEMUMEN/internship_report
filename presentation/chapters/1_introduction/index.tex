@@ -1,18 +1,18 @@
 % ─── Chapter 1: Introduction ─────────────────────────────────────────────────
 
-\begin{frame}{Introduction}
+\begin{frame}{Introduction \& Motivation}
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
-      \begin{block}{The Problem}
+      \begin{block}{Pedagogical Origin to Research Level}
         \small
-        High-fidelity FEM simulations of cantilever beams under geometric modifications demand massive computation and time-consuming remeshing, making them unsuitable for real-time control.
+        This project began as a **pedagogical application** to demonstrate structural dynamics. However, to meet industry demands for interactive simulations, it has been elevated to a rigorous **research-level** implementation.
       \end{block}
       \vspace{0.15cm}
-      \begin{block}{This Work Combines}
+      \begin{block}{Objective \& The Problem}
         \small
+        How to achieve real-time, interactive parameter updates for complex shapes? Standard FEM requires slow online remeshing.
         \begin{itemize}
-          \item \textbf{IGA}: NURBS basis for exact geometry — no remeshing.
-          \item \textbf{ROM}: Low-dimensional projection for real-time speed.
+          \item \textbf{Our Solution}: Exact geometry (IGA) + Fast solvers (ROM).
         \end{itemize}
       \end{block}
     \end{column}
@@ -26,6 +26,9 @@
         \draw[->, thick, cnamred] (iga) -- (rom);
         \draw[->, thick, cnamdark] (rom) -- (dt);
       \end{tikzpicture}
+
+      \vspace{0.3cm}
+      \href{https://cnam-internship-mumen.netlify.app/}{\color{cnamred}\bfseries\underline{Open Web Application}}
     \end{column}
   \end{columns}
 \end{frame}
@@ -53,11 +56,11 @@
   \begin{enumerate}
     \small
     \item \textbf{Exact Geometry Tracking}: Leverage IGA to represent shape parameter variations of the notched cantilever beam exactly using NURBS control point displacements, maintaining a constant topological mesh structure.
-    \vspace{0.05cm}
+          \vspace{0.05cm}
     \item \textbf{Dimension Reduction}: Extract an optimal, low-dimensional reduced basis using Proper Orthogonal Decomposition (POD) from snapshots of the transient response.
-    \vspace{0.05cm}
+          \vspace{0.05cm}
     \item \textbf{Hyper-Reduction}: Bypass full-mesh assembly for parameter-dependent systems using the Energy-Conserving Sampling and Weighting (ECSW) method to resolve the online computation bottleneck.
-    \vspace{0.05cm}
+          \vspace{0.05cm}
     \item \textbf{Real-Time Implementation}: Demonstrate the feasibility of the proposed ROM in a client-side web application, achieving interactive frame rates for real-time visualization of structural responses.
   \end{enumerate}
 \end{frame}

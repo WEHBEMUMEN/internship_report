@@ -328,11 +328,11 @@ To evaluate the dynamic performance of the Full Order Model (FOM) under shape va
     \label{fig:fom_qoi_deflection}
 \end{figure}
 
-The computational costs associated with the FOM simulation are summarized as follows:
+The computational parameters associated with the high-fidelity FOM simulation are summarized as follows:
 \begin{itemize}
     \item \textbf{Mesh Discretization}: $E = 3,200$ bivariate elements, corresponding to $N = 6,564$ physical degrees of freedom.
-    \item \textbf{Average Assembly \& Solve Time}: Requires $142.1$ ms per time-step. Solving a complete transient window of $200$ steps requires over $28$ seconds of CPU execution.
+    \item \textbf{Computational Complexity}: Due to the fine mesh discretization and the transient nature of the analysis, solving the full system of equations online at each time step incurs a significant computational load.
 \end{itemize}
-These numerical benchmarks highlight the significant offline cost of the high-fidelity model and justify the implementation of projection-based Reduced Order Modeling in Chapter \ref{ch:rom}.
+These numerical complexity considerations highlight the high cost of executing the high-fidelity model directly and justify the implementation of projection-based Reduced Order Modeling in Chapter \ref{ch:rom}.
 
 

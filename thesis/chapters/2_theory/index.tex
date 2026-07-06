@@ -209,6 +209,11 @@ subject to the parameterized Dirichlet boundary conditions on $\Gamma_D(\boldsym
     \vect{u} &= \vect{0} \quad \text{on } \Gamma_D(\boldsymbol{\mu}) \times (0, T] \\
     \boldsymbol{\sigma}(\vect{u}) \cdot \vect{n} &= \vect{h}_N \quad \text{on } \Gamma_N(\boldsymbol{\mu}) \times (0, T]
 \end{align}
+along with the initial conditions at $t = 0$:
+\begin{align}
+    \vect{u}(\vect{x}, 0) &= \vect{u}_0(\vect{x}) \quad \text{for } \vect{x} \in \Omega(\boldsymbol{\mu}) \\
+    \dot{\vect{u}}(\vect{x}, 0) &= \vect{v}_0(\vect{x}) \quad \text{for } \vect{x} \in \Omega(\boldsymbol{\mu})
+\end{align}
 where $\rho$ is the material density, $\vect{f}_b$ is the body force vector, and $\vect{n}$ is the outward unit normal vector. The kinematic relation defines the linearized strain tensor $\boldsymbol{\varepsilon}(\vect{u})$ as:
 \begin{equation}
     \boldsymbol{\varepsilon}(\vect{u}) = \frac{1}{2}\left(\nabla\vect{u} + (\nabla\vect{u})^T\right)
