@@ -68,7 +68,7 @@
       \begin{tikzpicture}[
           node distance=0.45cm,
           stepbox/.style={draw=cnamred, fill=cnamlightbg, thick, rounded corners, minimum width=3.8cm, minimum height=0.55cm, align=center, font=\scriptsize},
-          branchbox/.style={draw=cnamdark, fill=cnamlightbg, thick, rounded corners, minimum width=2.0cm, minimum height=0.6cm, align=center, font=\tiny},
+          branchbox/.style={draw=cnamdark, fill=cnamlightbg, thick, rounded corners, minimum width=2.4cm, minimum height=0.95cm, align=center, font=\tiny},
           arrow/.style={thick,->,>=stealth, cnamred}
       ]
           % --- OFFLINE/ONLINE DIVIDER & LABELS ---
@@ -81,23 +81,25 @@
           \node[stepbox, below=of s1] (s2) {2. SVD / POD Basis Construction};
           \node[stepbox, below=of s2] (s3) {3. Reference Pullback Mapping};
           
-          \node[branchbox] (gal) at (-1.1, -3.2) {\textbf{Galerkin ROM}\\(Full Assembly)};
-          \node[branchbox] (ecsw) at (1.1, -3.2) {\textbf{ECSW ROM}\\(Sparse Assembly)};
-          \node[stepbox] (s5) at (0, -4.2) {5. Online Real-Time Solve};
+          % Parallel Online Branches
+          \node[branchbox] (gal4) at (-1.5, -3.5) {\textbf{Galerkin ROM Path} \\ Full Assembly \\ (no hyper-reduction)};
+          \node[branchbox, below=of gal4] (gal5) {\textbf{Reduced Solve} \\ (Galerkin ROM \\ applied to Newmark-$\beta$)};
+          
+          \node[branchbox, draw=orange!70] (ecsw4) at (1.5, -3.5) {\textbf{ECSW ROM Path} \\ \textbf{Sparse Assembly} \\ (Hyper-reduction \\ applied to assembly)};
+          \node[branchbox, draw=orange!70, below=of ecsw4] (ecsw5) {\textbf{Reduced Solve} \\ (Galerkin ROM \\ applied to Newmark-$\beta$)};
           
           % Arrows
           \draw[arrow] (s1) -- (s2);
           \draw[arrow] (s2) -- (s3);
           
           % Clean split below the divider line
-          \draw[thick, cnamred] (s3.south) -- (0, -2.7);
-          \draw[arrow] (0, -2.7) -| (gal.north);
-          \draw[arrow] (0, -2.7) -| (ecsw.north);
+          \draw[thick, cnamred] (s3.south) -- (0, -2.6);
+          \draw[arrow] (0, -2.6) -| (gal4.north);
+          \draw[arrow] (0, -2.6) -| (ecsw4.north);
           
-          % Clean merge above the solve node
-          \draw[thick, cnamred] (gal.south) |- (0, -3.7);
-          \draw[thick, cnamred] (ecsw.south) |- (0, -3.7);
-          \draw[arrow] (0, -3.7) -- (s5.north);
+          % Connections within branches
+          \draw[arrow] (gal4) -- (gal5);
+          \draw[arrow] (ecsw4) -- (ecsw5);
       \end{tikzpicture}
       }
     \end{column}

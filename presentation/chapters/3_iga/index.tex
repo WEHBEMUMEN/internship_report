@@ -60,13 +60,13 @@
 % Slide: Why IGA?
 \begin{frame}{Why IGA?}
   \small
-  Isogeometric Analysis (IGA) bridges the gap between Computer-Aided Design (CAD) and Finite Element Analysis (FEA):
+  IGA bridges the gap between CAD and FEA by using CAD basis functions for analysis:
   
   \begin{itemize}
-    \setlength{\itemsep}{0.35cm}
-    \item \textbf{Direct CAD Integration:} Eliminates the expensive and time-consuming mesh generation step. The simulation runs directly on the NURBS geometry defined in CAD files (\textbf{`.stp`}, \textbf{`.igs`}).
-    \item \textbf{Exact Boundary Representation:} Preserves the exact CAD geometry throughout the analysis, eliminating geometric approximation errors.
-    \item \textbf{Higher Continuity ($C^{p-1}$):} B-spline and NURBS basis functions provide high regularity across element boundaries, yielding superior accuracy per degree of freedom compared to classical $C^0$ FEM.
+    \setlength{\itemsep}{0.4cm}
+    \item \textbf{Direct CAD Integration:} Runs simulations directly on NURBS geometry, bypassing time-consuming mesh generation.
+    \item \textbf{Exact Geometry:} Preserves exact CAD boundaries throughout the analysis, eliminating geometric errors.
+    \item \textbf{Higher Continuity ($C^{p-1}$):} Provides high regularity across element boundaries for superior accuracy per DOF compared to classical $C^0$ FEM.
   \end{itemize}
 \end{frame}
 
@@ -75,37 +75,49 @@
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
       \begin{block}{1. Knot Vector}
+        \begin{minipage}[t][3.0cm]{\textwidth}
         \scriptsize
         Ordered set of parametric coordinates:
         \[
           \Xi = \{\xi_0, \xi_1, \dots, \xi_m\}
         \]
         Non-zero knot spans partition the parametric domain into elements.
+        \end{minipage}
       \end{block}
       \vspace{0.1cm}
       \begin{block}{3. Weights (NURBS)}
+        \begin{minipage}[t][3.0cm]{\textwidth}
         \scriptsize
         Weights $w_i$ rationalise the basis functions to construct NURBS:
         \[
           R_{i,p}(\xi) = \frac{N_{i,p}(\xi)w_i}{\sum_j N_{j,p}(\xi)w_j}
         \]
         Allows exact representation of conic shapes (circles, cylinders).
+        \end{minipage}
       \end{block}
     \end{column}
     
     \begin{column}{0.48\textwidth}
       \begin{block}{2. B-Spline Basis}
+        \begin{minipage}[t][3.0cm]{\textwidth}
         \scriptsize
-        Polynomial basis functions $N_{i,p}(\xi)$ constructed recursively over $\Xi$ (no weights) via Cox-de Boor recurrence relation.
+        Polynomial basis functions constructed recursively over $\Xi$ via Cox-de Boor:
+        \[
+          N_{i,0}(\xi) = \begin{cases} 1 & \xi_i \le \xi < \xi_{i+1} \\ 0 & \text{otherwise} \end{cases}
+        \]
+        Yields $C^{p-1}$ continuity across internal element boundaries.
+        \end{minipage}
       \end{block}
       \vspace{0.1cm}
       \begin{block}{4. Control Points}
+        \begin{minipage}[t][3.0cm]{\textwidth}
         \scriptsize
         Physical coordinates $\vect{P}_i$ that parameterize the geometry:
         \[
-          \vect{x}(\xi) = \sum_i R_{i,p}(\xi)\,\vect{P}_i
+          \vect{C}(\xi) = \sum_i R_{i,p}(\xi)\,\vect{P}_i
         \]
         Read directly from CAD formats (\textbf{`.stp`}, \textbf{`.igs`}), avoiding standard FE mesh generation.
+        \end{minipage}
       \end{block}
     \end{column}
   \end{columns}
@@ -192,6 +204,9 @@
         \item The control points form a piecewise linear \textbf{control polygon}.
         \item Lack of Kronecker delta property: $\vect{C}(\xi_i) \neq \vect{P}_i$ in general, except at the clamped boundary ends.
       \end{itemize}
+      \par\vspace{0.2cm}
+      \centering
+      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim/}{\beamerbutton{Interactive IGA Curve Web App}}
     \end{column}
     \begin{column}{0.48\textwidth}
       \centering
@@ -315,50 +330,54 @@
         \]
         \item $\vect{P}_{i,j}$ forms a bidimensional control net lattice.
       \end{itemize}
+      \par\vspace{0.2cm}
+      \centering
+      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim-2.1/}{\beamerbutton{Interactive IGA Surface Web App}}
     \end{column}
     \begin{column}{0.48\textwidth}
       \centering
       \scalebox{0.85}{
       \begin{tikzpicture}[scale=1.0, >=stealth]
-        % Row 0
+        % Row 0 (bottom)
         \coordinate (P00) at (0, 0);
-        \coordinate (P01) at (0.8, 0.6);
-        \coordinate (P02) at (1.6, 1.2);
-        % Row 1
-        \coordinate (P10) at (2.0, 1.0);
-        \coordinate (P11) at (2.8, 2.2); % raised in the middle
-        \coordinate (P12) at (3.6, 2.2);
-        % Row 2
-        \coordinate (P20) at (4.0, 0.5);
-        \coordinate (P21) at (4.8, 1.4);
-        \coordinate (P22) at (5.6, 2.0);
+        \coordinate (P10) at (2, 0.2);
+        \coordinate (P20) at (4, 0);
+        % Row 1 (middle)
+        \coordinate (P01) at (0.5, 1.0);
+        \coordinate (P11) at (2.5, 1.7); % raised in the middle
+        \coordinate (P21) at (4.5, 1.0);
+        % Row 2 (top)
+        \coordinate (P02) at (1.0, 2.0);
+        \coordinate (P12) at (3.0, 2.2);
+        \coordinate (P22) at (5.0, 2.0);
 
         % Draw control net (dashed grid)
-        \draw[thick, gray!60, dashed] (P00) -- (P01) -- (P02);
-        \draw[thick, gray!60, dashed] (P10) -- (P11) -- (P12);
-        \draw[thick, gray!60, dashed] (P20) -- (P21) -- (P22);
         \draw[thick, gray!60, dashed] (P00) -- (P10) -- (P20);
         \draw[thick, gray!60, dashed] (P01) -- (P11) -- (P21);
         \draw[thick, gray!60, dashed] (P02) -- (P12) -- (P22);
+        \draw[thick, gray!60, dashed] (P00) -- (P01) -- (P02);
+        \draw[thick, gray!60, dashed] (P10) -- (P11) -- (P12);
+        \draw[thick, gray!60, dashed] (P20) -- (P21) -- (P22);
 
         % Draw the smooth surface patch (colored patch)
         \fill[blue!10, opacity=0.7, draw=blue!70!black, thick]
-        (0.5, 0.2) .. controls (1.5, 1.2) and (3.0, 1.2) .. (4.5, 0.7)
-        .. controls (5.0, 1.3) and (5.2, 1.6) .. (5.3, 1.8)
-        .. controls (3.8, 1.9) and (2.5, 1.8) .. (1.2, 1.0)
-        .. controls (0.8, 0.6) and (0.6, 0.4) .. (0.5, 0.2);
+        (P00) .. controls (1.0, 0.1) and (3.0, 0.1) .. (P20)
+        .. controls (4.3, 0.6) and (4.7, 1.4) .. (P22)
+        .. controls (4.0, 2.1) and (2.0, 2.1) .. (P02)
+        .. controls (0.7, 1.4) and (0.3, 0.6) .. (P00);
 
         % Draw grid lines on the surface patch to show parameter lines
-        \draw[blue!40, thin] (1.8, 0.6) .. controls (2.6, 1.4) and (3.3, 1.4) .. (4.8, 1.0);
-        \draw[blue!40, thin] (1.0, 1.0) .. controls (2.2, 1.5) and (3.6, 1.5) .. (5.0, 1.4);
+        \draw[blue!40, thin] (1.0, 0.1) .. controls (1.5, 1.0) and (2.0, 1.7) .. (2.0, 2.1);
+        \draw[blue!40, thin] (3.0, 0.1) .. controls (3.2, 1.0) and (3.5, 1.7) .. (4.0, 2.1);
+        \draw[blue!40, thin] (0.5, 1.0) .. controls (1.5, 1.3) and (3.5, 1.3) .. (4.5, 1.0);
 
         % Draw control points
         \foreach \p in {P00, P01, P02, P10, P11, P12, P20, P21, P22} {
             \fill[red!80!black] (\p) circle (2.5pt);
         }
 
-        \node[red!80!black, above] at (P11) {$\vect{P}_{i,j}$};
-        \node[blue!70!black] at (3.0, 1.1) {$\vect{S}(\xi,\eta)$};
+        \node[red!80!black, above, fill=white, inner sep=1pt] at (P11) {$\vect{P}_{i,j}$};
+        \node[blue!70!black] at (2.5, 1.0) {$\vect{S}(\xi,\eta)$};
       \end{tikzpicture}
       }
       \\[6pt]
@@ -383,7 +402,7 @@
     \end{column}
     \begin{column}{0.50\textwidth}
       \centering
-      \scalebox{0.50}{
+      \scalebox{0.72}{
       \begin{tikzpicture}[scale=0.85, >=stealth]
         % Row 1: Basis functions before/after
         \begin{scope}[yshift=3.6cm]
@@ -452,7 +471,7 @@
     \end{column}
     \begin{column}{0.50\textwidth}
       \centering
-      \scalebox{0.50}{
+      \scalebox{0.72}{
       \begin{tikzpicture}[scale=0.85, >=stealth]
         % Row 1: Basis functions before/after
         \begin{scope}[yshift=3.6cm]
@@ -529,7 +548,7 @@
       \end{alertblock}
       \vspace{0.05cm}
       \centering
-      \scalebox{0.48}{
+      \scalebox{0.68}{
       \begin{tikzpicture}[scale=1.2, >=stealth]
         % --- PANEL (a) BEFORE ---
         \begin{scope}[xshift=0cm]

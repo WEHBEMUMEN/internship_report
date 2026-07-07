@@ -6,17 +6,17 @@
 \section{Governing Dynamic Equations}
 To simulate the dynamic response of the parameterized structure, we resolve the semi-discrete second-order system of equations of motion:
 \begin{equation}
-        \mat{M}(\boldsymbol{\mu}) \ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu}) \dot{\vect{U}}(t) + \mat{K}(\boldsymbol{\mu}) \vect{U}(t) = \lambda(t) \mathbf{F}_{\text{ext}}(\boldsymbol{\mu})
+        \mat{M}(\boldsymbol{\mu}) \ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu}) \dot{\vect{U}}(t) + \mat{K}(\boldsymbol{\mu}) \vect{U}(t) = \lambda(t) \mathbf{F}_{\text{ext}}
 \end{equation}
 where:
 \begin{itemize}
     \item $\mat{M}(\boldsymbol{\mu})$ is the consistent global mass matrix.
     \item $\mat{C}(\boldsymbol{\mu})$ is the viscous damping matrix.
     \item $\mat{K}(\boldsymbol{\mu})$ is the global stiffness matrix.
-    \item $\mathbf{F}_{\text{ext}}(\boldsymbol{\mu})$ is the spatial profile of the external loads, and $\lambda(t)$ is the time-dependent loading factor.
+    \item $\mathbf{F}_{\text{ext}}$ is the spatial profile of the external loads, and $\lambda(t)$ is the time-dependent loading factor.
 \end{itemize}
 
-The global consistent mass matrix $\mat{M}$ is assembled element-wise using Gauss-Legendre quadrature:
+The global consistent mass matrix $\mat{M}$ is assembled from the element mass matrices $\mat{M}_{e}$ computed using Gauss-Legendre quadrature:
 \begin{equation}
         \mat{M}_{e, ab} = \int_{-1}^{1} \int_{-1}^{1} \rho R_a(\xi, \eta) R_b(\xi, \eta) |J(\xi, \eta)| \, d\xi \, d\eta
 \end{equation}
@@ -62,7 +62,7 @@ where $\alpha_M$ and $\beta_K$ are the mass-proportional and stiffness-proportio
 \end{figure}
 
 \section{Parameterized Linear Stiffness Matrix Assembly}
-In our linear formulation, the parameterized global stiffness matrix $\mat{K}(\boldsymbol{\mu})$ is assembled element-wise using pullback integration over the reference domain $\hat{\Omega}$:
+In our linear formulation, the parameterized global stiffness matrix $\mat{K}(\boldsymbol{\mu})$ is assembled element-wise using pullback integration over the reference domain $\hat{\Omega}$ from the element stiffness matrices $\mat{K}_e(\boldsymbol{\mu})$:
 \begin{equation}
     \mat{K}_{e, ab}(\boldsymbol{\mu}) = \int_{-1}^{1} \int_{-1}^{1} \mat{B}_a^T(\xi, \eta; \boldsymbol{\mu}) \mat{D} \mat{B}_b(\xi, \eta; \boldsymbol{\mu}) |J(\xi, \eta; \boldsymbol{\mu})| \, d\xi \, d\eta
 \end{equation}
@@ -111,7 +111,7 @@ To resolve the linear semi-discrete second-order system of equations of motion, 
 
 For higher accuracy in transient simulations, we also support the \textbf{generalized-$\alpha$ method}. This scheme extends Newmark-$\beta$ by evaluating the system at intermediate stages $\alpha_m$ and $\alpha_f$ to introduce high-frequency numerical damping while minimizing low-frequency dissipation:
 \begin{equation}
-    \hat{\mathbf{M}}(\boldsymbol{\mu}) \ddot{\vect{U}}_{t+\alpha_m} + \mat{C}(\boldsymbol{\mu}) \dot{\vect{U}}_{t+\alpha_f} + \mat{K}(\boldsymbol{\mu}) \vect{U}_{t+\alpha_f} = \lambda(t+\alpha_f) \hat{\mathbf{F}}_{ext}(\boldsymbol{\mu})
+    \hat{\mathbf{M}}(\boldsymbol{\mu}) \ddot{\vect{U}}_{t+\alpha_m} + \mat{C}(\boldsymbol{\mu}) \dot{\vect{U}}_{t+\alpha_f} + \mat{K}(\boldsymbol{\mu}) \vect{U}_{t+\alpha_f} = \lambda(t+\alpha_f) \hat{\mathbf{F}}_{ext}
 \end{equation}
 
 \section{Quantities of Interest \& Numerical Results}

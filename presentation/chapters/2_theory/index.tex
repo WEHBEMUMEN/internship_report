@@ -9,6 +9,7 @@
   \small
   \begin{itemize}
     \item $r$ — notch radius;\quad $\mu$ — notch center position
+    \item $\mathcal{D} = [r_{\min},\, r_{\max}] \times [\mu_{\min},\, \mu_{\max}]$ — compact parameter domain
   \end{itemize}
   
   \centering
@@ -240,38 +241,40 @@
   
   \begin{columns}[T]
     \begin{column}{0.49\textwidth}
-      \begin{block}{1. Exact Pullback Form}
+      \begin{block}{Classical Form (Physical Domain $\Omega(\boldsymbol{\mu})$)}
         \footnotesize
-        The exact pulled-back forms depend on $\textcolor{red}{\boldsymbol{\mu}}$ via the Jacobian determinant:
+        Integrals depend implicitly on $\boldsymbol{\mu}$ via the shifting integration domain:
         \[
-          \hat{m}(\ddot{\vect{u}},\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u}\, J_{\textcolor{red}{\boldsymbol{\mu}}} \,\mathrm{d}\hat{\Omega}
+          m(\ddot{\vect{u}}, \vect{v}; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \rho \ddot{\vect{u}} \cdot \vect{v} \,\mathrm{d}\Omega
         \]
         \[
-          \hat{f}(\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} \vect{f}_b \cdot \delta\vect{u}\, J_{\textcolor{red}{\boldsymbol{\mu}}} \,\mathrm{d}\hat{\Omega} + \dots
+          f(\vect{v}; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \vect{f}_b \cdot \vect{v} \,\mathrm{d}\Omega + \int_{\Gamma_N(\boldsymbol{\mu})} \vect{h}_N \cdot \vect{v} \,\mathrm{d}\Gamma
         \]
         \[
-          \hat{k}(\vect{u},\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} (\mat{J}^{-T}\nabla_{\hat{\vect{x}}}\vect{u}):\mat{D}:(\mat{J}^{-T}\nabla_{\hat{\vect{x}}}\delta\vect{u})\,J_{\textcolor{red}{\boldsymbol{\mu}}}\,\mathrm{d}\hat{\Omega}
+          k(\vect{u}, \vect{v}; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\varepsilon}(\vect{u}):\mat{D}:\boldsymbol{\varepsilon}(\vect{v}) \,\mathrm{d}\Omega
         \]
+        \par\vspace{0.1cm}
+        \textbf{Limitation:}
+        Requires re-meshing and re-integration over a moving domain for every parameter change.
       \end{block}
     \end{column}
     
     \begin{column}{0.49\textwidth}
-      \begin{block}{2. Mapped ROM Approximation}
+      \begin{block}{Pulled-Back Form (Reference Domain $\hat{\Omega}$)}
         \footnotesize
-        Assuming volume-preserving mapping ($J_{\textcolor{red}{\boldsymbol{\mu}}} \approx 1$ and $J_{\textcolor{red}{\boldsymbol{\mu}}}^{\Gamma} \approx 1$):
+        Dependency on $\textcolor{red}{\boldsymbol{\mu}}$ is isolated inside the Jacobian mapping terms:
         \[
-          \hat{m}(\ddot{\vect{u}},\delta\vect{u}) \approx \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u}\,\mathrm{d}\hat{\Omega}
+          \hat{m}(\ddot{\vect{u}},\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u}\, J_{\textcolor{red}{\boldsymbol{\mu}}} \,\mathrm{d}\hat{\Omega}
         \]
         \[
-          \hat{f}(\delta\vect{u}) \approx \int_{\hat{\Omega}} \vect{f}_b \cdot \delta\vect{u}\,\mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{h}_N \cdot \delta\vect{u}\,\mathrm{d}\hat{\Gamma}
+          \hat{f}(\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} \vect{f}_b \cdot \delta\vect{u}\, J_{\textcolor{red}{\boldsymbol{\mu}}} \,\mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{h}_N \cdot \delta\vect{u}\, J_{\textcolor{red}{\boldsymbol{\mu}}}^{\Gamma} \,\mathrm{d}\hat{\Gamma}
         \]
-        \textbf{Key Implications:}
-        \begin{itemize}
-          \setlength{\itemsep}{1pt}
-          \scriptsize
-          \item $\hat{m}$ and $\hat{f}$ are independent of $\boldsymbol{\mu}$ (pre-assembled once offline).
-          \item Only stiffness $\hat{k}(\textcolor{red}{\boldsymbol{\mu}})$ depends on parameters.
-        \end{itemize}
+        \[
+          \hat{k}(\vect{u},\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} (\mat{J}_{\textcolor{red}{\boldsymbol{\mu}}}^{-T}\nabla_{\hat{\vect{x}}}\vect{u}):\mat{D}:(\mat{J}_{\textcolor{red}{\boldsymbol{\mu}}}^{-T}\nabla_{\hat{\vect{x}}}\delta\vect{u})\,J_{\textcolor{red}{\boldsymbol{\mu}}}\,\mathrm{d}\hat{\Omega}
+        \]
+        \par\vspace{0.1cm}
+        \textbf{Advantage:}
+        Integration is performed over a static domain; variables are in a parameter-independent space.
       \end{block}
     \end{column}
   \end{columns}
