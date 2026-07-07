@@ -1,367 +1,409 @@
-% ─── Chapter 5: ROM & Hyper-Reduction ────────────────────────────────────────
+% ─── Chapter 5: ROM, Hyper-Reduction & Digital Twin ──────────────────────────
 
-% Slide: Standard Galerkin ROM (from thesis Ch.5)
-\begin{frame}{Standard Galerkin ROM — Dimensionality Reduction}
+% ==========================================
+% Frame 1: Why ROM? (Motivation)
+% ==========================================
+\begin{frame}{Why ROM? (Motivation)}
   \small
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
-      The high-fidelity displacement $\vect{U}(t)\in\mathbb{R}^N$ is projected:
-      \[
-        \vect{U}(t) \approx \boldsymbol{\Phi}\,\vect{q}(t), \quad \boldsymbol{\Phi}\in\mathbb{R}^{N\times r},\; r\ll N
-      \]
-      $\boldsymbol{\Phi}$ is built via \textbf{POD} from FOM snapshots.
-      
-      \vspace{0.05cm}
+      \begin{block}{The Full-Order Bottleneck}
+        \begin{itemize}
+          \item High-fidelity Full Order Model (FOM) has $N = 6,564$ DOFs.
+          \item Online matrix assembly scales with mesh size $\mathcal{O}(N)$.
+          \item Solves are too slow for real-time interactivity.
+        \end{itemize}
+      \end{block}
+      \vspace{0.1cm}
+      \begin{block}{Need for Interactivity}
+        \begin{itemize}
+          \item Interactive client-side web browser (Digital Twin).
+          \item Must bypass the full-order assembly bottleneck.
+          \item Target frame rate: 20--60 FPS ($<1.5\text{ ms}$ solve time).
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \centering
+      \vspace{0.8cm}
+      \begin{alertblock}{Interactive Budget}
+        \centering
+        \bfseries
+        Online Solve Time:\\
+        \Large $< 1.5\text{ ms}$
+      \end{alertblock}
+      \vspace{0.2cm}
+      \footnotesize
+      Project high-dimensional equations onto a low-dimensional generalized coordinate space.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ==========================================
+% Frame 2: What Do We Need to Achieve It? (The Steps)
+% ==========================================
+\begin{frame}{What Do We Need to Achieve It? (The Steps)}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      Building a shape-parametric Reduced Order Model involves:
+      \vspace{0.15cm}
+      \begin{block}{Offline Preparation}
+        \begin{itemize}
+          \item \textbf{1. Snapshots}: Generate state vectors.
+          \item \textbf{2. SVD / POD}: Build the basis $\boldsymbol{\Phi}$.
+          \item \textbf{3. Pullback}: Map to reference $\hat{\Omega}$.
+        \end{itemize}
+      \end{block}
+      \begin{block}{Online Interactivity}
+        \begin{itemize}
+          \item Project onto the basis and solve in real-time ($r \ll N$).
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \centering
+      \scalebox{0.78}{
+      \begin{tikzpicture}[
+          node distance=0.45cm,
+          stepbox/.style={draw=cnamred, fill=cnamlightbg, thick, rounded corners, minimum width=3.8cm, minimum height=0.55cm, align=center, font=\scriptsize},
+          branchbox/.style={draw=cnamdark, fill=cnamlightbg, thick, rounded corners, minimum width=2.0cm, minimum height=0.6cm, align=center, font=\tiny},
+          arrow/.style={thick,->,>=stealth, cnamred}
+      ]
+          % --- OFFLINE/ONLINE DIVIDER & LABELS ---
+          \draw[dashed, gray!40, thick] (-2.6, -2.4) -- (2.6, -2.4);
+          \node[anchor=east, font=\tiny\bfseries, color=gray] at (-2.7, -1.0) {OFFLINE};
+          \node[anchor=east, font=\tiny\bfseries, color=cnamred] at (-2.7, -3.7) {ONLINE};
+          
+          % Nodes
+          \node[stepbox] (s1) at (0, 0) {1. Snapshot Collection};
+          \node[stepbox, below=of s1] (s2) {2. SVD / POD Basis Construction};
+          \node[stepbox, below=of s2] (s3) {3. Reference Pullback Mapping};
+          
+          \node[branchbox] (gal) at (-1.1, -3.2) {\textbf{Galerkin ROM}\\(Full Assembly)};
+          \node[branchbox] (ecsw) at (1.1, -3.2) {\textbf{ECSW ROM}\\(Sparse Assembly)};
+          \node[stepbox] (s5) at (0, -4.2) {5. Online Real-Time Solve};
+          
+          % Arrows
+          \draw[arrow] (s1) -- (s2);
+          \draw[arrow] (s2) -- (s3);
+          
+          % Clean split below the divider line
+          \draw[thick, cnamred] (s3.south) -- (0, -2.7);
+          \draw[arrow] (0, -2.7) -| (gal.north);
+          \draw[arrow] (0, -2.7) -| (ecsw.north);
+          
+          % Clean merge above the solve node
+          \draw[thick, cnamred] (gal.south) |- (0, -3.7);
+          \draw[thick, cnamred] (ecsw.south) |- (0, -3.7);
+          \draw[arrow] (0, -3.7) -- (s5.north);
+      \end{tikzpicture}
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ==========================================
+% Frame 3: Step 1: Snapshot Collection
+% ==========================================
+\begin{frame}{Step 1: Snapshot Collection (Data Generation)}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \begin{block}{What is a Snapshot?}
+        \begin{itemize}
+          \item A high-fidelity state vector representing the structural displacement field $\vect{U}(t) \in \mathbb{R}^N$ at a given time or parameter set.
+        \end{itemize}
+      \end{block}
+      \begin{block}{Compilation of snap matrix}
+        \begin{itemize}
+          \item Compile all state vectors into snapshot matrix:
+          \[
+            \mathbf{S}_u = [\vect{u}_1, \vect{u}_2, \dots, \vect{u}_d] \in \mathbb{R}^{N \times d}
+          \]
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{exampleblock}{Representative Load Cases}
+        FOM simulations are run offline across representative configurations to capture dominant physics:
+        \begin{itemize}
+          \item Tip bending load
+          \item Mid-span bending load
+          \item Analytical axial tension
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ==========================================
+% Frame 4: Step 2: SVD / POD Basis Construction
+% ==========================================
+\begin{frame}{Step 2: SVD / POD Basis Construction}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{Dimensionality Reduction}:
+      \begin{itemize}
+        \item Perform Singular Value Decomposition (SVD):
+        \[
+          \mathbf{S}_u = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T
+        \]
+        \item Keep the first $r$ dominant modes of $\mathbf{U}$ to form the Reduced Basis matrix $\boldsymbol{\Phi} \in \mathbb{R}^{N \times r}$:
+        \[
+          \vect{U}(t) \approx \boldsymbol{\Phi}\,\vect{q}(t), \quad r\ll N
+        \]
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
       \begin{block}{POD Convergence Metrics}
         \footnotesize
-        \[
-          \eta(r) = \frac{\sum_{i=1}^r\sigma_i^2}{\sum_{j=1}^d\sigma_j^2}, \quad \epsilon(r) = \sqrt{1-\eta(r)}
-        \]
         \centering
         \begin{tabular}{lcc}
           \toprule
-          $r$ & $\epsilon(r)$ & $\eta(r)$ \\
+          Modes $r$ & Error $\epsilon(r)$ & Energy $\eta(r)$ \\
           \midrule
           1  & 2.34\% & 99.945\% \\
           5  & 0.89\% & 99.992\% \\
           10 & 0.11\% & 99.999\% \\
           \bottomrule
         \end{tabular}
+        \vspace{0.1cm}
+        \scriptsize
+        $\epsilon(r) = \sqrt{1-\eta(r)}$ decays rapidly, reaching high accuracy at just $r=10$ modes.
       \end{block}
     \end{column}
+  \end{columns}
+\end{frame}
+
+% ==========================================
+% Frame 5: Step 3: Reference Pullback Mapping
+% ==========================================
+\begin{frame}{Step 3: Reference Pullback Mapping}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \begin{block}{Concept: Pullback to Static $\hat{\Omega}$}
+        \footnotesize
+        Instead of remeshing physically for every parameter update $\boldsymbol{\mu}$, pull the equations of motion back to a static domain:
+        \[
+          \text{Physical Domain } \Omega(\boldsymbol{\mu}) \quad \longrightarrow \quad \text{Static Reference Configuration } \hat{\Omega}
+        \]
+      \end{block}
+      \begin{exampleblock}{Key Advantages of Reference Mapping}
+        \footnotesize
+        \begin{itemize}
+          \setlength{\itemsep}{1pt}
+          \item \textbf{Single Topology}: No online remeshing or element distortion.
+          \item \textbf{Static Basis}: POD modes $\boldsymbol{\Phi}$ remain compatible.
+          \item \textbf{Precomputability}: Invariant terms are cached offline.
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
     \begin{column}{0.42\textwidth}
-      \begin{exampleblock}{Galerkin Projection ($r\times r$)}
+      \centering
+      \scalebox{0.55}{
+      \begin{tikzpicture}[scale=1.0, >=stealth]
+          % --- LEFT VIEWPORT: DEFORMED PHYSICAL DOMAIN ---
+          \begin{scope}[xshift=-3.75cm, yshift=0cm, scale=0.7]
+              \node[above=0.8cm, font=\small\bfseries\sffamily, text=black!85] at (0, 1.0) {Physical Domain $\Omega(\boldsymbol{\mu})$};
+              
+              \foreach \y in {-0.7, 0, 0.7} {
+                  \fill[red!70!black] (-3.3, \y) -- (-3.5, \y+0.12) -- (-3.5, \y-0.12) -- cycle;
+              }
+              
+              \shade[left color=blue!90!black, middle color=cyan!80, right color=yellow!80!orange] 
+              (-3, -1) -- (-1.2, -1) 
+              .. controls (-0.6, -1.0) and (-0.4, -0.6) .. (0, -0.6)
+              .. controls (0.4, -0.6) and (0.6, -1.2) .. (1.2, -1.2)
+              -- (3, -1.5) -- (3, 0.5) -- (1.2, 0.8)
+              .. controls (0.6, 0.8) and (0.4, 0.2) .. (0, 0.2)
+              .. controls (-0.4, 0.2) and (-0.6, 1.0) .. (-1.2, 1.0)
+              -- (-3, 1) -- cycle;
+              
+              \foreach \y in {-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75} {
+                  \draw[white, opacity=0.35, thin] (-3, \y)
+                  .. controls (-1.2, \y) and (-0.5, \y*0.4 - 0.2) .. (0, \y*0.4 - 0.2)
+                  .. controls (0.5, \y*0.4 - 0.2) and (1.2, \y - 0.25) .. (3, \y - 0.5);
+              }
+              \foreach \x in {-2.4, -1.8, -1.2, -0.6, 0, 0.6, 1.2, 1.8, 2.4} {
+                  \draw[white, opacity=0.35, thin] (\x, -1.1 - 0.1*\x) -- (\x, 0.9 - 0.1*\x);
+              }
+          \end{scope}
+          
+          % --- RIGHT VIEWPORT: STATIC REFERENCE PULLBACK ---
+          \begin{scope}[xshift=3.75cm, yshift=0cm, scale=0.7]
+              \node[above=0.8cm, font=\small\bfseries\sffamily, text=black!85] at (0, 1.0) {Static Reference $\hat{\Omega}$};
+              
+              \foreach \y in {-0.7, 0, 0.7} {
+                  \fill[red!70!black] (-3.3, \y) -- (-3.5, \y+0.12) -- (-3.5, \y-0.12) -- cycle;
+              }
+              
+              \shade[left color=gray!30, right color=gray!15, draw=black!70, thick] 
+              (-3, -1) -- (-1.2, -1) 
+              .. controls (-0.6, -1.0) and (-0.4, -0.4) .. (0, -0.4)
+              .. controls (0.3, -0.4) and (0.5, -1.0) .. (1.2, -1.0)
+              -- (3, -1.0) -- (3, 1.0) -- (1.2, 1.0)
+              .. controls (0.6, 1.0) and (0.4, 0.4) .. (0, 0.4)
+              .. controls (-0.4, 0.4) and (-0.6, 1.0) .. (-1.2, 1.0)
+              -- (-3, 1.0) -- cycle;
+              
+              \foreach \y in {-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75} {
+                  \draw[white, opacity=0.35, thin] (-3, \y) -- (3, \y);
+              }
+              \foreach \x in {-2.4, -1.8, -1.2, -0.6, 0, 0.6, 1.2, 1.8, 2.4} {
+                  \draw[white, opacity=0.35, thin] (\x, -1.0) -- (\x, 1.0);
+              }
+          \end{scope}
+      \end{tikzpicture}
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ==========================================
+% Frame 6: Step 4: Galerkin Projection vs. ECSW Hyper-reduction
+% ==========================================
+\begin{frame}{Step 4: Galerkin Projection vs. ECSW Hyper-reduction}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \begin{block}{Galerkin Projection ($r \times r$)}
         \footnotesize
         \[
           \mat{M}_r\ddot{\vect{q}} + \mat{C}_r\dot{\vect{q}} + \mat{K}_r(\boldsymbol{\mu})\vect{q} = \vect{F}_r(t)
         \]
-        where $\mat{K}_r = \boldsymbol{\Phi}^T\hat{\mat{K}}(\boldsymbol{\mu})\boldsymbol{\Phi}$.
-      \end{exampleblock}
-      \vspace{0.05cm}
-      \begin{alertblock}{Assembly Bottleneck Remains!}
-        \footnotesize
-        $\mat{K}_r(\boldsymbol{\mu})$ requires full-dim assembly of $\hat{\mat{K}}(\boldsymbol{\mu})\in\mathbb{R}^{N\times N}$ before projection.\\[2pt]
-        Galerkin ROM speedup: only $\mathbf{0.92\times}$ — \alert{slower than FOM}.
-      \end{alertblock}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide: POD Basis Projection Error
-\begin{frame}{POD Basis Projection Error}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \small
-      \textbf{Singular Value Decay}:
-      \begin{itemize}
-        \item The relative $L_2$ projection error $\epsilon(r)$ represents the remaining snapshot information:
-        \[
-          \epsilon(r) = \sqrt{1 - \eta(r)}
-        \]
-        \item Evaluates accuracy of the SVD-reconstructed state space.
-        \item At $r = 10$ modes, the projection error drops to \textbf{$0.11\%$}, confirming excellent basis representation.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering
-      \scalebox{0.68}{
-      \begin{tikzpicture}
-          \begin{axis}[
-              width=7.5cm,
-              height=4.8cm,
-              xlabel={Number of POD Modes $r$},
-              ylabel={Relative $L_2$ Error $\epsilon$ [\%]},
-              xmin=1, xmax=10,
-              ymin=0, ymax=2.5,
-              xtick={1,2,3,4,5,6,7,8,9,10},
-              ytick={0, 0.5, 1.0, 1.5, 2.0, 2.5},
-              yticklabels={0.0\%, 0.5\%, 1.0\%, 1.5\%, 2.0\%, 2.5\%},
-              grid=both,
-              grid style={line width=.1pt, draw=gray!15},
-              major grid style={line width=.2pt, draw=gray!30},
-              axis lines=left,
-              enlargelimits=false,
-              tick label style={font=\tiny},
-              xlabel style={font=\scriptsize},
-              ylabel style={font=\scriptsize, yshift=0.2em},
-          ]
-              \addplot[
-                  fill=magenta!10,
-                  draw=none,
-              ] coordinates {
-                  (1, 2.3424)
-                  (2, 1.7880)
-                  (3, 1.4139)
-                  (4, 1.1283)
-                  (5, 0.8902)
-                  (6, 0.6806)
-                  (7, 0.4935)
-                  (8, 0.3410)
-                  (9, 0.1924)
-                  (10, 0.1062)
-              } \closedcycle;
-
-              \addplot[
-                  color=magenta!85!purple,
-                  mark=*,
-                  thick,
-                  smooth,
-                  mark options={fill=magenta!85!purple, draw=magenta!85!purple, line width=1pt, scale=0.8}
-              ] coordinates {
-                  (1, 2.3424)
-                  (2, 1.7880)
-                  (3, 1.4139)
-                  (4, 1.1283)
-                  (5, 0.8902)
-                  (6, 0.6806)
-                  (7, 0.4935)
-                  (8, 0.3410)
-                  (9, 0.1924)
-                  (10, 0.1062)
-              };
-          \end{axis}
-      \end{tikzpicture}
-      }
-      \\[2pt]
-      {\scriptsize Relative $L_2$ projection error $\epsilon(r)$ decay}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide: POD Cumulative Energy Fraction
-\begin{frame}{POD Cumulative Energy Fraction}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \small
-      \textbf{Cumulative Energy}:
-      \begin{itemize}
-        \item The cumulative energy fraction $\eta(r)$ measures the system variance captured:
-        \[
-          \eta(r) = \frac{\sum_{i=1}^r \sigma_i^2}{\sum_{j=1}^d \sigma_j^2}
-        \]
-        \item Measures information content contained in the first $r$ modes.
-        \item The first mode alone ($r=1$) contains \textbf{$99.945\%$} of the system's dynamic energy.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering
-      \scalebox{0.68}{
-      \begin{tikzpicture}
-          \begin{axis}[
-              width=7.5cm,
-              height=4.8cm,
-              xlabel={Number of POD Modes $r$},
-              ylabel={Cumulative Energy $\eta$ [\%]},
-              xmin=1, xmax=10,
-              ymin=99.9, ymax=100.0,
-              xtick={1,2,3,4,5,6,7,8,9,10},
-              ytick={99.9, 99.92, 99.94, 99.96, 99.98, 100.0},
-              yticklabels={99.90\%, 99.92\%, 99.94\%, 99.96\%, 99.98\%, 100.00\%},
-              grid=both,
-              grid style={line width=.1pt, draw=gray!15},
-              major grid style={line width=.2pt, draw=gray!30},
-              axis lines=left,
-              enlargelimits=false,
-              tick label style={font=\tiny},
-              xlabel style={font=\scriptsize},
-              ylabel style={font=\scriptsize, yshift=0.8em},
-          ]
-              \addplot[
-                  fill=cyan!10,
-                  draw=none,
-              ] coordinates {
-                  (1, 99.9451)
-                  (2, 99.9680)
-                  (3, 99.9800)
-                  (4, 99.9873)
-                  (5, 99.9921)
-                  (6, 99.9954)
-                  (7, 99.9976)
-                  (8, 99.9988)
-                  (9, 99.9996)
-                  (10, 99.9999)
-              } \closedcycle;
-
-              \addplot[
-                  color=cyan!80!blue,
-                  mark=*,
-                  thick,
-                  smooth,
-                  mark options={fill=cyan!80!blue, draw=cyan!80!blue, line width=1pt, scale=0.8}
-              ] coordinates {
-                  (1, 99.9451)
-                  (2, 99.9680)
-                  (3, 99.9800)
-                  (4, 99.9873)
-                  (5, 99.9921)
-                  (6, 99.9954)
-                  (7, 99.9976)
-                  (8, 99.9988)
-                  (9, 99.9996)
-                  (10, 99.9999)
-              };
-          \end{axis}
-      \end{tikzpicture}
-      }
-      \\[2pt]
-      {\scriptsize Cumulative energy fraction $\eta(r)$ growth}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide: ECSW Hyper-Reduction (from thesis Ch.5)
-
-\begin{frame}{ECSW Hyper-Reduction}
-  \small
-  \begin{columns}[T]
-    \begin{column}{0.55\textwidth}
-      \textbf{ECSW} replaces full-mesh integration with a sparse weighted sum over active elements $\hat{\Omega}\subset\Omega$:
-      \[
-        \mat{K}_{r,\text{ECSW}}(\boldsymbol{\mu}) = \sum_{e\in\hat{\Omega}} w_e\,\boldsymbol{\Phi}_e^T\mat{K}_e(\boldsymbol{\mu})\boldsymbol{\Phi}_e
-      \]
-      Weights $w_e$ found by \textbf{Non-Negative Least Squares}:
-      \[
-        \min_{\vect{w}\ge\mathbf{0}}\;\|\mat{A}\vect{w}-\vect{b}\|_2^2
-      \]
-      \footnotesize
-      \textbf{Coercivity seeding}: pre-include clamped boundary + notch elements before greedy selection.
+        \alert{Assembly Bottleneck}: Standard Galerkin still requires assembling the full matrix $\hat{\mat{K}}(\boldsymbol{\mu}) \in \mathbb{R}^{N \times N}$ online. No online speedup ($0.92\times$).
+      \end{block}
     \end{column}
     \begin{column}{0.42\textwidth}
-      \begin{block}{Quantitative Results}
-        \centering\footnotesize
-        \begin{tabular}{lcc}
-          \toprule
-          \textbf{Solver} & \textbf{Cells} & \textbf{Speedup} \\
-          \midrule
-          FOM             & 3,200 & $1\times$      \\
-          Galerkin ROM    & 3,200 & $0.92\times$   \\
-          \alert{ECSW ROM}& \alert{28} & \alert{$64.5\times$} \\
-          \bottomrule
-        \end{tabular}
-        \vspace{0.1cm}
-        \begin{itemize}
-          \setlength{\itemsep}{1pt}
-          \scriptsize
-          \item Rel.\ $L_2$ error: $0.054\%$
-          \item Assembly: $142.1\to 2.2$ ms
-          \item Eigenfrequency error: $0.09\%$
-        \end{itemize}
+      \begin{block}{ECSW Hyper-Reduction}
+        \footnotesize
+        ECSW integrates only over a sparse active subset of elements $\hat{\Omega} \subset \Omega$:
+        \[
+          \mat{K}_{r,\text{ECSW}}(\boldsymbol{\mu}) = \sum_{e\in\hat{\Omega}} w_e\,\boldsymbol{\Phi}_e^T\mat{K}_e(\boldsymbol{\mu})\boldsymbol{\Phi}_e
+        \]
+        Bypasses the assembly bottleneck, evaluating only $28$ out of $3,200$ elements online.
       \end{block}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide: ECSW Offline-Online Flowchart
-\begin{frame}{ECSW Offline-Online Flowchart}
-  \centering
-  \scalebox{0.50}{
-  \begin{tikzpicture}[
-      node distance=0.9cm,
-      block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=6.5cm, minimum height=0.6cm, align=center, font=\sffamily\scriptsize},
-      case/.style={rectangle, draw=orange!70, fill=orange!5, thick, rounded corners, text width=2.0cm, minimum height=2.4cm, align=left, font=\sffamily\tiny},
-      arrow/.style={thick,->,>=stealth},
-      line/.style={thick}
-  ]
-      % --- OFFLINE STAGES ---
-      \node [block] (offline1) {\textbf{Offline Stage 1: Reference Config} \\ Instantiate Flat Reference Mesh $\hat{\Omega}$ \\ Precompute basis derivatives};
-      \node [block, below=0.3cm of offline1] (offline2) {\textbf{Offline Stage 2: Snapshot Collection} \\ Run full FOM sweeps over training targets $\boldsymbol{\mu}_{\text{train}}$ \\ Save displacements to snapshot matrix $\mathbf{S}_u$};
-      \node [block, below=0.3cm of offline2] (offline3) {\textbf{Offline Stage 3: Projection \& Selection} \\ 1. SVD on $\mathbf{S}_u$ to extract reduced basis $\boldsymbol{\Phi}$ \\ 2. Run NNLS internal force balancing \\ 3. Extract active elements $E^*$ and weights $w_e$};
-      
-      \draw [arrow] (offline1) -- (offline2);
-      \draw [arrow] (offline2) -- (offline3);
+% ==========================================
+% Frame 7: Step 5: Real-Time Solver & Benchmarks
+% ==========================================
+\begin{frame}{Step 5: Real-Time Solver \& Benchmarks}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Quantitative Comparative Performance}
+        \centering\footnotesize
+        \resizebox{\textwidth}{!}{%
+        \begin{tabular}{lcccc}
+          \toprule
+          \textbf{Solver Strategy} & \textbf{Cells} & \textbf{$L_2$ Error} & \textbf{Time} & \textbf{Speedup} \\
+          \midrule
+          Full Order (FOM)        & 3,200 & Baseline & 142.1 ms & $1.0\times$ \\
+          Galerkin ROM            & 3,200 & $0.012\%$ & 154.5 ms & $0.92\times$ \\
+          \textbf{ECSW ROM}       & \textbf{28}  & \textbf{0.054\%} & \textbf{2.2 ms} & \textbf{64.5$\times$} \\
+          \bottomrule
+        \end{tabular}%
+        }
+      \end{block}
+      \vspace{0.1cm}
+      \begin{block}{Pullback Assembly Speedup}
+        \centering\footnotesize
+        \resizebox{\textwidth}{!}{%
+        \begin{tabular}{lccc}
+          \toprule
+          \textbf{Metric} & \textbf{Classical} & \textbf{Mapped} & \textbf{Speedup} \\
+          \midrule
+          Assembly   & 35.10 ms & 0.90 ms & $\mathbf{38.4\times}$ \\
+          ROM solver & 1.20 ms  & 0.40 ms & $\mathbf{3.0\times}$ \\
+          Total/step & 36.30 ms & 1.30 ms & $\mathbf{27.9\times}$ \\
+          \bottomrule
+        \end{tabular}%
+        }
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \scalebox{0.6}{
+      \begin{tikzpicture}[scale=1.1, >=stealth]
+        % Axes
+        \draw[->, thick, black!70] (0,0) -- (6.5,0) node[right, font=\small] {$t$ (s)};
+        \draw[->, thick, black!70] (0,0) -- (0,4.0) node[above, font=\small] {$U_y(t)$ (mm)};
+        
+        % Y Grid lines and Ticks
+        \foreach \y/\label in {0.0/-0.5, 1.0/-0.25, 2.0/0.0, 3.0/0.25, 4.0/0.5} {
+            \draw[gray!20, thin] (0, \y) -- (6.0, \y);
+            \draw[black!70, thick] (2pt, \y) -- (-2pt, \y) node[left, font=\small] {\label};
+        }
+        % X Ticks
+        \foreach \x/\label in {0/1.6, 1.5/2.6, 3.0/3.6, 4.5/4.6, 6.0/5.6} {
+            \draw[black!70, thick] (\x, 2pt) -- (\x, -2pt) node[below, font=\small] {\label};
+        }
+        
+        % Plot Full Pullback FOM (solid blue line)
+        \draw[blue!80!black, thick, smooth] plot coordinates {
+            (0.00, 3.63) (0.15, 3.64) (0.30, 3.60) (0.45, 3.48) (0.60, 3.30) (0.75, 3.07) (0.90, 2.81) (1.05, 2.56) (1.20, 2.34) (1.35, 2.15) (1.50, 1.98) (1.65, 1.84) (1.80, 1.68) (1.95, 1.51) (2.10, 1.32) (2.17, 1.22) (2.25, 1.11) (2.40, 0.89) (2.55, 0.69) (2.70, 0.52) (2.85, 0.40) (3.00, 0.32) (3.15, 0.28) (3.30, 0.28) (3.45, 0.29) (3.60, 0.31) (3.75, 0.34) (3.90, 0.37) (4.05, 0.42) (4.20, 0.49) (4.35, 0.60) (4.50, 0.74) (4.65, 0.91) (4.80, 1.11) (4.95, 1.32) (5.10, 1.53) (5.25, 1.64) (5.40, 1.85) (5.55, 2.05) (5.70, 2.24) (5.85, 2.43)
+        };
+        
+        % Plot ECSW Mapped ROM (dashed orange line)
+        \draw[orange!85!black, dashed, thick, smooth] plot coordinates {
+            (0.00, 3.65) (0.15, 3.65) (0.30, 3.59) (0.45, 3.46) (0.60, 3.28) (0.75, 3.05) (0.90, 2.80) (1.05, 2.57) (1.20, 2.36) (1.35, 2.18) (1.50, 2.02) (1.65, 1.86) (1.80, 1.69) (1.95, 1.51) (2.10, 1.31) (2.17, 1.20) (2.25, 1.09) (2.40, 0.88) (2.55, 0.69) (2.70, 0.61) (2.85, 0.43) (3.00, 0.35) (3.15, 0.31) (3.30, 0.30) (3.45, 0.30) (3.60, 0.30) (3.75, 0.32) (3.90, 0.35) (4.05, 0.41) (4.20, 0.49) (4.35, 0.61) (4.50, 0.75) (4.65, 0.93) (4.80, 1.12) (4.95, 1.32) (5.10, 1.53) (5.25, 1.63) (5.40, 1.83) (5.55, 2.03) (5.70, 2.22) (5.85, 2.42)
+        };
 
-      % --- TRIGGER ---
-      \node [below=0.3cm of offline3, font=\sffamily\scriptsize\bfseries\color{red!85!black}] (trigger) {<<< USER RUNS ONLINE SOLVER (t=0) >>>};
-      \draw [arrow] (offline3) -- (trigger);
-
-      % --- PIPELINE HEADERS ---
-      \node [below=0.4cm of trigger, xshift=-2.4cm, font=\sffamily\tiny\bfseries, align=center, draw=blue!40, fill=blue!2] (hdr_naive) {NAIVE PHYSICAL PIPELINE \\ (Spatial Remeshing on $\Omega(\boldsymbol{\mu})$)};
-      \node [below=0.4cm of trigger, xshift=2.4cm, font=\sffamily\tiny\bfseries, align=center, draw=cyan!40, fill=cyan!2] (hdr_mapped) {MAPPED PULLBACK PIPELINE \\ (Reference Assembly on $\hat{\Omega}$)};
-
-      \draw [arrow] (trigger.south) -| (hdr_naive.north);
-      \draw [arrow] (trigger.south) -| (hdr_mapped.north);
-
-      % --- CASES ---
-      \node [case, below=0.3cm of hdr_naive] (case1) {\textbf{Case 1: Naive FOM} \\ • Physical remesh \\ • Size $N \times N$ \\ • Slow assembly};
-      
-      \node [case, below=0.3cm of hdr_mapped, xshift=-2.2cm] (case2) {\textbf{Case 2: Mapped FOM} \\ • Flat static mesh \\ • Size $N \times N$ \\ • Slow assembly};
-      \node [case, below=0.3cm of hdr_mapped] (case3) {\textbf{Case 3: Mapped ROM} \\ • Flat static mesh \\ • Size $r \times r$ \\ • Loop scales with $E$};
-      \node [case, below=0.3cm of hdr_mapped, xshift=2.2cm] (case4) {\textbf{Case 4: ECSW ROM} \\ • Flat static mesh \\ • Integrate on $E^*$ only \\ • Scale weights $w_e$ \\ • Fastest solver};
-
-      \draw [arrow] (hdr_naive.south) -- (case1.north);
-      \draw [arrow] (hdr_mapped.south) -| (case2.north);
-      \draw [arrow] (hdr_mapped.south) -- (case3.north);
-      \draw [arrow] (hdr_mapped.south) -| (case4.north);
-
-      % --- NEWMARK RESOLUTION BLOCK ---
-      \node [block, below=4.2cm of trigger] (newmark) {\textbf{Transient Newmark Implicit Solver} \\ Assemble effective dynamic operator (Size: $N \times N$ or $r \times r$) \\ Solve system equation $\mathbf{A}_{\text{eff}} \vect{x} = \vect{b}_{\text{eff}}$};
-
-      \draw [line] (case1.south) -- ++(0,-0.2) -| (newmark.north);
-      \draw [line] (case2.south) -- ++(0,-0.2) -| (newmark.north);
-      \draw [line] (case3.south) -- ++(0,-0.2) -| (newmark.north);
-      \draw [line] (case4.south) -- ++(0,-0.2) -| (newmark.north);
-
-      % --- OUTPUT ---
-      \node [block, below=0.3cm of newmark] (visual) {\textbf{Update State Field \& Visual Layer} \\ Reconstruct field: $\vect{U}$ (Case 1, 2) or $\vect{U} \approx \boldsymbol{\Phi} \vect{q}$ (Case 3, 4)};
-      \draw [arrow] (newmark) -- (visual);
-  \end{tikzpicture}
-  }
+        % Legend (Horizontal at the top)
+        \matrix [draw=gray!30, fill=white, at={(3.0, 4.1)}, anchor=south, font=\tiny, column sep=6pt, ampersand replacement=\&] {
+            \node {\tikz[baseline=-0.5ex]{\draw[blue!80!black, thick] (0,0) -- (0.4,0);}}; \& \node {Pullback FOM}; \&
+            \node {\tikz[baseline=-0.5ex]{\draw[orange!85!black, dashed, thick] (0,0) -- (0.4,0);}}; \& \node {ECSW ROM}; \\
+        };
+      \end{tikzpicture}
+      }
+      \\[2pt]
+      \scriptsize\centering Tip deflection $U_y(t)$ comparison curves
+    \end{column}
+  \end{columns}
 \end{frame}
 
-% Slide: Dynamic Stiffness Calibration & State Projection
-\begin{frame}{Parameterized ROM — State Projection \& Stiffness Calibration}
+% ==========================================
+% Frame 8: Client-Side Software Architecture
+% ==========================================
+\begin{frame}{Client-Side Software Architecture (Digital Twin)}
+  \small
   \begin{columns}[T]
     \begin{column}{0.52\textwidth}
-      \begin{block}{State Projection on Parameter Change}
-        When $\boldsymbol{\mu}$ updates mid-simulation, $\boldsymbol{\Phi}_\text{old}\neq\boldsymbol{\Phi}_\text{new}$.\\
-        Directly applying old $\vect{q}$ to new basis causes a non-physical jump. Solution — \textbf{transient state projection}:
-        \[
-          q_{i,\text{new}} = \sum_{k=1}^N \phi_{i,k,\text{new}}\,u_{\text{phys},k}
-        \]
-        Maps transient states across parameter manifolds, maintaining continuity.
+      The Digital Twin is a \textbf{purely client-side web application} (no server-side backend).
+      \vspace{0.05cm}
+      \begin{block}{Model-View-Controller (MVC)}
+        \footnotesize
+        \begin{itemize}
+          \setlength{\itemsep}{1pt}
+          \item \textbf{Model}: IGA-ROM engine executing solver loops using \texttt{Float64Array} typed arrays.
+          \item \textbf{View}: HTML5 Canvas rendering Von Mises stress heatmap.
+          \item \textbf{Controller}: Direct binding from UI sliders to solver parameter variables.
+        \end{itemize}
       \end{block}
+      \vspace{0.05cm}
+      ROM datasets ($\boldsymbol{\Phi}$, $w_e$) loaded dynamically.
     \end{column}
     \begin{column}{0.45\textwidth}
-      \begin{block}{Dynamic Stiffness Calibration}
-        ECSW weights trained on reference config may underestimate stiffness at deformed $\boldsymbol{\mu}$. Correction factor:
-        \[
-          \gamma = \frac{\boldsymbol{\phi}_1^T\mat{K}_\text{Full}(\boldsymbol{\mu})\boldsymbol{\phi}_1}{\boldsymbol{\phi}_1^T\mat{K}_\text{ECSW}(\boldsymbol{\mu})\boldsymbol{\phi}_1}
-        \]
-        \[
-          w_e \leftarrow \gamma\cdot w_e
-        \]
-        Preserves accuracy under shape deformation.
-      \end{block}
+      \centering
+      \begin{tikzpicture}[
+        node distance=0.45cm,
+        box/.style={rectangle, draw=cnamred, fill=cnamlightbg, thick, rounded corners,
+                    minimum width=3.8cm, minimum height=0.7cm, align=center, font=\scriptsize}
+      ]
+        \node[box] (m) {\textbf{Model} — IGA-ROM Core\\{\footnotesize ECSW: $2.2$ ms/step}};
+        \node[box, below=of m] (c) {\textbf{Controller} — User Sliders\\{\footnotesize $\mu$, $r$, $\sigma$ parameter inputs}};
+        \node[box, below=of c] (v) {\textbf{View} — HTML5 Canvas\\{\footnotesize Von Mises heatmap @ 20 FPS}};
+        \draw[<->, thick, cnamred] (m) -- (c);
+        \draw[<->, thick, cnamred] (c) -- (v);
+        \node[above=0.25cm of m, font=\tiny, align=center, draw=gray!50, rounded corners, fill=gray!10, inner sep=3pt] {JSON payloads loaded async};
+      \end{tikzpicture}
     \end{column}
   \end{columns}
 \end{frame}
-
-% Slide: Dirichlet and Notch Seeding for Coercivity
-\begin{frame}{Dirichlet \& Notch Seeding for Coercivity}
-  \small
-  Standard greedy selection (e.g., OMP) often misses boundary elements, causing rigid-body modes.
-  
-  \begin{alertblock}{The Loss of Coercivity}
-    \footnotesize
-    Without boundary elements in the hyper-reduced mesh $\widehat{\Omega}$, the ECSW stiffness matrix $\mat{K}_{\text{ECSW}}$ loses its connection to the Dirichlet constraints.
-  \end{alertblock}
-  \vspace{-0.15cm}
-  
-  \begin{block}{Coercivity Seeding Solution}
-    \footnotesize
-    To guarantee stability (coercivity) and capture high stress concentrations, we \textbf{pre-seed} the active integration element set $\widehat{\Omega}$ before starting greedy selection:
-    \[
-      \widehat{\Omega}_{\text{seed}} = \{e_{\text{clamp}}\} \cup \{e_{\text{notch}}\}
-    \]
-  \end{block}
-  \vspace{-0.15cm}
-  \begin{itemize}
-    \setlength{\itemsep}{1pt}
-    \footnotesize
-    \item \textbf{Clamp elements}: Enforces rigid boundary constraints at clamped boundary.
-    \item \textbf{Notch elements}: Captures stress concentrations near notches under deformation.
-    \item \textbf{Greedy selection}: Starts selection with $\widehat{\Omega}_{\text{seed}}$ as its initial set.
-  \end{itemize}
-\end{frame}
-
-
