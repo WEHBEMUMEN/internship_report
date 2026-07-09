@@ -6,7 +6,7 @@
 \section{Geometry Configurations}
 
 Let $\Omega_0 \subset \mathbb{R}^d$ ($d \in \{1, 2, 3\}$) define the initial reference coordinate configuration, and let $\Omega(\boldsymbol{\mu})$ define the parameterized physical configuration, parameterized by a vector of design variables $\boldsymbol{\mu} \in \mathcal{D} \subset \mathbb{R}^P$. The fig.~\ref{fig:notched_beam_geometry} illustrates the geometry of a 2D cantilever beam under geometric parameter variations. The active design parameters are grouped into a vector 
-$\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ represents the radius of the symmetric circular notches cut out from the top and bottom boundaries, and $\mu$ denotes the spatial position (distance from the clamped boundary on the left) of the notch center along the longitudinal axis of the beam. The notch width factor $\sigma$ is kept constant as a configuration parameter ($\sigma = 0.6$ m).
+$\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ represents the radius of the symmetric circular notches cut out from the top and bottom boundaries, and $x_c$ denotes the spatial position (distance from the clamped boundary on the left) of the notch center along the longitudinal axis of the beam. The notch width factor $\sigma$ is kept constant as a configuration parameter ($\sigma = 0.6$ m).
   
 
 \begin{figure}[htbp]
@@ -35,10 +35,10 @@ $\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             \draw[reference] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
             \node[black] at (1.2, 0.0) {$\Omega_0$};
 
-            % Dimension: \mu
+            % Dimension: x_c
             \draw[dimline] (0, 0.6) -- (0, 1.1);
             \draw[dimline] (2.2, 0.6) -- (2.2, 1.1);
-            \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above] {$\mu$};
+            \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above] {$x_c$};
 
             % Dimension: r
             \draw[dimline] (2.2, 0.6) -- (2.8, 0.6); 
@@ -56,14 +56,14 @@ $\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             }
             \node[left] at (-0.25, 0) {$\Gamma_D(\boldsymbol{\mu})$};
 
-            % Parameterized Configuration \Omega(\mu) (Straight, but with different parameters: \mu=3.8, r=0.4)
+            % Parameterized Configuration \Omega(x_c) (Straight, but with different parameters: x_c=3.8, r=0.4)
             \draw[deformed] (0,0.6) -- (3.4,0.6) arc (180:360:0.4) -- (6,0.6) -- (6,-0.6) -- (4.2,-0.6) arc (0:180:0.4) -- (0,-0.6) -- cycle;
             \node[blue!70!black] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
 
-            % Dimension: \mu
+            % Dimension: x_c
             \draw[dimline] (0, 0.6) -- (0, 1.1);
             \draw[dimline] (3.4, 0.6) -- (3.4, 1.1);
-            \draw[dimension] (0, 1.0) -- (3.4, 1.0) node[midway, above] {$\mu$};
+            \draw[dimension] (0, 1.0) -- (3.4, 1.0) node[midway, above] {$x_c$};
 
             % Dimension: r
             \draw[dimline] (3.4, 0.6) -- (4.2, 0.6); 
@@ -74,7 +74,7 @@ $\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
 
     \end{tikzpicture}%
     }
-    \caption{Schematic of the notched cantilever beam: (a) reference configuration $\Omega_0$ showing support and design parameters $\mu$ and $r$; (b) parameterized configuration $\Omega(\boldsymbol{\mu})$.}
+    \caption{Schematic of the notched cantilever beam: (a) reference configuration $\Omega_0$ showing support and design parameters $x_c$ and $r$; (b) parameterized configuration $\Omega(\boldsymbol{\mu})$.}
     \label{fig:notched_beam_geometry}
 \end{figure}
 
@@ -108,14 +108,14 @@ $\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             }
             \node[left] at (-0.25, 0) {$\Gamma_D(\boldsymbol{\mu})$};
 
-            % Reference (Undeformed) Configuration \Omega(\mu)
+            % Reference (Undeformed) Configuration \Omega(x_c)
             \draw[reference] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
             \node[black] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
 
-            % Dimension: \mu
+            % Dimension: x_c
             \draw[dimline] (0, 0.6) -- (0, 1.1);
             \draw[dimline] (2.2, 0.6) -- (2.2, 1.1);
-            \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above] {$\mu$};
+            \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above] {$x_c$};
 
             % Dimension: r
             \draw[dimline] (2.2, 0.6) -- (2.8, 0.6); 
@@ -140,7 +140,7 @@ $\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             % Light reference dashed contour
             \draw[dashed, gray!40] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
 
-            % Parameterized Configuration \Omega(\mu)
+            % Parameterized Configuration \Omega(x_c)
             \draw[deformed] 
                 (0,0.6) .. controls (1.5,0.6) and (2.1,0.4) .. (2.2,0.3) 
                 arc (165:345:0.3) 
@@ -185,7 +185,7 @@ $\boldsymbol{\mu} = (r, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
         $\Omega(\boldsymbol{\mu})$ & Parameterized physical configuration (depending on $\boldsymbol{\mu}$) \\
         $\Gamma_D(\boldsymbol{\mu})$ & Dirichlet boundary (clamped left edge where $\vect{u} = \vect{0}$) \\
         $\Gamma_N(\boldsymbol{\mu})$ & Neumann boundary (surface under traction forces) \\
-        $\mu$ & Geometric parameter: notch longitudinal starting position \\
+        $x_c$ & Geometric parameter: notch longitudinal starting position \\
         $r$ & Geometric parameter: radius of the symmetric notches \\
         $\vect{u}$ & Displacement field vector $\vect{u}(\vect{x}, t; \boldsymbol{\mu})$ \\
         $\vect{h}_N$ & Boundary traction load vector applied on $\Gamma_N(\boldsymbol{\mu})$ \\
@@ -234,13 +234,13 @@ To derive the variational statement, we multiply the momentum balance equation b
 \end{equation}
 Integrating by parts over the parameterized spatial domain $\Omega(\boldsymbol{\mu})$ yields the weak form:
 \begin{equation}
-    m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = f(\delta\vect{u}; \boldsymbol{\mu}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu}))
+    m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = f(\delta\vect{u}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu}))
 \end{equation}
 where the bilinear mass and stiffness forms, and the linear load form are defined respectively as:
 \begin{align}
     m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, d\Omega \\
     k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\sigma}(\vect{u}) : \boldsymbol{\varepsilon}(\delta\vect{u}) \, d\Omega \\
-    f(\delta\vect{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \vect{f}_b \cdot \delta\vect{u} \, d\Omega + \int_{\Gamma_N(\boldsymbol{\mu})} \vect{h}_N \cdot \delta\vect{u} \, d\Gamma
+    f(\delta\vect{u}) &= \int_{\Omega(\boldsymbol{\mu})} \vect{f}_b \cdot \delta\vect{u} \, d\Omega + \int_{\Gamma_N(\boldsymbol{\mu})} \vect{h}_N \cdot \delta\vect{u} \, d\Gamma
 \end{align}
 
 
@@ -265,15 +265,15 @@ Using the chain rule, the gradients of any physical field $u$ and the differenti
 where $\hat{u}(\hat{\vect{x}}) = u(\boldsymbol{\Phi}(\hat{\vect{x}}; \boldsymbol{\mu}))$ represents the pulled-back field.
 
 \section{Weak Formulation on the Reference Configuration}
-By substituting the pullback relations into the variational statement (Eq. 2.7), we project the weak formulation onto the parameter-independent reference configuration $\hat{\Omega}$. The pulled-back weak form reads:
+By substituting the pullback relations into the variational statement, we project the weak formulation onto the parameter-independent reference configuration $\hat{\Omega}$. The pulled-back weak form reads:
 \begin{equation}
-    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \hat{f}(\delta\vect{u}; \boldsymbol{\mu}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\hat{\Omega})
+    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \hat{f}(\delta\vect{u}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\hat{\Omega})
 \end{equation}
 where the mass, stiffness, and load forms are evaluated as integrals over the static reference configuration $\hat{\Omega}$:
 \begin{align}
     \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} \\
     \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \left( \mathbf{J}^{-T} \nabla_{\hat{\vect{x}}} \vect{u} \right) : \mat{D} : \left( \mathbf{J}^{-T} \nabla_{\hat{\vect{x}}} \delta\vect{u} \right) J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} \\
-    \hat{f}(\delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}, \Gamma}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Gamma}
+    \hat{f}(\delta\vect{u}) &= \int_{\hat{\Omega}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}, \Gamma}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Gamma}
 \end{align}
 Here, $\hat{\Gamma}_N$ represents the reference Neumann boundary, and $J_{\boldsymbol{\mu}, \Gamma}(\hat{\vect{x}})$ is the boundary Jacobian determinant representing the surface area scaling factor. This formulation shifts the entire parameter dependency of the continuum system from the domain geometry into the Jacobian terms $\mathbf{J}$ and its determinant $J_{\boldsymbol{\mu}}$.
 

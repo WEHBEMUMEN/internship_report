@@ -122,11 +122,14 @@
 % ─── Geometry Scaling (Make pages slightly bigger) ───────────────────────────
 \geometry{paperwidth=18cm, paperheight=10.125cm}
 
+\setbeamercolor{footline}{fg=gray!80, bg=white}
+
 % ─── Footline (Author Name, Title, and Slide Number) ─────────────────────────
 \setbeamertemplate{footline}{%
   \ifnum\insertframenumber>1
+    \leavevmode%
     \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1ex,leftskip=1cm,rightskip=1.8cm]{footline}%
-      \usebeamerfont{author in head/foot}\color{gray!80}%
+      \usebeamerfont{author in head/foot}%
       Mumen Wehbe \hfill Real-Time Physics on the Web \hfill \insertframenumber%
     \end{beamercolorbox}%
     \vskip0.8ex%

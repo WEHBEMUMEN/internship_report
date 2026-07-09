@@ -4,11 +4,11 @@
 \begin{frame}{Geometry Configurations}
   We consider a 2D cantilever beam with \textbf{symmetric circular notches} parameterized by:
   \[
-    \boldsymbol{\mu} = (r,\, \mu)^T \in \mathcal{D} \subset \mathbb{R}^2
+    \boldsymbol{\mu} = (r,\, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2
   \]
   \small
   \begin{itemize}
-    \item $r$ — notch radius;\quad $\mu$ — notch center position
+    \item $r$ — notch radius;\quad $x_c$ — notch center position
     \item $\mathcal{D} = [r_{\min},\, r_{\max}] \times [\mu_{\min},\, \mu_{\max}]$ — compact parameter domain
   \end{itemize}
   
@@ -25,14 +25,14 @@
     \draw[line width=1.5pt] (0,0.8) -- (0,-0.8);
     \foreach \y in {-0.7,-0.5,...,0.7} {\draw (0,\y) -- (-0.2,\y-0.15);}
     
-    % Notched Beam Configuration \Omega(\mu)
+    % Notched Beam Configuration \Omega(x_c)
     \draw[reference] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
     \node[black, font=\small] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
     
-    % Dimension: \mu
+    % Dimension: x_c
     \draw[dimline] (0, 0.6) -- (0, 1.1);
     \draw[dimline] (2.2, 0.6) -- (2.2, 1.1);
-    \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above] {$\mu$};
+    \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above] {$x_c$};
     
     % Dimension: r
     \draw[dimline] (2.2, 0.6) -- (2.8, 0.6);
@@ -96,10 +96,10 @@
               \draw[reference] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
               \node[black, font=\scriptsize] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
 
-              % Dimension: \mu
+              % Dimension: x_c
               \draw[dimline] (0, 0.6) -- (0, 1.1);
               \draw[dimline] (2.2, 0.6) -- (2.2, 1.1);
-              \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above, font=\tiny] {$\mu$};
+              \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above, font=\tiny] {$x_c$};
 
               % Dimension: r
               \draw[dimline] (2.2, 0.6) -- (2.8, 0.6); 
@@ -222,7 +222,7 @@
           % Mapping Arrow (vertical downwards)
           \draw[maparrow] (2.0,1.1) -- (2.0,-0.1) node[midway, right, font=\scriptsize] {$\boldsymbol{\Phi}(\cdot;\textcolor{red}{\boldsymbol{\mu}})$};
 
-          % Physical Domain \Omega(\mu) (Bottom)
+          % Physical Domain \Omega(x_c) (Bottom)
           \begin{scope}[xshift=0cm, yshift=-0.8cm]
               \draw[physdom] (0,0.5) -- (0.8,0.5) arc (180:360:0.4) -- (4,0.5) -- (4,-0.5) -- (1.6,-0.5) arc (0:180:0.4) -- (0,-0.5) -- cycle;
               \node[blue!70!black, font=\scriptsize] at (0.6, 0) {$\Omega(\boldsymbol{\mu})$};

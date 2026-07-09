@@ -70,7 +70,7 @@ where $\mat{D}$ is the material constitutive matrix, and the strain-displacement
 \begin{equation}
     \mat{B}_a(\xi, \eta; \boldsymbol{\mu}) = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \\[0.3em] \frac{\partial R_a}{\partial y} & \frac{\partial R_a}{\partial x} \end{bmatrix}, \quad \text{with} \quad \begin{bmatrix} \frac{\partial R_a}{\partial x} \\[0.3em] \frac{\partial R_a}{\partial y} \end{bmatrix} = \mat{J}^{-1}(\xi, \eta; \boldsymbol{\mu}) \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix}
 \end{equation}
-As the notches shape parameter vector $\boldsymbol{\mu} = (r, \mu)^T$ varies, the physical configuration changes, altering the coordinate Jacobian mapping $\mat{J}(\xi, \eta; \boldsymbol{\mu}) = \nabla_{\boldsymbol{\xi}}\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu})$ at each Gauss point. This requires updating and re-integrating the stiffness matrix online for every design modification.
+As the notches shape parameter vector $\boldsymbol{\mu} = (r, x_c)^T$ varies, the physical configuration changes, altering the coordinate Jacobian mapping $\mat{J}(\xi, \eta; \boldsymbol{\mu}) = \nabla_{\boldsymbol{\xi}}\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu})$ at each Gauss point. This requires updating and re-integrating the stiffness matrix online for every design modification.
 
 \section{Enforcement of Boundary Conditions}
 Unlike traditional Lagrangian finite element basis functions, B-spline and NURBS basis functions do not possess the Kronecker delta property at the boundaries (except at the extreme ends of open knot vectors). Thus, control variables $\vect{d}_a$ do not correspond directly to physical displacement values at boundary nodes.
@@ -88,8 +88,8 @@ To resolve the linear semi-discrete second-order system of equations of motion, 
 \caption{Full Order Model (FOM) Implicit Dynamics Solver}
 \label{alg:fom_dynamics}
 \begin{algorithmic}[1]
-\Procedure{StepDynamicsFOM}{$\vect{U}_n, \dot{\vect{U}}_n, \ddot{\vect{U}}_n, \mu, r, \sigma, \Delta t$}
-    \State Assemble mass matrix $\mat{M}(\mu, r)$ and stiffness matrix $\mat{K}(\mu, r)$
+\Procedure{StepDynamicsFOM}{$\vect{U}_n, \dot{\vect{U}}_n, \ddot{\vect{U}}_n, x_c, r, \sigma, \Delta t$}
+    \State Assemble mass matrix $\mat{M}(x_c, r)$ and stiffness matrix $\mat{K}(x_c, r)$
     \State Compute Rayleigh damping matrix: $\mat{C} \gets \alpha_M \mat{M} + \beta_K \mat{K}$
     \State Compute external force vector $\vect{F}_{\text{ext}}^{n+1} \gets \text{calculateExternalForceVector}(t_{n+1})$
     \State Set integration constants:

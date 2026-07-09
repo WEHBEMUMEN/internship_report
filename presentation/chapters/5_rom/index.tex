@@ -25,16 +25,50 @@
     \end{column}
     \begin{column}{0.42\textwidth}
       \centering
-      \vspace{0.8cm}
       \begin{alertblock}{Interactive Budget}
         \centering
         \bfseries
-        Online Solve Time:\\
-        \Large $< 1.5\text{ ms}$
+        Online Solve Time: \Large $< 1.5\text{ ms}$
       \end{alertblock}
-      \vspace{0.2cm}
+      
+      \vspace{0.25cm}
+      \centering
+      \begin{tikzpicture}[scale=0.72, every node/.style={transform shape}]
+        % Equation parts: K_r = Phi^T * K * Phi
+        
+        % K_r (small red square)
+        \draw[fill=cnamred!20, draw=cnamred, thick] (0, 0.75) rectangle (0.30, 1.05);
+        \node[above] at (0.15, 1.05) {$\mathbf{K}_r$};
+        \node[below, font=\tiny] at (0.15, 0.75) {\bfseries $r \times r$};
+        
+        % =
+        \node at (0.7, 0.9) {\large $=$};
+        
+        % \Phi^T (horizontal blue rectangle)
+        \draw[fill=blue!10, draw=blue!60, thick] (1.0, 0.75) rectangle (2.8, 1.05);
+        \node[above] at (1.9, 1.05) {$\boldsymbol{\Phi}^T$};
+        \node[below, font=\tiny] at (1.9, 0.75) {\bfseries $r \times N$};
+        
+        % K (large gray square)
+        \draw[fill=gray!20, draw=gray!70, thick] (3.1, 0) rectangle (4.9, 1.8) node[midway, font=\small] {$\mathbf{K}$};
+        \node[below, font=\tiny] at (4.0, 0) {\bfseries $N \times N$};
+        
+        % \Phi (vertical blue rectangle)
+        \draw[fill=blue!10, draw=blue!60, thick] (5.2, 0) rectangle (5.5, 1.8);
+        \node[above] at (5.35, 1.8) {$\boldsymbol{\Phi}$};
+        \node[below, font=\tiny] at (5.35, 0) {\bfseries $N \times r$};
+      \end{tikzpicture}
+      
+      \vspace{0.15cm}
       \footnotesize
-      Project high-dimensional equations onto a low-dimensional generalized coordinate space.
+      \begin{tabular}{rcc}
+        \toprule
+         & \textbf{FOM} & \textbf{ROM} \\
+        \midrule
+        \textbf{Dimension} & $N = 6,564$ & $r = 15$ \\
+        \textbf{Matrix entries} & $\approx 43\text{M}$ & $\mathbf{225}$ \\
+        \bottomrule
+      \end{tabular}
     \end{column}
   \end{columns}
 \end{frame}
@@ -185,82 +219,44 @@
 % ==========================================
 \begin{frame}{Step 3: Reference Pullback Mapping}
   \small
+  \begin{block}{Diffeomorphic Pullback to Static $\hat{\Omega}$ (Thesis Section 3.4)}
+    \footnotesize
+    Coordinate transformation maps varying physical coordinates $\vect{x} \in \Omega(\boldsymbol{\mu})$ to static reference coordinates $\hat{\vect{x}} \in \hat{\Omega}$:
+    \[
+      \nabla_{\vect{x}} \vect{u} = \mat{J}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu}) \nabla_{\boldsymbol{\xi}} \hat{\vect{u}}, \quad d\Omega = \color{cnamred}{J_{\boldsymbol{\mu}}(\boldsymbol{\xi})} \, d\hat{\Omega}
+    \]
+    where $\mat{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \frac{\partial \vect{x}}{\partial \hat{\vect{x}}}$ is the coordinate Jacobian, and $\color{cnamred}{J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) = \det\mat{J}}$ is the mapping weight.
+  \end{block}
+
   \begin{columns}[T]
-    \begin{column}{0.54\textwidth}
-      \begin{block}{Concept: Pullback to Static $\hat{\Omega}$}
-        \footnotesize
-        Instead of remeshing physically for every parameter update $\boldsymbol{\mu}$, pull the equations of motion back to a static domain:
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{State Projection on Static Basis ($\boldsymbol{\Phi}$)}
+        \scriptsize
+        The discrete state vector $\vect{U}(\boldsymbol{\mu})$ is parameter-dependent, but projected onto static POD modes:
         \[
-          \text{Physical Domain } \Omega(\boldsymbol{\mu}) \quad \longrightarrow \quad \text{Static Reference Configuration } \hat{\Omega}
+          \vect{U}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \vect{q}(\boldsymbol{\mu})
         \]
-      \end{block}
-      \begin{exampleblock}{Key Advantages of Reference Mapping}
-        \footnotesize
+        \textbf{Why this matters}:
         \begin{itemize}
-          \setlength{\itemsep}{1pt}
-          \item \textbf{Single Topology}: No online remeshing or element distortion.
-          \item \textbf{Static Basis}: POD modes $\boldsymbol{\Phi}$ remain compatible.
-          \item \textbf{Precomputability}: Invariant terms are cached offline.
+          \item \textbf{Static Modes}: The SVD projection matrix $\boldsymbol{\Phi}$ is constant and computed offline.
+          \item \textbf{Online Efficiency}: Only the low-dimensional state vector $\vect{q}(\boldsymbol{\mu}) \in \mathbb{R}^r$ needs to be resolved online.
         \end{itemize}
       \end{exampleblock}
     \end{column}
-    \begin{column}{0.42\textwidth}
-      \centering
-      \scalebox{0.55}{
-      \begin{tikzpicture}[scale=1.0, >=stealth]
-          % --- LEFT VIEWPORT: DEFORMED PHYSICAL DOMAIN ---
-          \begin{scope}[xshift=-3.75cm, yshift=0cm, scale=0.7]
-              \node[above=0.8cm, font=\small\bfseries\sffamily, text=black!85] at (0, 1.0) {Physical Domain $\Omega(\boldsymbol{\mu})$};
-              
-              \foreach \y in {-0.7, 0, 0.7} {
-                  \fill[red!70!black] (-3.3, \y) -- (-3.5, \y+0.12) -- (-3.5, \y-0.12) -- cycle;
-              }
-              
-              \shade[left color=blue!90!black, middle color=cyan!80, right color=yellow!80!orange] 
-              (-3, -1) -- (-1.2, -1) 
-              .. controls (-0.6, -1.0) and (-0.4, -0.6) .. (0, -0.6)
-              .. controls (0.4, -0.6) and (0.6, -1.2) .. (1.2, -1.2)
-              -- (3, -1.5) -- (3, 0.5) -- (1.2, 0.8)
-              .. controls (0.6, 0.8) and (0.4, 0.2) .. (0, 0.2)
-              .. controls (-0.4, 0.2) and (-0.6, 1.0) .. (-1.2, 1.0)
-              -- (-3, 1) -- cycle;
-              
-              \foreach \y in {-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75} {
-                  \draw[white, opacity=0.35, thin] (-3, \y)
-                  .. controls (-1.2, \y) and (-0.5, \y*0.4 - 0.2) .. (0, \y*0.4 - 0.2)
-                  .. controls (0.5, \y*0.4 - 0.2) and (1.2, \y - 0.25) .. (3, \y - 0.5);
-              }
-              \foreach \x in {-2.4, -1.8, -1.2, -0.6, 0, 0.6, 1.2, 1.8, 2.4} {
-                  \draw[white, opacity=0.35, thin] (\x, -1.1 - 0.1*\x) -- (\x, 0.9 - 0.1*\x);
-              }
-          \end{scope}
-          
-          % --- RIGHT VIEWPORT: STATIC REFERENCE PULLBACK ---
-          \begin{scope}[xshift=3.75cm, yshift=0cm, scale=0.7]
-              \node[above=0.8cm, font=\small\bfseries\sffamily, text=black!85] at (0, 1.0) {Static Reference $\hat{\Omega}$};
-              
-              \foreach \y in {-0.7, 0, 0.7} {
-                  \fill[red!70!black] (-3.3, \y) -- (-3.5, \y+0.12) -- (-3.5, \y-0.12) -- cycle;
-              }
-              
-              \shade[left color=gray!30, right color=gray!15, draw=black!70, thick] 
-              (-3, -1) -- (-1.2, -1) 
-              .. controls (-0.6, -1.0) and (-0.4, -0.4) .. (0, -0.4)
-              .. controls (0.3, -0.4) and (0.5, -1.0) .. (1.2, -1.0)
-              -- (3, -1.0) -- (3, 1.0) -- (1.2, 1.0)
-              .. controls (0.6, 1.0) and (0.4, 0.4) .. (0, 0.4)
-              .. controls (-0.4, 0.4) and (-0.6, 1.0) .. (-1.2, 1.0)
-              -- (-3, 1.0) -- cycle;
-              
-              \foreach \y in {-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75} {
-                  \draw[white, opacity=0.35, thin] (-3, \y) -- (3, \y);
-              }
-              \foreach \x in {-2.4, -1.8, -1.2, -0.6, 0, 0.6, 1.2, 1.8, 2.4} {
-                  \draw[white, opacity=0.35, thin] (\x, -1.0) -- (\x, 1.0);
-              }
-          \end{scope}
-      \end{tikzpicture}
-      }
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{The Parameter Dependency ($\mat{K}(\boldsymbol{\mu})$)}
+        \scriptsize
+        Stiffness bilinear form maps parameter $\boldsymbol{\mu}$ into the spatial integral:
+        \[
+          \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \int_{\hat{\Omega}} \left(\mat{J}^{-T} \nabla_{\boldsymbol{\xi}}\vect{u}\right) : \mat{D} : \left(\mat{J}^{-T} \nabla_{\boldsymbol{\xi}}\delta\vect{u}\right) \color{cnamred}{J_{\boldsymbol{\mu}}} \, d\hat{\Omega}
+        \]
+        \textbf{Why it matters}:
+        \begin{itemize}
+          \item Traps $\boldsymbol{\mu}$ inside the integral.
+          \item Standard ROM cannot precompute $\mat{\Phi}^T \mat{K}(\boldsymbol{\mu})\mat{\Phi}$.
+          \item Requires $O(N)$ full online assembly.
+        \end{itemize}
+      \end{alertblock}
     \end{column}
   \end{columns}
 \end{frame}
@@ -400,7 +396,7 @@
                     minimum width=3.8cm, minimum height=0.7cm, align=center, font=\scriptsize}
       ]
         \node[box] (m) {\textbf{Model} — IGA-ROM Core\\{\footnotesize ECSW: $2.2$ ms/step}};
-        \node[box, below=of m] (c) {\textbf{Controller} — User Sliders\\{\footnotesize $\mu$, $r$, $\sigma$ parameter inputs}};
+        \node[box, below=of m] (c) {\textbf{Controller} — User Sliders\\{\footnotesize $x_c$, $r$, $\sigma$ parameter inputs}};
         \node[box, below=of c] (v) {\textbf{View} — HTML5 Canvas\\{\footnotesize Von Mises heatmap @ 20 FPS}};
         \draw[<->, thick, cnamred] (m) -- (c);
         \draw[<->, thick, cnamred] (c) -- (v);

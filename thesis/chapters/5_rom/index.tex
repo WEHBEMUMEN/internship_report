@@ -16,7 +16,7 @@ To construct a successful and reliable reduced-order representation of the struc
 \begin{enumerate}
     \item \textbf{Low Computational Time}: The online solve and assembly time per step must be under a few milliseconds (ideally $<1.5\text{ ms}$) to fit comfortably within the rendering and interaction budget ($20$--$60$ FPS) of standard web browsers.
     \item \textbf{Low Approximation Error (High Fidelity)}: The reduced model must maintain high physical accuracy (relative $L_2$ displacement error $< 0.1\%$) and capture stress concentration behaviors near the notches exactly.
-    \item \textbf{Geometric and Parametric Compatibility}: The reduced basis must accommodate dynamic shape modifications (varying notch positions $\mu$ and radii $r$) without suffering from vector space incompatibility or requiring expensive online re-training.
+    \item \textbf{Geometric and Parametric Compatibility}: The reduced basis must accommodate dynamic shape modifications (varying notch positions $x_c$ and radii $r$) without suffering from vector space incompatibility or requiring expensive online re-training.
     \item \textbf{Spectral Conservation}: The projection must preserve the fundamental dynamic properties of the structure, such as conserving natural frequencies and mode shapes with minimal eigenvalue drift.
 \end{enumerate}
 
@@ -318,7 +318,7 @@ This formulation aligns with structural dynamics formulations under shape change
             }
         \end{scope}
     \end{tikzpicture}
-    \caption{Interactive Digital Twin mapping lab dashboard showing a side-by-side comparison of the physical domain $\Omega(\mu)$ undergoing shape parameterization (left) and the static reference pullback domain $\hat{\Omega}$ used for SVD projection (right), achieving an average graphics refresh rate of 20 FPS.}
+    \caption{Interactive Digital Twin mapping lab dashboard showing a side-by-side comparison of the physical domain $\Omega(x_c)$ undergoing shape parameterization (left) and the static reference pullback domain $\hat{\Omega}$ used for SVD projection (right), achieving an average graphics refresh rate of 20 FPS.}
     \label{fig:pullback_mapping_dt}
 \end{figure}
 
@@ -326,7 +326,7 @@ This formulation aligns with structural dynamics formulations under shape change
 \section{Parameterized ROM and State Projection} \label{sec:state_projection}
 Section 5.2 introduces shape parameterization where the physical domain $\Omega(\boldsymbol{\mu})$ changes dynamically. This introduces a vector space incompatibility across different parameter settings. 
 
-When the notch parameters ($\mu$ or $r$) are updated mid-simulation, the structural domain $\Omega(\mu, r)$ changes, requiring a recomputation of the Reduced Basis:
+When the notch parameters ($x_c$ or $r$) are updated mid-simulation, the structural domain $\Omega(x_c, r)$ changes, requiring a recomputation of the Reduced Basis:
 \begin{equation}
     \mathbf{\Phi}_{\text{old}} \quad \longrightarrow \quad \mathbf{\Phi}_{\text{new}}
 \end{equation}
@@ -437,11 +437,11 @@ Because ECSW weights are trained on the reference configuration, shape transform
 \caption{Offline ECSW Training and Reduced Basis Generation}
 \label{alg:ecsw_training}
 \begin{algorithmic}[1]
-\Procedure{TrainECSW}{$\hat{\Omega}, \vect{F}_{\text{ext}}, \mu, r, \sigma$}
+\Procedure{TrainECSW}{$\hat{\Omega}, \vect{F}_{\text{ext}}, x_c, r, \sigma$}
     \State Generate static snapshots:
-    \State $\vect{u}_{\text{bend}} \gets \text{SolveStaticLinear}(\vect{F}_{\text{ext}}(\text{Y-load at tip}); \mu, r)$
+    \State $\vect{u}_{\text{bend}} \gets \text{SolveStaticLinear}(\vect{F}_{\text{ext}}(\text{Y-load at tip}); x_c, r)$
     \State $\vect{u}_{\text{tension}} \gets \text{AnalyticalTensionSnapshot}()$
-    \State $\vect{u}_{\text{mid}} \gets \text{SolveStaticLinear}(\vect{F}_{\text{ext}}(\text{Y-load at mid-span}); \mu, r)$
+    \State $\vect{u}_{\text{mid}} \gets \text{SolveStaticLinear}(\vect{F}_{\text{ext}}(\text{Y-load at mid-span}); x_c, r)$
     \State Orthonormalize snapshots via Gram-Schmidt to construct $\boldsymbol{\Phi}$
     \State Zero out boundary DOFs in $\boldsymbol{\Phi}$ to avoid penalty numerical pollution
     \State Assemble force snapshot matrix $\mat{A} \in \mathbb{R}^{rM \times E}$ and target $\vect{b} \in \mathbb{R}^{rM}$
@@ -466,13 +466,13 @@ The application follows the classic Model-View-Controller (MVC) design pattern:
 \begin{itemize}
     \item \textbf{The Model}: Consists of the IGA-ROM engine, which manages the reduced state vectors $\vect{q}$ and executes the hyper-reduced integration loops. High-speed mathematical operations are performed using native JavaScript \texttt{Float64Array} typed arrays to minimize overhead.
     \item \textbf{The View}: A responsive user interface featuring an HTML5 Canvas viewport for rendering the structural deformation and real-time Von Mises stress heatmaps.
-    \item \textbf{The Controller}: Event listeners that monitor user inputs (parameter sliders for the notch position $\mu$ and radius $r$), trigger the ROM solver, and update the view dynamically.
+    \item \textbf{The Controller}: Event listeners that monitor user inputs (parameter sliders for the notch position $x_c$ and radius $r$), trigger the ROM solver, and update the view dynamically.
 \end{itemize}
 
 Pre-computed ROM datasets (the reduced basis $\boldsymbol{\Phi}$, the active element weights $w_e$, and the geometric mapping tables) are serialized into compact \texttt{JSON} payloads. The controller fetches these payloads asynchronously on startup, allowing the model to initialize in milliseconds.
 
 \subsection{Real-Time Parameter Synchronization and Interactivity}
-The core feature of the Digital Twin is the bi-directional link between user inputs and the virtual model. As the user modifies a parameter slider (e.g., notch position $\mu$ or radius $r$), the ROM engine performs an instantaneous state reconstruction:
+The core feature of the Digital Twin is the bi-directional link between user inputs and the virtual model. As the user modifies a parameter slider (e.g., notch position $x_c$ or radius $r$), the ROM engine performs an instantaneous state reconstruction:
 \begin{equation}
     \vect{U}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \vect{q}(\boldsymbol{\mu})
 \end{equation}
