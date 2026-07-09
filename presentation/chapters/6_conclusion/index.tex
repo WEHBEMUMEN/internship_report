@@ -1,49 +1,65 @@
-% ─── Chapter 7: Conclusion ───────────────────────────────────────────────────
+% ─── Chapter 6: Conclusion ───────────────────────────────────────────────────
 
-% Slide: Summary of Achievements (from thesis Ch.7)
-\begin{frame}{Summary of Achievements}
+% Slide 1: Summary of Achievements & Methodology
+\begin{frame}{Summary of Achievements \& Implemented Methods}
   \small
-  \begin{enumerate}
-    \setlength{\itemsep}{3pt}
-    \item \textbf{Theoretical Foundation}: Established the structural baseline kernels for smooth NURBS evaluations and verified baseline projection errors via POD.
-    \item \textbf{Full Order Model Construction}: Built a 2D tensor-product IGA physical solver ($N=6{,}564$ DOFs) with accurate displacement behaviors under open uniform knot distributions.
-    \item \textbf{High-Dimensional Verification}: Verified accuracy and computational speedup of linear hyper-reduced models against high-fidelity FOM formulations (ECSW: \textbf{$64.5\times$ speedup}, $L_2$ error $0.054\%$).
-    \item \textbf{Hyper-Reduction Optimization}: Deployed ECSW to break the classical online assembly bottleneck while preserving topological alignment across shape updates.
-    \item \textbf{Digital Twin Deployment}: Asynchronous client-side JS app with JSON-serialized ROM payloads achieving stable responses in \textbf{under 1 ms} (20+ FPS rendering).
-  \end{enumerate}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Key Achievements}
+        \footnotesize
+        \begin{itemize}
+          \setlength{\itemsep}{3pt}
+          \item \textbf{High-Fidelity Solver}: Built a 2D Isogeometric Analysis (IGA) physical solver ($N=6{,}564$ DOFs).
+          \item \textbf{Hyper-Reduction}: Deployed ECSW on only 28 cells, yielding a \textbf{$64.5\times$ speedup} with $0.054\%$ error.
+          \item \textbf{Digital Twin}: Interactive client-side JS application achieving real-time solve times ($< 1.5\text{ ms}$).
+        \end{itemize}
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Implemented Methods \& References}
+        \footnotesize
+        \begin{itemize}
+          \setlength{\itemsep}{2pt}
+          \item \textbf{POD / SVD}: Dimension reduction basis.
+          \newline \textit{Ref: Benner et al. (2015)}
+          \item \textbf{ECSW Hyper-Reduction}: Sparse mesh quadrature. \textit{Ref: Farhat et al. (2014)}
+          \item \textbf{Diffeomorphic Pullback}: Shape-parameter mapping preserving mesh topology.
+          \item \textbf{Newmark-$\beta$}: Transient dynamic solver.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-% Slide: Connection to Research Objectives (from thesis Ch.7)
-\begin{frame}{Connection to Research Objectives}
+% Slide 2: Unexplored Alternatives & Future Work
+\begin{frame}{Alternatives \& Future Perspectives}
   \small
-  \begin{enumerate}
-    \footnotesize
-    \setlength{\itemsep}{2pt}
-    \item \textbf{Exact Geometry Tracking}: Pullback mapping maps notch modifications via control point translation. Mesh topology is preserved, maintaining exact CAD boundaries.
-    \item \textbf{Dimension Reduction}: $r=15$ POD modes capture $>99.98\%$ energy, with a reconstruction error of $0.012\%$.
-    \item \textbf{Hyper-Reduction}: ECSW on 28 elements (vs 3,200). Assembly speedup of \textbf{$64.5\times$} ($154.5\to 2.2$ ms) with $L_2$ error $<0.054\%$.
-    \item \textbf{Real-Time Implementation}: Full client-side JS pipeline, $< 1$ ms solve, 20+ FPS on standard browsers.
-  \end{enumerate}
-\end{frame}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Other Methods (Unexplored)}
+        \footnotesize
+        \begin{itemize}
+          \setlength{\itemsep}{2pt}
+          \item \textbf{DEIM / MDEIM}: Discrete Empirical Interpolation for nonlinear terms.
+          \newline \textit{Refs: Chaturantabut (2010), Bonomi (2017)}
+          \item \textbf{Gappy POD}: Regression-based state reconstruction.
+          \item \textbf{Machine Learning}: Autoencoder-based nonlinear ROMs or PINNs.
+          \item \textbf{Multi-Field ROMs}: Damage-plasticity decompositions. \textit{Ref: Kehls (2025)}
+        \end{itemize}
+      \end{block}
+    \end{column}
 
-% Slide: Future Perspectives & Research Paths
-\begin{frame}{Future Perspectives \& Research Paths}
-  \small
-  To extend the capabilities of the interactive Digital Twin, four main research vectors are identified:
-  
-  \begin{block}{1. Geometrically Nonlinear Kinematics}
-    \footnotesize
-    Green-Lagrange strain tensor $\mat{E}$, PK2 stress tensor $\mat{S}$, state-dependent stiffness $\mat{K}_T(\vect{u})$, and Newton-Raphson iterations directly in the reduced space.
-  \end{block}
-  
-  \begin{block}{2. 3D Solids \& Multi-Patch Assembly}
-    \footnotesize
-    Trivariate NURBS solids for 3D components, and multi-patch blending via G-continuity or penalty/Mortar constraints.
-  \end{block}
-  
-  \begin{block}{3. Adaptive Online Hyper-Reduction}
-    \footnotesize
-    On-the-fly basis enrichment (kriging interpolation / local snapshot sampling) to preserve accuracy outside offline training bounds.
-  \end{block}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Future Research Paths}
+        \footnotesize
+        \begin{itemize}
+          \setlength{\itemsep}{2pt}
+          \item \textbf{Nonlinear Kinematics}: Large displacements using Green-Lagrange strain directly in reduced space.
+          \item \textbf{3D NURBS}: Trivariate solid formulations and multi-patch assemblies.
+          \item \textbf{Adaptive Bases}: Online local basis update/enrichment (e.g., Kriging).
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
 \end{frame}
-

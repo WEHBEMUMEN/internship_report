@@ -399,6 +399,9 @@
         \item \textbf{Pros}: Geometry is preserved exactly. Continuity is maintained ($C^{p-1}$).
         \item \textbf{Cons}: Increases mesh size (number of elements) $\to$ larger system matrix $\to$ slower solver.
       \end{itemize}
+      \par\vspace{0.2cm}
+      \centering
+      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim-1.3/}{\beamerbutton{Interactive $h$-Refinement App}}
     \end{column}
     \begin{column}{0.50\textwidth}
       \centering
@@ -468,6 +471,9 @@
         \item \textbf{Pros}: Keeps geometric shape identical. Avoids high-order Runge oscillations of Lagrange FEM.
         \item \textbf{Cons}: Wider basis support increases matrix bandwidth and solver overhead.
       \end{itemize}
+      \par\vspace{0.2cm}
+      \centering
+      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim-1.2/}{\beamerbutton{Interactive $p$-Refinement App}}
     \end{column}
     \begin{column}{0.50\textwidth}
       \centering
@@ -533,6 +539,9 @@
         \item \textbf{Pros}: Unique to IGA. Keeps DOFs minimal for a given error tolerance.
         \item \textbf{Cons}: Higher computational assembly stencil (wider support).
       \end{itemize}
+      \par\vspace{0.2cm}
+      \centering
+      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim-1.5/}{\beamerbutton{Interactive $k$-Refinement App}}
     \end{column}
     \begin{column}{0.45\textwidth}
       \begin{alertblock}{Continuity Comparison}

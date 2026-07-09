@@ -267,24 +267,82 @@
 \begin{frame}{Step 4: Galerkin Projection vs. ECSW Hyper-reduction}
   \small
   \begin{columns}[T]
-    \begin{column}{0.55\textwidth}
+    \begin{column}{0.48\textwidth}
       \begin{block}{Galerkin Projection ($r \times r$)}
         \footnotesize
         \[
           \mat{M}_r\ddot{\vect{q}} + \mat{C}_r\dot{\vect{q}} + \mat{K}_r(\boldsymbol{\mu})\vect{q} = \vect{F}_r(t)
         \]
-        \alert{Assembly Bottleneck}: Standard Galerkin still requires assembling the full matrix $\hat{\mat{K}}(\boldsymbol{\mu}) \in \mathbb{R}^{N \times N}$ online. No online speedup ($0.92\times$).
+        \alert{Assembly Bottleneck}: Requires assembling the full matrix $\hat{\mat{K}}(\boldsymbol{\mu}) \in \mathbb{R}^{N \times N}$ online. No online speedup ($0.92\times$).
       \end{block}
+      
+      \vspace{0.1cm}
+      \centering
+      \begin{tikzpicture}[scale=0.75, every node/.style={transform shape}]
+        % Mesh (All active)
+        \foreach \x in {0,...,3} {
+          \foreach \y in {0,...,3} {
+            \draw[fill=cnamred!20, draw=cnamred!70] (\x*0.4, \y*0.4) rectangle (\x*0.4+0.35, \y*0.4+0.35);
+          }
+        }
+        \node[below, font=\tiny\bfseries] at (0.75, 0) {Mesh (3,200 elements)};
+        \node[right, font=\tiny, align=left] at (1.65, 0.8) {\textbf{Evaluate}\\\textbf{ALL} elements};
+        
+        % Arrow to N x N
+        \draw[->, thick, cnamred] (0.75, -0.15) -- (0.75, -0.65);
+        
+        % Giant Matrix
+        \draw[fill=gray!15, draw=gray!60, thick] (0.2, -1.7) rectangle (1.3, -0.8) node[midway, font=\scriptsize] {$\hat{\mat{K}}(\boldsymbol{\mu})$};
+        \node[below, font=\tiny] at (0.75, -1.7) {$N \times N$ (Full)};
+        
+        % Arrow to small matrix
+        \draw[->, thick, cnamred] (1.45, -1.25) -- (1.95, -1.25);
+        
+        % Small Matrix
+        \draw[fill=cnamred!15, draw=cnamred, thick] (2.1, -1.5) rectangle (2.6, -1.0) node[midway, font=\tiny] {$\mat{K}_r$};
+        \node[below, font=\tiny] at (2.35, -1.5) {$r \times r$};
+      \end{tikzpicture}
     \end{column}
-    \begin{column}{0.42\textwidth}
+    
+    \begin{column}{0.48\textwidth}
       \begin{block}{ECSW Hyper-Reduction}
         \footnotesize
-        ECSW integrates only over a sparse active subset of elements $\hat{\Omega} \subset \Omega$:
+        ECSW integrates only over a sparse active subset of elements $\tilde{\Omega} \subset \Omega$:
         \[
-          \mat{K}_{r,\text{ECSW}}(\boldsymbol{\mu}) = \sum_{e\in\hat{\Omega}} w_e\,\boldsymbol{\Phi}_e^T\mat{K}_e(\boldsymbol{\mu})\boldsymbol{\Phi}_e
+          \mat{K}_{r,\text{ECSW}}(\boldsymbol{\mu}) = \sum_{e\in\tilde{\Omega}} w_e\,\boldsymbol{\Phi}_e^T\mat{K}_e(\boldsymbol{\mu})\boldsymbol{\Phi}_e
         \]
         Bypasses the assembly bottleneck, evaluating only $28$ out of $3,200$ elements online.
       \end{block}
+      
+      \vspace{0.1cm}
+      \centering
+      \begin{tikzpicture}[scale=0.75, every node/.style={transform shape}]
+        % Mesh (Sparse active)
+        \foreach \x in {0,...,3} {
+          \foreach \y in {0,...,3} {
+            \draw[fill=white, draw=gray!30] (\x*0.4, \y*0.4) rectangle (\x*0.4+0.35, \y*0.4+0.35);
+          }
+        }
+        % Highlighted elements with weights
+        \draw[fill=green!50!black!40, draw=green!60!black] (0*0.4, 2*0.4) rectangle (0*0.4+0.35, 2*0.4+0.35) node[midway, font=\tiny\bfseries, scale=0.8] {$w_1$};
+        \draw[fill=green!50!black!40, draw=green!60!black] (2*0.4, 3*0.4) rectangle (2*0.4+0.35, 3*0.4+0.35) node[midway, font=\tiny\bfseries, scale=0.8] {$w_2$};
+        \draw[fill=green!50!black!40, draw=green!60!black] (3*0.4, 1*0.4) rectangle (3*0.4+0.35, 1*0.4+0.35) node[midway, font=\tiny\bfseries, scale=0.8] {$w_3$};
+        
+        \node[below, font=\tiny\bfseries] at (0.75, 0) {Active Subset (28 elements)};
+        \node[right, font=\tiny, align=left] at (1.65, 0.8) {\textbf{Evaluate}\\\textbf{ONLY} active};
+        
+        % Arrow directly to small matrix
+        \draw[->, thick, green!60!black] (0.75, -0.15) -- (0.75, -0.95);
+        
+        % Small Matrix
+        \draw[fill=green!15, draw=green!60!black, thick] (0.5, -1.5) rectangle (1.0, -1.0) node[midway, font=\tiny] {$\mat{K}_r$};
+        \node[below, font=\tiny] at (0.75, -1.5) {$r \times r$};
+        % Crossed out giant matrix area (Bypassed)
+        \draw[dashed, gray!30] (1.6, -1.7) rectangle (2.7, -0.8);
+        \node[gray!40, font=\tiny\bfseries] at (2.15, -1.25) {BYPASSED};
+        \draw[red!60, thick] (1.7, -0.9) -- (2.6, -1.6);
+        \draw[red!60, thick] (1.7, -1.6) -- (2.6, -0.9);
+      \end{tikzpicture}
     \end{column}
   \end{columns}
 \end{frame}
@@ -294,7 +352,7 @@
 % ==========================================
 \begin{frame}{Step 5: Real-Time Solver \& Benchmarks}
   \small
-  \begin{columns}[T]
+  \begin{columns}[c]
     \begin{column}{0.48\textwidth}
       \begin{block}{Quantitative Comparative Performance}
         \centering\footnotesize
@@ -310,22 +368,8 @@
         \end{tabular}%
         }
       \end{block}
-      \vspace{0.1cm}
-      \begin{block}{Pullback Assembly Speedup}
-        \centering\footnotesize
-        \resizebox{\textwidth}{!}{%
-        \begin{tabular}{lccc}
-          \toprule
-          \textbf{Metric} & \textbf{Classical} & \textbf{Mapped} & \textbf{Speedup} \\
-          \midrule
-          Assembly   & 35.10 ms & 0.90 ms & $\mathbf{38.4\times}$ \\
-          ROM solver & 1.20 ms  & 0.40 ms & $\mathbf{3.0\times}$ \\
-          Total/step & 36.30 ms & 1.30 ms & $\mathbf{27.9\times}$ \\
-          \bottomrule
-        \end{tabular}%
-        }
-      \end{block}
     \end{column}
+    
     \begin{column}{0.48\textwidth}
       \centering
       \scalebox{0.6}{
@@ -349,14 +393,20 @@
             (0.00, 3.63) (0.15, 3.64) (0.30, 3.60) (0.45, 3.48) (0.60, 3.30) (0.75, 3.07) (0.90, 2.81) (1.05, 2.56) (1.20, 2.34) (1.35, 2.15) (1.50, 1.98) (1.65, 1.84) (1.80, 1.68) (1.95, 1.51) (2.10, 1.32) (2.17, 1.22) (2.25, 1.11) (2.40, 0.89) (2.55, 0.69) (2.70, 0.52) (2.85, 0.40) (3.00, 0.32) (3.15, 0.28) (3.30, 0.28) (3.45, 0.29) (3.60, 0.31) (3.75, 0.34) (3.90, 0.37) (4.05, 0.42) (4.20, 0.49) (4.35, 0.60) (4.50, 0.74) (4.65, 0.91) (4.80, 1.11) (4.95, 1.32) (5.10, 1.53) (5.25, 1.64) (5.40, 1.85) (5.55, 2.05) (5.70, 2.24) (5.85, 2.43)
         };
         
+        % Plot Galerkin ROM (dotted green line, almost identical to FOM)
+        \draw[green!60!black, dotted, very thick, smooth] plot coordinates {
+            (0.00, 3.63) (0.15, 3.64) (0.30, 3.60) (0.45, 3.48) (0.60, 3.30) (0.75, 3.07) (0.90, 2.81) (1.05, 2.56) (1.20, 2.34) (1.35, 2.15) (1.50, 1.98) (1.65, 1.84) (1.80, 1.68) (1.95, 1.51) (2.10, 1.32) (2.17, 1.22) (2.25, 1.11) (2.40, 0.89) (2.55, 0.69) (2.70, 0.52) (2.85, 0.40) (3.00, 0.32) (3.15, 0.28) (3.30, 0.28) (3.45, 0.29) (3.60, 0.31) (3.75, 0.34) (3.90, 0.37) (4.05, 0.42) (4.20, 0.49) (4.35, 0.60) (4.50, 0.74) (4.65, 0.91) (4.80, 1.11) (4.95, 1.32) (5.10, 1.53) (5.25, 1.64) (5.40, 1.85) (5.55, 2.05) (5.70, 2.24) (5.85, 2.43)
+        };
+        
         % Plot ECSW Mapped ROM (dashed orange line)
         \draw[orange!85!black, dashed, thick, smooth] plot coordinates {
             (0.00, 3.65) (0.15, 3.65) (0.30, 3.59) (0.45, 3.46) (0.60, 3.28) (0.75, 3.05) (0.90, 2.80) (1.05, 2.57) (1.20, 2.36) (1.35, 2.18) (1.50, 2.02) (1.65, 1.86) (1.80, 1.69) (1.95, 1.51) (2.10, 1.31) (2.17, 1.20) (2.25, 1.09) (2.40, 0.88) (2.55, 0.69) (2.70, 0.61) (2.85, 0.43) (3.00, 0.35) (3.15, 0.31) (3.30, 0.30) (3.45, 0.30) (3.60, 0.30) (3.75, 0.32) (3.90, 0.35) (4.05, 0.41) (4.20, 0.49) (4.35, 0.61) (4.50, 0.75) (4.65, 0.93) (4.80, 1.12) (4.95, 1.32) (5.10, 1.53) (5.25, 1.63) (5.40, 1.83) (5.55, 2.03) (5.70, 2.22) (5.85, 2.42)
         };
-
-        % Legend (Horizontal at the top)
-        \matrix [draw=gray!30, fill=white, at={(3.0, 4.1)}, anchor=south, font=\tiny, column sep=6pt, ampersand replacement=\&] {
-            \node {\tikz[baseline=-0.5ex]{\draw[blue!80!black, thick] (0,0) -- (0.4,0);}}; \& \node {Pullback FOM}; \&
+        
+        % Legend (Vertical, top-right)
+        \matrix [draw=gray!30, fill=white, at={(4.1, 3.8)}, anchor=north west, font=\tiny, row sep=3pt, ampersand replacement=\&] {
+            \node {\tikz[baseline=-0.5ex]{\draw[blue!80!black, thick] (0,0) -- (0.4,0);}}; \& \node {Pullback FOM}; \\
+            \node {\tikz[baseline=-0.5ex]{\draw[green!60!black, dotted, very thick] (0,0) -- (0.4,0);}}; \& \node {Galerkin ROM}; \\
             \node {\tikz[baseline=-0.5ex]{\draw[orange!85!black, dashed, thick] (0,0) -- (0.4,0);}}; \& \node {ECSW ROM}; \\
         };
       \end{tikzpicture}
@@ -367,41 +417,47 @@
   \end{columns}
 \end{frame}
 
-% ==========================================
-% Frame 8: Client-Side Software Architecture
-% ==========================================
 \begin{frame}{Client-Side Software Architecture (Digital Twin)}
-  \small
-  \begin{columns}[T]
-    \begin{column}{0.52\textwidth}
-      The Digital Twin is a \textbf{purely client-side web application} (no server-side backend).
-      \vspace{0.05cm}
-      \begin{block}{Model-View-Controller (MVC)}
-        \footnotesize
-        \begin{itemize}
-          \setlength{\itemsep}{1pt}
-          \item \textbf{Model}: IGA-ROM engine executing solver loops using \texttt{Float64Array} typed arrays.
-          \item \textbf{View}: HTML5 Canvas rendering Von Mises stress heatmap.
-          \item \textbf{Controller}: Direct binding from UI sliders to solver parameter variables.
-        \end{itemize}
-      \end{block}
-      \vspace{0.05cm}
-      ROM datasets ($\boldsymbol{\Phi}$, $w_e$) loaded dynamically.
-    \end{column}
-    \begin{column}{0.45\textwidth}
-      \centering
-      \begin{tikzpicture}[
-        node distance=0.45cm,
-        box/.style={rectangle, draw=cnamred, fill=cnamlightbg, thick, rounded corners,
-                    minimum width=3.8cm, minimum height=0.7cm, align=center, font=\scriptsize}
-      ]
-        \node[box] (m) {\textbf{Model} — IGA-ROM Core\\{\footnotesize ECSW: $2.2$ ms/step}};
-        \node[box, below=of m] (c) {\textbf{Controller} — User Sliders\\{\footnotesize $x_c$, $r$, $\sigma$ parameter inputs}};
-        \node[box, below=of c] (v) {\textbf{View} — HTML5 Canvas\\{\footnotesize Von Mises heatmap @ 20 FPS}};
-        \draw[<->, thick, cnamred] (m) -- (c);
-        \draw[<->, thick, cnamred] (c) -- (v);
-        \node[above=0.25cm of m, font=\tiny, align=center, draw=gray!50, rounded corners, fill=gray!10, inner sep=3pt] {JSON payloads loaded async};
-      \end{tikzpicture}
-    \end{column}
-  \end{columns}
+  \vspace{0.6cm}
+  \centering
+  
+  \begin{tikzpicture}[
+    box/.style={draw=cnamred, fill=cnamlightbg, thick, rounded corners=6pt,
+                minimum width=4.5cm, minimum height=2.6cm, align=center}
+  ]
+    % Model Box
+    \node[box] (model) at (0,0) {
+      \textbf{\large Model} \\[0.15cm]
+      \textbf{IGA-ROM Core} \\[0.1cm]
+      {\footnotesize ECSW solver: $2.2$ ms/step} \\
+      {\footnotesize Typed arrays (\texttt{Float64Array})}
+    };
+    
+    % Controller Box
+    \node[box] (controller) at (5.5,0) {
+      \textbf{\large Controller} \\[0.15cm]
+      \textbf{User Interface} \\[0.15cm]
+      {\footnotesize Interactive UI sliders} \\
+      {\footnotesize Direct parameter bindings}
+    };
+    
+    % View Box
+    \node[box] (view) at (11.0,0) {
+      \textbf{\large View} \\[0.15cm]
+      \textbf{HTML5 Canvas} \\[0.1cm]
+      {\footnotesize Von Mises stress heatmap} \\
+      {\footnotesize Rendered @ 20 FPS}
+    };
+    
+    % Connections
+    \draw[<->, >=stealth, very thick, cnamred] (model) -- (controller);
+    \draw[<->, >=stealth, very thick, cnamred] (controller) -- (view);
+    
+    % Labels/Annotations
+    \node[above=0.2cm of model, draw=gray!40, fill=gray!5, rounded corners=3pt, font=\tiny, inner sep=3pt] 
+      {JSON ROM data loaded dynamically};
+      
+    \node[above=0.2cm of controller, font=\tiny\bfseries, color=cnamred] 
+      {Pure client-side (No backend server)};
+  \end{tikzpicture}
 \end{frame}
