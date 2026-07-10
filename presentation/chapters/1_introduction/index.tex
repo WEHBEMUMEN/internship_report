@@ -35,33 +35,28 @@
 
 % Slide: Conceptual Parallels
 \begin{frame}{Conceptual Parallels to Data Compression}
-  \begin{block}{IGA vs.\ Tessellation}
+  \begin{block}{IGA \hfill \footnotesize [Hughes et al., 2005]}
     \small
-    Standard FEM approximates curved boundaries using piecewise linear tessellations. IGA retains the exact NURBS representation from CAD throughout the analysis — preserving smooth boundary derivatives \textbf{without remeshing}.
+    \begin{itemize}
+      \item Exact CAD geometry (NURBS) — smooth boundaries without remeshing.
+    \end{itemize}
   \end{block}
   \vspace{0.12cm}
-  \begin{block}{ROM vs.\ Spectral Compression}
+  \begin{block}{ROM \hfill \footnotesize [Benner et al., 2015]}
     \small
-    POD-based ROM projects the system onto the dominant energy-carrying modes — analogous to lossy signal compression. Dynamics are resolved in the reduced space in \textbf{milliseconds}.
+    \begin{itemize}
+      \item Projects dynamics onto dominant energy-carrying modes (like lossy compression).
+      \item Solves equations in reduced space in milliseconds.
+    \end{itemize}
   \end{block}
   \vspace{0.12cm}
-  \begin{block}{Hyper-Reduction vs.\ Optimal Sensor Arrays}
+  \begin{block}{Hyper-Reduction \hfill \footnotesize [Farhat et al., 2014]}
     \small
-    ECSW isolates a sparse set of active integration cells — analogous to deploying an optimized sensor array at critical stress zones to reconstruct the global state while bypassing full-domain computation.
+    \begin{itemize}
+      \item Isolates a sparse set of active integration cells (like optimal sensor placement).
+      \item Bypasses full-mesh assembly to resolve the online bottleneck.
+    \end{itemize}
   \end{block}
 \end{frame}
 
-% Slide: Research Objectives
-\begin{frame}{Research Objectives}
-  \begin{enumerate}
-    \small
-    \item \textbf{Exact Geometry Tracking}: Leverage IGA to represent shape parameter variations of the notched cantilever beam exactly using NURBS control point displacements, maintaining a constant topological mesh structure.
-          \vspace{0.05cm}
-    \item \textbf{Dimension Reduction}: Extract an optimal, low-dimensional reduced basis using Proper Orthogonal Decomposition (POD) from snapshots of the transient response.
-          \vspace{0.05cm}
-    \item \textbf{Hyper-Reduction}: Bypass full-mesh assembly for parameter-dependent systems using the Energy-Conserving Sampling and Weighting (ECSW) method to resolve the online computation bottleneck.
-          \vspace{0.05cm}
-    \item \textbf{Real-Time Implementation}: Demonstrate the feasibility of the proposed ROM in a client-side web application, achieving interactive frame rates for real-time visualization of structural responses.
-  \end{enumerate}
-\end{frame}
 

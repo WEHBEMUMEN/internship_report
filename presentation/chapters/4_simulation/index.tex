@@ -16,23 +16,31 @@
     \vspace{-0.15cm}
   \end{block}
   \begin{columns}[T]
-    \begin{column}{0.52\textwidth}
-      \textbf{Element mass matrix}:
+    \begin{column}{0.50\textwidth}
+      \textbf{Mass bilinear form}:
       \[
-        \mat{M}_{e,ab} = \int_{-1}^1\!\int_{-1}^1 \rho\,R_a R_b\,|J(\xi,\eta)|\,d\xi\,d\eta
+        m(\vect{v}_h, \ddot{\vect{u}}_h; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \rho\,\vect{v}_h \cdot \ddot{\vect{u}}_h\,d\Omega
       \]
-      \vspace{-0.1cm}
+      \textbf{Global mass matrix}:
+      \[
+        \mat{M}_{ab}(\boldsymbol{\mu}) = m(\vect{R}_a, \vect{R}_b; \boldsymbol{\mu})
+      \]
+      \vspace{-0.2cm}
       \textbf{Rayleigh damping}: $\mat{C}(\boldsymbol{\mu}) = \alpha_M\mat{M}(\boldsymbol{\mu}) + \beta_K\mat{K}(\boldsymbol{\mu})$
     \end{column}
-    \begin{column}{0.45\textwidth}
-      \textbf{Element stiffness matrix}:
+    \begin{column}{0.48\textwidth}
+      \textbf{Stiffness bilinear form}:
       \[
-        \mat{K}_{e,ab}(\boldsymbol{\mu}) = \int_{-1}^{1}\!\int_{-1}^{1}\mat{B}_a^T\mat{D}\mat{B}_b\,|J(\xi,\eta;\boldsymbol{\mu})|\,d\xi\,d\eta
+        k(\vect{u}_h, \vect{v}_h; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \left(\mat{D}:\boldsymbol{\varepsilon}(\vect{u}_h)\right):\boldsymbol{\varepsilon}(\vect{v}_h) \, d\Omega
       \]
-      \vspace{-0.1cm}
+      \textbf{Global stiffness matrix}:
+      \[
+        \mat{K}_{ab}(\boldsymbol{\mu}) = k(\vect{R}_b, \vect{R}_a; \boldsymbol{\mu})
+      \]
+      \vspace{-0.3cm}
       \begin{alertblock}{Online Assembly Bottleneck}
         \footnotesize
-        As $\boldsymbol{\mu}$ changes, $\mat{J}(\xi,\eta;\boldsymbol{\mu})$ varies at every Gauss point $\Rightarrow$ full mesh re-assembly is required at each time step.
+        As $\boldsymbol{\mu}$ changes, the integration domain $\Omega(\boldsymbol{\mu})$ shifts $\Rightarrow$ full mesh re-assembly is required at each time step.
       \end{alertblock}
     \end{column}
   \end{columns}
