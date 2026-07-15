@@ -32,17 +32,17 @@ $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             \node[left] at (-0.25, 0) {$\Gamma_D(\boldsymbol{\mu})$};
 
             % Reference (Undeformed) Configuration \Omega_0
-            \draw[reference] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
+            \draw[reference] (0,0.6) -- (2.2,0.6) .. controls (2.7,0.6) and (2.9,0.25) .. (3.25,0.25) .. controls (3.6,0.25) and (3.8,0.6) .. (4.3,0.6) -- (6,0.6) -- (6,-0.6) -- (4.3,-0.6) .. controls (3.8,-0.6) and (3.6,-0.25) .. (3.25,-0.25) .. controls (2.9,-0.25) and (2.7,-0.6) .. (2.2,-0.6) -- (0,-0.6) -- cycle;
             \node[black] at (1.2, 0.0) {$\Omega_0$};
 
             % Dimension: x_c
             \draw[dimline] (0, 0.6) -- (0, 1.1);
-            \draw[dimline] (2.2, 0.6) -- (2.2, 1.1);
-            \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above] {$x_c$};
+            \draw[dimline] (3.25, 0.25) -- (3.25, 1.1);
+            \draw[dimension] (0, 1.0) -- (3.25, 1.0) node[midway, above] {$x_c$};
 
-            % Dimension: r
-            \draw[dimline] (2.2, 0.6) -- (2.8, 0.6); 
-            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (2.5, 0.6) -- (2.5, 0.3) node[midway, right] {$r$};
+            % Dimension: d
+            \draw[dimline] (2.2, 0.6) -- (3.25, 0.6);
+            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.25, 0.6) -- (3.25, 0.25) node[midway, right] {$d$};
 
             \node[below, font=\bfseries] at (2.4, -1.8) {(a) Reference Configuration $\Omega_0$};
         \end{scope}
@@ -56,25 +56,25 @@ $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             }
             \node[left] at (-0.25, 0) {$\Gamma_D(\boldsymbol{\mu})$};
 
-            % Parameterized Configuration \Omega(x_c) (Straight, but with different parameters: x_c=3.8, r=0.4)
-            \draw[deformed] (0,0.6) -- (3.4,0.6) arc (180:360:0.4) -- (6,0.6) -- (6,-0.6) -- (4.2,-0.6) arc (0:180:0.4) -- (0,-0.6) -- cycle;
+            % Parameterized Configuration \Omega(x_c)
+            \draw[deformed] (0,0.6) -- (3.0,0.6) .. controls (3.4,0.6) and (3.6,0.2) .. (3.8,0.2) .. controls (4.0,0.2) and (4.2,0.6) .. (4.6,0.6) -- (6,0.6) -- (6,-0.6) -- (4.6,-0.6) .. controls (4.2,-0.6) and (4.0,-0.2) .. (3.8,-0.2) .. controls (3.6,-0.2) and (3.4,-0.6) .. (3.0,-0.6) -- (0,-0.6) -- cycle;
             \node[blue!70!black] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
 
             % Dimension: x_c
             \draw[dimline] (0, 0.6) -- (0, 1.1);
-            \draw[dimline] (3.4, 0.6) -- (3.4, 1.1);
-            \draw[dimension] (0, 1.0) -- (3.4, 1.0) node[midway, above] {$x_c$};
+            \draw[dimline] (3.8, 0.2) -- (3.8, 1.1);
+            \draw[dimension] (0, 1.0) -- (3.8, 1.0) node[midway, above] {$x_c$};
 
-            % Dimension: r
-            \draw[dimline] (3.4, 0.6) -- (4.2, 0.6); 
-            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.8, 0.6) -- (3.8, 0.2) node[midway, right] {$r$};
+            % Dimension: d
+            \draw[dimline] (3.0, 0.6) -- (3.8, 0.6);
+            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.8, 0.6) -- (3.8, 0.2) node[midway, right] {$d$};
 
             \node[below, font=\bfseries] at (3.6, -1.8) {(b) Parameterized Configuration $\Omega(\boldsymbol{\mu})$};
         \end{scope}
 
     \end{tikzpicture}%
     }
-    \caption{Schematic of the notched cantilever beam: (a) reference configuration $\Omega_0$ showing support and design parameters $x_c$ and $r$; (b) parameterized configuration $\Omega(\boldsymbol{\mu})$.}
+    \caption{Schematic of the notched cantilever beam: (a) reference configuration $\Omega_0$ showing support and design parameters $x_c$ and $d$; (b) parameterized configuration $\Omega(\boldsymbol{\mu})$.}
     \label{fig:notched_beam_geometry}
 \end{figure}
 
@@ -109,17 +109,17 @@ $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             \node[left] at (-0.25, 0) {$\Gamma_D(\boldsymbol{\mu})$};
 
             % Reference (Undeformed) Configuration \Omega(x_c)
-            \draw[reference] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
+            \draw[reference] (0,0.6) -- (2.2,0.6) .. controls (2.7,0.6) and (2.9,0.25) .. (3.25,0.25) .. controls (3.6,0.25) and (3.8,0.6) .. (4.3,0.6) -- (6,0.6) -- (6,-0.6) -- (4.3,-0.6) .. controls (3.8,-0.6) and (3.6,-0.25) .. (3.25,-0.25) .. controls (2.9,-0.25) and (2.7,-0.6) .. (2.2,-0.6) -- (0,-0.6) -- cycle;
             \node[black] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
 
             % Dimension: x_c
             \draw[dimline] (0, 0.6) -- (0, 1.1);
-            \draw[dimline] (2.2, 0.6) -- (2.2, 1.1);
-            \draw[dimension] (0, 1.0) -- (2.2, 1.0) node[midway, above] {$x_c$};
+            \draw[dimline] (3.25, 0.25) -- (3.25, 1.1);
+            \draw[dimension] (0, 1.0) -- (3.25, 1.0) node[midway, above] {$x_c$};
 
-            % Dimension: r
-            \draw[dimline] (2.2, 0.6) -- (2.8, 0.6); 
-            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (2.5, 0.6) -- (2.5, 0.3) node[midway, right] {$r$};
+            % Dimension: d
+            \draw[dimline] (2.2, 0.6) -- (3.25, 0.6);
+            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.25, 0.6) -- (3.25, 0.25) node[midway, right] {$d$};
 
             % Point x
             \coordinate (X) at (3.5, 0.0);
@@ -138,32 +138,34 @@ $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             \node[left] at (-0.25, 0) {$\Gamma_D(\boldsymbol{\mu})$};
 
             % Light reference dashed contour
-            \draw[dashed, gray!40] (0,0.6) -- (2.2,0.6) arc (180:360:0.3) -- (6,0.6) -- (6,-0.6) -- (2.8,-0.6) arc (0:180:0.3) -- (0,-0.6) -- cycle;
+            \draw[dashed, gray!40] (0,0.6) -- (2.2,0.6) .. controls (2.7,0.6) and (2.9,0.25) .. (3.25,0.25) .. controls (3.6,0.25) and (3.8,0.6) .. (4.3,0.6) -- (6,0.6) -- (6,-0.6) -- (4.3,-0.6) .. controls (3.8,-0.6) and (3.6,-0.25) .. (3.25,-0.25) .. controls (2.9,-0.25) and (2.7,-0.6) .. (2.2,-0.6) -- (0,-0.6) -- cycle;
 
             % Parameterized Configuration \Omega(x_c)
             \draw[deformed] 
-                (0,0.6) .. controls (1.5,0.6) and (2.1,0.4) .. (2.2,0.3) 
-                arc (165:345:0.3) 
-                .. controls (4.0,0.15) and (5.5,-0.3) .. (5.8,-0.5) -- 
-                (5.5,-1.6) 
-                .. controls (5.2,-1.4) and (3.8,-0.9) .. (2.8,-0.9) 
-                arc (-15:165:0.3) 
-                .. controls (2.1,-0.75) and (1.5,-0.6) .. (0,-0.6) -- cycle;
+                (0,0.6) .. controls (1.1,0.6) and (1.6,0.56) .. (2.2,0.52) 
+                .. controls (2.7,0.52) and (2.9,0.0) .. (3.25,0.0) 
+                .. controls (3.6,0.0) and (3.8,0.3) .. (4.3,0.3) 
+                .. controls (5.0,0.1) and (5.5,-0.1) .. (5.8,-0.2) -- 
+                (5.8,-1.4) 
+                .. controls (5.5,-1.3) and (5.0,-1.1) .. (4.3,-0.9) 
+                .. controls (3.8,-0.9) and (3.6,-0.5) .. (3.25,-0.5) 
+                .. controls (2.9,-0.5) and (2.7,-0.68) .. (2.2,-0.68) 
+                .. controls (1.6,-0.68) and (1.1,-0.6) .. (0,-0.6) -- cycle;
             \node[blue!70!black] at (1.2, 0.0) {$\Omega(\boldsymbol{\mu})$};
 
             % Neumann Boundary \Gamma_N and Traction \vect{h}_N
-            \node[right, red!70!black] at (5.6, -1.0) {$\Gamma_N(\boldsymbol{\mu})$};
-            \draw[force] (5.65, -1.05) -- (5.65, -1.65) node[right] {$\vect{h}_N$};
+            \node[right, red!70!black] at (5.8, -0.6) {$\Gamma_N(\boldsymbol{\mu})$};
+            \draw[force] (5.8, -0.8) -- (5.8, -1.4) node[right] {$\vect{h}_N$};
 
             % Body Force \vect{f}_b
-            \draw[->, line width=1.2pt, orange!80!black] (3.6, -0.4) -- (3.6, -1.0) node[right] {$\vect{f}_b$};
+            \draw[->, line width=1.2pt, orange!80!black] (3.6, -0.25) -- (3.6, -0.85) node[right] {$\vect{f}_b$};
 
             % Outward normal vector \vect{n}
-            \draw[->, line width=1.0pt, purple!80!black] (5.8, -0.5) -- (6.3, -0.64) node[right] {$\vect{n}$};
+            \draw[->, line width=1.0pt, purple!80!black] (5.8, -0.8) -- (6.3, -0.8) node[right] {$\vect{n}$};
 
             % Kinematic point mapping
             \coordinate (X_ref) at (3.5, 0.0);
-            \coordinate (x) at (3.8, -0.5);
+            \coordinate (x) at (3.8, -0.3);
             \fill[gray!60] (X_ref) circle (1.2pt) node[above, gray!60] {$\vect{x}$};
             \fill[blue!70!black] (x) circle (1.5pt) node[right] {$\vect{x} + \vect{u}$};
             \draw[displ] (X_ref) -- (x) node[midway, left] {$\vect{u}$};
@@ -220,9 +222,9 @@ where $\rho$ is the material density, $\vect{f}_b$ is the body force vector, and
 \end{equation}
 For an isotropic material, the Cauchy stress tensor $\boldsymbol{\sigma}$ is related to the strain tensor via Hooke's law:
 \begin{equation}
-    \boldsymbol{\sigma}(\vect{u}) = \mat{D} : \boldsymbol{\varepsilon}(\vect{u})
+    \boldsymbol{\sigma}(\vect{u}) = \mat{D} \boldsymbol{\varepsilon}(\vect{u})
 \end{equation}
-where $\mat{D}$ is the fourth-order elasticity tensor (which under plane stress assumptions reduces to a $3 \times 3$ constitutive matrix).
+where $\mat{D}$ is the constitutive matrix under Voigt notation.
 
 
 
@@ -239,7 +241,7 @@ Integrating by parts over the parameterized spatial domain $\Omega(\boldsymbol{\
 where the bilinear mass and stiffness forms, and the linear load form are defined respectively as:
 \begin{align}
     m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, d\Omega \\
-    k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\sigma}(\vect{u}) : \boldsymbol{\varepsilon}(\delta\vect{u}) \, d\Omega \\
+    k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\varepsilon}(\delta\vect{u})^T \mat{D} \boldsymbol{\varepsilon}(\vect{u}) \, d\Omega \\
     f(\delta\vect{u}) &= \int_{\Omega(\boldsymbol{\mu})} \vect{f}_b \cdot \delta\vect{u} \, d\Omega + \int_{\Gamma_N(\boldsymbol{\mu})} \vect{h}_N \cdot \delta\vect{u} \, d\Gamma
 \end{align}
 
@@ -272,7 +274,7 @@ By substituting the pullback relations into the variational statement, we projec
 where the mass, stiffness, and load forms are evaluated as integrals over the static reference configuration $\hat{\Omega}$:
 \begin{align}
     \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} \\
-    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \left( \mathbf{J}^{-T} \nabla_{\hat{\vect{x}}} \vect{u} \right) : \mat{D} : \left( \mathbf{J}^{-T} \nabla_{\hat{\vect{x}}} \delta\vect{u} \right) J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} \\
+    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \hat{\boldsymbol{\varepsilon}}(\delta\vect{u})^T \mat{D} \hat{\boldsymbol{\varepsilon}}(\vect{u}) \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} \\
     \hat{f}(\delta\vect{u}) &= \int_{\hat{\Omega}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}, \Gamma}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Gamma}
 \end{align}
 Here, $\hat{\Gamma}_N$ represents the reference Neumann boundary, and $J_{\boldsymbol{\mu}, \Gamma}(\hat{\vect{x}})$ is the boundary Jacobian determinant representing the surface area scaling factor. This formulation shifts the entire parameter dependency of the continuum system from the domain geometry into the Jacobian terms $\mathbf{J}$ and its determinant $J_{\boldsymbol{\mu}}$.

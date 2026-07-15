@@ -595,32 +595,3 @@
     \end{column}
   \end{columns}
 \end{frame}
-
-% Slide: Mesh Convergence Study
-\begin{frame}{Mesh Convergence Study}
-  \small
-  A dyadic grid convergence study was conducted under static tip bending load using the interactive simulation application to justify the choice of the $80 \times 40$ elements mesh baseline.
-  
-  \begin{table}[htbp]
-    \centering\footnotesize
-    \begin{tabular}{lcccc}
-      \toprule
-      \textbf{Resolution} & \textbf{Elements} & \textbf{DoFs} & \textbf{Tip Disp. $U_y$ (mm)} & \textbf{Relative Error} \\
-      \midrule
-      $10 \times 5$       & 50                & 168           & 3.538                         & 16.51\% \\
-      $20 \times 10$      & 200               & 528           & 3.889                         & 8.24\%  \\
-      $40 \times 20$      & 800               & 1,848         & 4.083                         & 3.66\%  \\
-      \textbf{80 $\times$ 40} & \textbf{3,200}    & \textbf{6,888} & \textbf{4.185}           & \textbf{1.24\%} \\
-      $160 \times 80$     & 12,800            & 26,568        & 4.238                         & Reference \\
-      \bottomrule
-    \end{tabular}
-  \end{table}
-  
-  The $80 \times 40$ discretization is selected as the operating baseline because:
-  \begin{itemize}
-    \setlength{\itemsep}{1pt}
-    \item Refining to $160 \times 80$ elements yields a change of only $1.24\%$ in displacement.
-    \item Avoids a $3.8\times$ increase in equations ($6,888 \to 26,568$ DOFs).
-  \end{itemize}
-\end{frame}
-

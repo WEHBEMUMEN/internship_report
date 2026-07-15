@@ -713,7 +713,7 @@ where $\hat{u}(\boldsymbol{\xi}) = u(\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsy
 where the pulled-back bilinear and linear forms are written as:
 \begin{align}
     \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) & = \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega}                                                                                                                                        \\
-    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})        & = \int_{\hat{\Omega}} \left(\mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \vect{u}\right) : \mat{D} : \left(\mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \delta\vect{u}\right) J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega}                                   \\
+    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})        & = \int_{\hat{\Omega}} \hat{\boldsymbol{\varepsilon}}(\delta\vect{u})^T \mat{D} \hat{\boldsymbol{\varepsilon}}(\vect{u}) \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega}                                   \\
     \hat{f}(\delta\vect{u}; \boldsymbol{\mu})                       & = \int_{\hat{\Omega}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}, \Gamma}(\boldsymbol{\xi}) \, d\hat{\Gamma}
 \end{align}
 In this reference configuration, all variables are defined over the fixed coordinate space $\boldsymbol{\xi} \in \hat{\Omega}$. The dependency on the geometric parameter vector $\boldsymbol{\mu}$ is shifted entirely into the coordinate Jacobian $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ and its determinant $J_{\boldsymbol{\mu}}(\boldsymbol{\xi})$. This pullback establishes the mathematically consistent framework required to project snapshot states and construct our reduced-order model.
@@ -803,11 +803,11 @@ Computing the stiffness matrix $\hat{\mat{K}}(\boldsymbol{\mu})$ involves a mult
 \begin{enumerate}
     \item \textbf{Domain Integration}: The bilinear form is defined over the physical domain:
           \begin{equation}
-              \hat{k}(\hat{u}^h, \delta\hat{u}^h; \boldsymbol{\mu}) = \int_{\Omega^h(\boldsymbol{\mu})} \vect{\sigma}(u^h) : \vect{\epsilon}(\delta u^h) \, dv
+              \hat{k}(\hat{u}^h, \delta\hat{u}^h; \boldsymbol{\mu}) = \int_{\Omega^h(\boldsymbol{\mu})} \vect{\epsilon}(\delta u^h)^T \vect{\sigma}(u^h) \, dv
           \end{equation}
     \item \textbf{Element Loop}: The global integral is decomposed as a sum over elements:
           \begin{equation}
-              \sum_e \int_{\Omega^e(\boldsymbol{\mu})} \vect{\sigma}(u^h) : \vect{\epsilon}(\delta u^h) \, dv^e
+              \sum_e \int_{\Omega^e(\boldsymbol{\mu})} \vect{\epsilon}(\delta u^h)^T \vect{\sigma}(u^h) \, dv^e
           \end{equation}
     \item \textbf{Pullback to Parametric Space}: Each physical element domain $\Omega^e(\boldsymbol{\mu})$ is mapped back to the parametric element span $\Omega_p^e$:
           \begin{equation}
