@@ -258,7 +258,7 @@ The spatial gradient of this mapping is the coordinate Jacobian matrix $\mathbf{
 \end{equation}
 We assume that the mapping preserves orientation and is invertible, which requires a strictly positive Jacobian determinant:
 \begin{equation}
-    J_{\boldsymbol{\mu}}(\hat{\vect{x}}) = \det \mathbf{J}(\hat{\vect{x}}; \boldsymbol{\mu}) > 0 \quad \forall \hat{\vect{x}} \in \hat{\Omega}
+    J_{\boldsymbol{\mu}} = \det \mathbf{J}(\hat{\vect{x}}; \boldsymbol{\mu}) > 0 \quad \forall \hat{\vect{x}} \in \hat{\Omega}
 \end{equation}
 Using the chain rule, the gradients of any physical field $u$ and the differential volume elements are pulled back to the reference configuration via:
 \begin{equation}
@@ -273,11 +273,11 @@ By substituting the pullback relations into the variational statement, we projec
 \end{equation}
 where the mass, stiffness, and load forms are evaluated as integrals over the static reference configuration $\hat{\Omega}$:
 \begin{align}
-    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} \\
-    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \hat{\boldsymbol{\varepsilon}}(\delta\vect{u})^T \mat{D} \hat{\boldsymbol{\varepsilon}}(\vect{u}) \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} \\
-    \hat{f}(\delta\vect{u}) &= \int_{\hat{\Omega}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}, \Gamma}(\hat{\vect{x}}) \, \mathrm{d}\hat{\Gamma}
+    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega} \\
+    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) &= \int_{\hat{\Omega}} \hat{\boldsymbol{\varepsilon}}(\delta\vect{u})^T \mat{D} \hat{\boldsymbol{\varepsilon}}(\vect{u}) \, J_{\boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega} \\
+    \hat{f}(\delta\vect{u}) &= \int_{\hat{\Omega}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}, \Gamma} \, \mathrm{d}\hat{\Gamma}
 \end{align}
-Here, $\hat{\Gamma}_N$ represents the reference Neumann boundary, and $J_{\boldsymbol{\mu}, \Gamma}(\hat{\vect{x}})$ is the boundary Jacobian determinant representing the surface area scaling factor. This formulation shifts the entire parameter dependency of the continuum system from the domain geometry into the Jacobian terms $\mathbf{J}$ and its determinant $J_{\boldsymbol{\mu}}$.
+Here, $\hat{\Gamma}_N$ represents the reference Neumann boundary, and $J_{\boldsymbol{\mu}, \Gamma}$ is the boundary Jacobian determinant representing the surface area scaling factor. This formulation shifts the entire parameter dependency of the continuum system from the domain geometry into the Jacobian terms $\mathbf{J}$ and its determinant $J_{\boldsymbol{\mu}}$.
 
 \section{Summary}
 In this chapter, we established the mathematical framework for the parameterized continuum model of the notched cantilever beam. By defining the strong form equations of motion and pulling them back to a static reference configuration $\hat{\Omega}$, we isolated the parameter dependency into coordinate transformation Jacobians. In the next chapter, we will discretize these forms using Isogeometric Analysis (IGA) and discuss the mapping from the parametric parent domain $\hat{\Omega}$ to the physical space.

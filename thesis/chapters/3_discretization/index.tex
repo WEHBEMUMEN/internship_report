@@ -701,7 +701,7 @@ To resolve this incompatibility, we define the parameterized smooth geometric ma
 
 The gradient of this mapping is the coordinate Jacobian matrix $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ defined in Equation \ref{eq:jacobian}. We assume that the mapping is bijective and smooth, such that its Jacobian determinant is strictly positive:
 \begin{equation}
-    J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) = \det \mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) > 0
+    J_{\boldsymbol{\mu}} = \det \mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) > 0
 \end{equation}
 By utilizing the pullback relations for spatial gradients and differential volume elements:
 \begin{equation}
@@ -713,11 +713,11 @@ where $\hat{u}(\boldsymbol{\xi}) = u(\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsy
 \end{equation}
 where the pulled-back bilinear and linear forms are written as:
 \begin{align}
-    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) & = \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega}                                                                                                                                        \\
-    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})        & = \int_{\hat{\Omega}} \hat{\boldsymbol{\varepsilon}}(\delta\vect{u})^T \mat{D} \hat{\boldsymbol{\varepsilon}}(\vect{u}) \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega}                                   \\
-    \hat{f}(\delta\vect{u}; \boldsymbol{\mu})                       & = \int_{\hat{\Omega}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) \, d\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}, \Gamma}(\boldsymbol{\xi}) \, d\hat{\Gamma}
+    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) & = \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}} \, d\hat{\Omega}                                                                                                                                        \\
+    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})        & = \int_{\hat{\Omega}} \hat{\boldsymbol{\varepsilon}}(\delta\vect{u})^T \mat{D} \hat{\boldsymbol{\varepsilon}}(\vect{u}) \, J_{\boldsymbol{\mu}} \, d\hat{\Omega}                                   \\
+    \hat{f}(\delta\vect{u}; \boldsymbol{\mu})                       & = \int_{\hat{\Omega}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}} \, d\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\mu}, \Gamma} \, d\hat{\Gamma}
 \end{align}
-In this reference configuration, all variables are defined over the fixed coordinate space $\boldsymbol{\xi} \in \hat{\Omega}$. The dependency on the geometric parameter vector $\boldsymbol{\mu}$ is shifted entirely into the coordinate Jacobian $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ and its determinant $J_{\boldsymbol{\mu}}(\boldsymbol{\xi})$. This pullback establishes the mathematically consistent framework required to project snapshot states and construct our reduced-order model.
+In this reference configuration, all variables are defined over the fixed coordinate space $\boldsymbol{\xi} \in \hat{\Omega}$. The dependency on the geometric parameter vector $\boldsymbol{\mu}$ is shifted entirely into the coordinate Jacobian $\mathbf{J}(\boldsymbol{\xi}; \boldsymbol{\mu})$ and its determinant $J_{\boldsymbol{\mu}}$. This pullback establishes the mathematically consistent framework required to project snapshot states and construct our reduced-order model.
 
 \subsection{Parameter Update Mechanism and the Naive vs. Pullback Paradigms}
 Understanding the computational differences between resolving the governing equations on the parameterized physical domain directly (Naive) versus using the reference configuration mapping (Pullback) is central to shape-parametric Reduced Order Modeling. 
@@ -874,7 +874,7 @@ The accuracy of this IGA core assembly compared to traditional Lagrangian Finite
     \resizebox{\textwidth}{!}{%
         \begin{tabular}{lcccc}
             \toprule
-            \textbf{Mesh Setup} & \textbf{Total DoFs} & \textbf{Peak Displacement (mm)} & \textbf{Energy Norm} & \textbf{Solve Time (ms)} \\
+            \textbf{Mesh Setup} & \textbf{Total DoFs} & \textbf{Tip Disp. (mm)} & \textbf{Energy Norm} & \textbf{Solve Time (ms)} \\
             \midrule
             Lagrange FEM        & $12,400$            & $4.182$                         & $1.042 \times 10^5$  & $845.2$                  \\
             IGA Core            & $3,200$             & $4.185$                         & $1.044 \times 10^5$  & $142.1$                  \\
