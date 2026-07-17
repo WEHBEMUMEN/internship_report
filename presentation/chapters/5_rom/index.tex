@@ -84,9 +84,9 @@
       \vspace{0.15cm}
       \begin{block}{Offline Preparation}
         \begin{itemize}
-          \item \textbf{1. Snapshots}: Generate state vectors.
-          \item \textbf{2. SVD / POD}: Build the basis $\boldsymbol{\Phi}$.
-          \item \textbf{3. Pullback}: Map to reference $\hat{\Omega}$.
+          \item \textbf{1. Pullback}: Map to reference $\hat{\Omega}$.
+          \item \textbf{2. Snapshots}: Generate state vectors.
+          \item \textbf{3. SVD / POD}: Build the basis $\boldsymbol{\Phi}$.
         \end{itemize}
       \end{block}
       \begin{block}{Online Interactivity}
@@ -111,9 +111,9 @@
           \node[anchor=east, font=\tiny\bfseries, color=cnamred] at (-2.7, -3.7) {ONLINE};
           
           % Nodes
-          \node[stepbox] (s1) at (0, 0) {1. Snapshot Collection};
-          \node[stepbox, below=of s1] (s2) {2. SVD / POD Basis Construction};
-          \node[stepbox, below=of s2] (s3) {3. Reference Pullback Mapping};
+          \node[stepbox] (s1) at (0, 0) {1. Reference Pullback Mapping};
+          \node[stepbox, below=of s1] (s2) {2. Snapshot Collection};
+          \node[stepbox, below=of s2] (s3) {3. SVD / POD Basis Construction};
           
           % Parallel Online Branches
           \node[branchbox] (gal4) at (-1.5, -3.5) {\textbf{Galerkin ROM Path} \\ Full Assembly \\ (no hyper-reduction)};
@@ -141,9 +141,56 @@
 \end{frame}
 
 % ==========================================
-% Frame 3: Step 1: Snapshot Collection
+% Frame 3: Step 1: Reference Pullback Mapping
 % ==========================================
-\begin{frame}{Step 1: Snapshot Collection (Data Generation)}
+\begin{frame}{Step 1: Reference Pullback Mapping}
+  \small
+  \begin{block}{Diffeomorphic Pullback to Static $\hat{\Omega}$ (Thesis Section 3.4)}
+    \footnotesize
+    Coordinate transformation maps varying physical coordinates $\vect{x} \in \Omega(\boldsymbol{\mu})$ to static reference coordinates $\hat{\vect{x}} \in \hat{\Omega}$:
+    \[
+      \nabla_{\vect{x}} \vect{u} = \mat{J}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu}) \nabla_{\boldsymbol{\xi}} \hat{\vect{u}}, \quad d\Omega = \color{cnamred}{J_{\boldsymbol{\mu}}(\boldsymbol{\xi})} \, d\hat{\Omega}
+    \]
+    where $\mat{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \frac{\partial \vect{x}}{\partial \hat{\vect{x}}}$ is the coordinate Jacobian, and \color{cnamred}{$J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) = \det\mat{J}$} is the mapping weight.
+  \end{block}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{State Projection on Static Basis ($\boldsymbol{\Phi}$)}
+        \scriptsize
+        The discrete state vector $\vect{U}(\boldsymbol{\mu})$ is parameter-dependent, but projected onto static POD modes:
+        \[
+          \vect{U}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \vect{q}(\boldsymbol{\mu})
+        \]
+        \textbf{Why this matters}:
+        \begin{itemize}
+          \item \textbf{Static Modes}: The SVD projection matrix $\boldsymbol{\Phi}$ is constant and computed offline.
+          \item \textbf{Online Efficiency}: Only the low-dimensional state vector $\vect{q}(\boldsymbol{\mu}) \in \mathbb{R}^r$ needs to be resolved online.
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{The Parameter Dependency ($\mat{K}(\boldsymbol{\mu})$)}
+        \scriptsize
+        Stiffness bilinear form maps parameter $\boldsymbol{\mu}$ into the spatial integral:
+        \[
+          \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \int_{\hat{\Omega}} \left(\mat{J}^{-T} \nabla_{\boldsymbol{\xi}}\vect{u}\right) : \mat{D} : \left(\mat{J}^{-T} \nabla_{\boldsymbol{\xi}}\delta\vect{u}\right) \color{cnamred}{J_{\boldsymbol{\mu}}} \, d\hat{\Omega}
+        \]
+        \textbf{Why it matters}:
+        \begin{itemize}
+          \item Traps $\boldsymbol{\mu}$ inside the integral.
+          \item Standard ROM cannot precompute $\mat{\Phi}^T \mat{K}(\boldsymbol{\mu})\mat{\Phi}$.
+          \item Requires $O(N)$ full online assembly.
+        \end{itemize}
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ==========================================
+% Frame 4: Step 2: Snapshot Collection
+% ==========================================
+\begin{frame}{Step 2: Snapshot Collection (Data Generation)}
   \small
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
@@ -175,9 +222,9 @@
 \end{frame}
 
 % ==========================================
-% Frame 4: Step 2: SVD / POD Basis Construction
+% Frame 5: Step 3: SVD / POD Basis Construction
 % ==========================================
-\begin{frame}{Step 2: SVD / POD Basis Construction}
+\begin{frame}{Step 3: SVD / POD Basis Construction}
   \small
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
@@ -210,53 +257,6 @@
         \scriptsize
         $\epsilon(r) = \sqrt{1-\eta(r)}$ decays rapidly, reaching high accuracy at just $r=10$ modes.
       \end{block}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ==========================================
-% Frame 5: Step 3: Reference Pullback Mapping
-% ==========================================
-\begin{frame}{Step 3: Reference Pullback Mapping}
-  \small
-  \begin{block}{Diffeomorphic Pullback to Static $\hat{\Omega}$ (Thesis Section 3.4)}
-    \footnotesize
-    Coordinate transformation maps varying physical coordinates $\vect{x} \in \Omega(\boldsymbol{\mu})$ to static reference coordinates $\hat{\vect{x}} \in \hat{\Omega}$:
-    \[
-      \nabla_{\vect{x}} \vect{u} = \mat{J}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu}) \nabla_{\boldsymbol{\xi}} \hat{\vect{u}}, \quad d\Omega = \color{cnamred}{J_{\boldsymbol{\mu}}(\boldsymbol{\xi})} \, d\hat{\Omega}
-    \]
-    where $\mat{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \frac{\partial \vect{x}}{\partial \hat{\vect{x}}}$ is the coordinate Jacobian, and $\color{cnamred}{J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) = \det\mat{J}}$ is the mapping weight.
-  \end{block}
-
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \begin{exampleblock}{State Projection on Static Basis ($\boldsymbol{\Phi}$)}
-        \scriptsize
-        The discrete state vector $\vect{U}(\boldsymbol{\mu})$ is parameter-dependent, but projected onto static POD modes:
-        \[
-          \vect{U}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \vect{q}(\boldsymbol{\mu})
-        \]
-        \textbf{Why this matters}:
-        \begin{itemize}
-          \item \textbf{Static Modes}: The SVD projection matrix $\boldsymbol{\Phi}$ is constant and computed offline.
-          \item \textbf{Online Efficiency}: Only the low-dimensional state vector $\vect{q}(\boldsymbol{\mu}) \in \mathbb{R}^r$ needs to be resolved online.
-        \end{itemize}
-      \end{exampleblock}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{alertblock}{The Parameter Dependency ($\mat{K}(\boldsymbol{\mu})$)}
-        \scriptsize
-        Stiffness bilinear form maps parameter $\boldsymbol{\mu}$ into the spatial integral:
-        \[
-          \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \int_{\hat{\Omega}} \left(\mat{J}^{-T} \nabla_{\boldsymbol{\xi}}\vect{u}\right) : \mat{D} : \left(\mat{J}^{-T} \nabla_{\boldsymbol{\xi}}\delta\vect{u}\right) \color{cnamred}{J_{\boldsymbol{\mu}}} \, d\hat{\Omega}
-        \]
-        \textbf{Why it matters}:
-        \begin{itemize}
-          \item Traps $\boldsymbol{\mu}$ inside the integral.
-          \item Standard ROM cannot precompute $\mat{\Phi}^T \mat{K}(\boldsymbol{\mu})\mat{\Phi}$.
-          \item Requires $O(N)$ full online assembly.
-        \end{itemize}
-      \end{alertblock}
     \end{column}
   \end{columns}
 \end{frame}

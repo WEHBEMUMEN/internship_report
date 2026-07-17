@@ -23,16 +23,16 @@ To construct a successful and reliable reduced-order representation of the struc
 \subsection{The Model Reduction Recipe}
 To achieve these targets, we formulate a projection-based reduction methodology divided into offline (computationally intensive, executed once) and online (lightweight, executed in real-time) stages. The step-by-step recipe is:
 
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!65!black,title={\textbf{Step 1: Offline Snapshot Collection (Data Generation)}}, fonttitle=\bfseries]
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!65!black,title={\textbf{Step 1: Pullback Mapping to a Static Reference Domain}}, fonttitle=\bfseries]
+To handle shape parameterization (changing geometry), we pull back the governing equations from the parameter-dependent physical domain $\Omega(\boldsymbol{\mu})$ to a fixed reference configuration $\hat{\Omega}$. This ensures that all snapshot vectors and bases reside in the same vector space, enabling consistent projections.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!65!black,title={\textbf{Step 2: Offline Snapshot Collection (Data Generation)}}, fonttitle=\bfseries]
 Run high-fidelity FOM simulations across representative combinations of geometric and physical parameters $\boldsymbol{\mu} \in \mathcal{D}$ (e.g., notch positions and radii under typical loading paths). The resulting displacement fields are compiled into a snapshot matrix $\mathbf{S}_u$.
 \end{tcolorbox}
 
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!65!black,title={\textbf{Step 2: Proper Orthogonal Decomposition (Basis Construction)}}, fonttitle=\bfseries]
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!65!black,title={\textbf{Step 3: Proper Orthogonal Decomposition (Basis Construction)}}, fonttitle=\bfseries]
 Perform a Singular Value Decomposition (SVD) on the snapshot matrix $\mathbf{S}_u$. The left singular vectors corresponding to the largest singular values represent the dominant modes of deformation, forming the reduced basis matrix $\boldsymbol{\Phi} \in \mathbb{R}^{N \times r}$.
-\end{tcolorbox}
-
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!65!black,title={\textbf{Step 3: Pullback Mapping to a Static Reference Domain}}, fonttitle=\bfseries]
-To handle shape parameterization (changing geometry), we pull back the governing equations from the parameter-dependent physical domain $\Omega(\boldsymbol{\mu})$ to a fixed reference configuration $\hat{\Omega}$. This ensures that all snapshot vectors and bases reside in the same vector space, enabling consistent projections.
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!65!black,title={\textbf{Step 4: Hyper-Reduction Training (ECSW NNLS Optimization)}}, fonttitle=\bfseries]

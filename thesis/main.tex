@@ -64,6 +64,24 @@
     right=3cm
 }
 
+% Jet Colormap Color Definitions
+\definecolor{jetblue}{rgb}{0.23,0.51,0.96}
+\definecolor{jetcyan}{rgb}{0.02,0.71,0.83}
+\definecolor{jetgreen}{rgb}{0.06,0.73,0.51}
+\definecolor{jetyellow}{rgb}{0.98,0.80,0.08}
+\definecolor{jetorange}{rgb}{0.98,0.45,0.09}
+\definecolor{jetred}{rgb}{0.94,0.27,0.27}
+
+% Declare Jet vertical shading
+\pgfdeclareverticalshading{jet}{10cm}{
+  color(0.0cm)=(jetblue);
+  color(0.4cm)=(jetcyan);
+  color(0.8cm)=(jetgreen);
+  color(1.2cm)=(jetyellow);
+  color(1.6cm)=(jetorange);
+  color(2.0cm)=(jetred)
+}
+
 % Custom macros for vector/matrix notations
 \newcommand{\vect}[1]{\mathbf{#1}}
 \newcommand{\mat}[1]{\mathbf{#1}}

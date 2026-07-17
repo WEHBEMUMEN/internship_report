@@ -29,33 +29,42 @@ where $\alpha_M$ and $\beta_K$ are the mass-proportional and stiffness-proportio
 \begin{figure}[htbp]
     \centering
     \begin{tikzpicture}[
-        node distance=1.5cm,
-        block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=6.5cm, minimum height=0.9cm, align=center, font=\sffamily\small},
-        process/.style={rectangle, draw=orange!70, fill=orange!5, thick, minimum width=6.5cm, minimum height=0.9cm, align=center, font=\sffamily\small},
+        node distance=1.4cm,
+        row1/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=5.8cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
+        row2/.style={rectangle, draw=teal!70, fill=teal!5, thick, rounded corners, minimum width=5.8cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
+        row3/.style={rectangle, draw=orange!70, fill=orange!5, thick, rounded corners, minimum width=5.8cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
+        row4/.style={rectangle, draw=purple!70, fill=purple!5, thick, rounded corners, minimum width=5.8cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
+        row5/.style={rectangle, draw=olive!70, fill=olive!5, thick, rounded corners, minimum width=5.8cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
         arrow/.style={thick,->,>=stealth}
-    ]
-        % Left Column: Classical Physical-Domain
-        \node [block] (naive_start) {Classical Physical Path \\ $\Omega(\boldsymbol{\mu})$};
-        \node [process, below of=naive_start, node distance=1.5cm] (remesh) {Regenerate Mesh \\ $N(\boldsymbol{\mu})$ varies};
-        \node [process, below of=remesh, node distance=1.5cm] (assemble) {Assemble Stiffness $\mat{K}(\boldsymbol{\mu})$ \\ High Cost, Online};
-        \node [process, below of=assemble, node distance=1.5cm] (solve_naive) {Solve System \\ Variable Dimensions};
-        
-        % Right Column: Mapped Reference
-        \node [block, right=1.5cm of naive_start] (mapped_start) {Reference Map Path \\ $\hat{\Omega}$};
-        \node [process, below of=mapped_start, node distance=1.5cm] (static_mesh) {Static Reference Mesh \\ $N$ is constant};
-        \node [process, below of=static_mesh, node distance=1.5cm] (pullback) {Pullback Integrals \\ Jacobian $\mat{J}(\boldsymbol{\mu})$};
-        \node [process, below of=pullback, node distance=1.5cm] (pullback_assemble) {Assemble Stiffness $\mat{K}(\boldsymbol{\mu})$ \\ Still High Cost, Online};
-        \node [process, below of=pullback_assemble, node distance=1.5cm] (solve_mapped) {Solve System \\ Constant Dimensions};
-        
-        % Connections
-        \draw [arrow] (naive_start) -- (remesh);
-        \draw [arrow] (remesh) -- (assemble);
-        \draw [arrow] (assemble) -- (solve_naive);
-        
-        \draw [arrow] (mapped_start) -- (static_mesh);
-        \draw [arrow] (static_mesh) -- (pullback);
-        \draw [arrow] (pullback) -- (pullback_assemble);
-        \draw [arrow] (pullback_assemble) -- (solve_mapped);
+      ]
+      % Left Column: Classical Physical-Domain
+      \node [row1] (l1) {\textbf{Classical Physical Path} \\ Goal: $\int_{\Omega(\boldsymbol{\mu})} \dots \mathrm{d}\Omega$ (physical domain)};
+      \node [row2, below of=l1] (l2) {Basis Functions \\ $R_i(\boldsymbol{\mu})$ varies (mesh regenerated)};
+      \node [row3, below of=l2] (l3) {Online Assembly \\ Assemble $\mat{K}(\boldsymbol{\mu})$, $\mat{M}(\boldsymbol{\mu})$ (expensive)};
+      \node [row4, below of=l3] (l4) {Implicit Time Scheme \\ Newmark-$\beta$ Solver};
+      \node [row5, below of=l4] (l5) {Extract QoI \\ Tip deflection $U_y(t)$ \& $\sigma_{\text{VM}}$ (variable dimensions)};
+
+      % Right Column: Mapped Reference
+      \node [row1, right=1.6cm of l1] (r1) {\textbf{Reference Map Path} \\ Goal: $\int_{\hat{\Omega}} \dots J_{\boldsymbol{\mu}}\,\mathrm{d}\hat{\Omega}$ (fixed reference domain)};
+      \node [row2, below of=r1] (r2) {Bases Remain the Same \\ $\hat{R}_i$ is parameter-independent};
+      \node [row3, below of=r2] (r3) {Pulled-Back Assembly \\ $\hat{\mat{K}}(\boldsymbol{\mu}), \hat{\mat{M}}(\boldsymbol{\mu})$ depend on $J(\boldsymbol{\mu})$ (online) \\ Shape derivatives pre-computed};
+      \node [row4, below of=r3] (r4) {Implicit Time Scheme \\ Newmark-$\beta$ Solver \\ \textcolor{red!80!black}{\scriptsize(possibility of ill-conditioning)}};
+      \node [row5, below of=r4] (r5) {Extract QoI \\ Tip deflection $U_y(t)$ \& $\sigma_{\text{VM}}$ (constant dimensions)};
+
+      % ROM Application Labels (Outside Flowchart, on the Right)
+      \node [red!80!black, font=\sffamily\tiny\bfseries, align=center, right=0.15cm of r3] (rom3_label) {$\gets$ Hyper-Reduction\\(reduces elements: $N_e \to M_e$)};
+      \node [red!80!black, font=\sffamily\tiny\bfseries, align=center, right=0.15cm of r4] (rom4_label) {$\gets$ Galerkin ROM\\(reduces DOFs: $N \to r$)};
+
+      % Connections
+      \draw [arrow] (l1) -- (l2);
+      \draw [arrow] (l2) -- (l3);
+      \draw [arrow] (l3) -- (l4);
+      \draw [arrow] (l4) -- (l5);
+
+      \draw [arrow] (r1) -- (r2);
+      \draw [arrow] (r2) -- (r3);
+      \draw [arrow] (r3) -- (r4);
+      \draw [arrow] (r4) -- (r5);
     \end{tikzpicture}
     \caption{Visual workflow comparing physical-domain mesh regeneration (Classical) against static reference-configuration pullback mapping, illustrating that online stiffness matrix assembly remains a computational bottleneck prior to model reduction.}
     \label{fig:remesh_vs_pullback}
@@ -128,79 +137,34 @@ To evaluate the dynamic performance of the Full Order Model (FOM) under shape va
     \begin{tikzpicture}[scale=1.2, >=stealth]
         % --- UNDEFORMED REFERENCE STATE (dashed) ---
         \draw[dashed, black!25, thick]
-            (0, 1.0) -- (2.0, 1.0)
-            .. controls (2.5, 1.0) and (2.7, 0.4) .. (3.0, 0.4)
-            .. controls (3.3, 0.4) and (3.5, 1.0) .. (4.0, 1.0)
-            -- (6.0, 1.0) -- (6.0, -1.0) -- (4.0, -1.0)
-            .. controls (3.5, -1.0) and (3.3, -0.4) .. (3.0, -0.4)
-            .. controls (2.7, -0.4) and (2.5, -1.0) .. (2.0, -1.0)
-            -- (0, -1.0) -- cycle;
-        \node[black!40, font=\small] at (4.5, 0.3) {Undeformed};
+            (0, 0.65) -- (2.275, 0.65)
+            .. controls (2.7625, 0.65) and (2.925, 0.26) .. (3.25, 0.26)
+            .. controls (3.575, 0.26) and (3.7375, 0.65) .. (4.225, 0.65)
+            -- (6.5, 0.65) -- (6.5, -0.65) -- (4.225, -0.65)
+            .. controls (3.7375, -0.65) and (3.575, -0.26) .. (3.25, -0.26)
+            .. controls (2.925, -0.26) and (2.7625, -0.65) .. (2.275, -0.65)
+            -- (0, -0.65) -- cycle;
+        \node[black!40, font=\small] at (4.8, 0.2) {Undeformed};
 
         % --- CLAMPED BOUNDARY HATCHING ---
-        \foreach \y in {-1.2, -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0} {
-            \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.2);
+        \foreach \y in {-0.65, -0.55, -0.45, -0.35, -0.25, -0.15, -0.05, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65} {
+            \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.1);
         }
-        \draw[ultra thick, black!70] (0, -1.2) -- (0, 1.2);
+        \draw[ultra thick, black!70] (0, -0.7) -- (0, 0.7);
 
-        % --- DEFORMED STRUCTURE WITH STRESS CONCENTRATION ---
-        \begin{scope}
-            % Clip to the deformed notched plate boundary (barely deformed)
-            \clip (0, 1.0) 
-                .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
-                .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
-                .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
-                .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
-                -- (6.0, -1.15)
-                .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
-                .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
-                .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
-                .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
-                -- cycle;
-
-            % Base color fill (low stress - blue)
-            \fill[blue!10] (-0.5, -3.0) rectangle (7.0, 2.0);
-
-            % Intermediate stress fields (greenish-yellow gradients)
-            \draw[fill=yellow!20, draw=none, opacity=0.6] (3.0, 0.37) circle (1.2);
-            \draw[fill=yellow!20, draw=none, opacity=0.6] (3.0, -0.43) circle (1.2);
-
-            % High stress concentration zones (orange/red) near the notch throats
-            \draw[fill=orange!45, draw=none, opacity=0.8] (3.0, 0.37) circle (0.6);
-            \draw[fill=red!60, draw=none, opacity=0.9] (3.0, 0.37) circle (0.28);
-
-            \draw[fill=orange!45, draw=none, opacity=0.8] (3.0, -0.43) circle (0.6);
-            \draw[fill=red!60, draw=none, opacity=0.9] (3.0, -0.43) circle (0.28);
-        \end{scope}
-
-        % Draw the boundary of the deformed notched plate
-        \draw[draw=blue!60, thick] (0, 1.0) 
-            .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
-            .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
-            .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
-            .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
-            -- (6.0, -1.15)
-            .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
-            .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
-            .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
-            .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
-            -- cycle;
-
-        % NURBS-like deformed coordinate lines (subtle)
-        \draw[blue!30, thin] (0, 0) .. controls (2.0, -0.03) and (4.0, -0.08) .. (6.0, -0.15);
-        \draw[blue!30, thin] (0, 0.5) .. controls (2.0, 0.47) and (4.0, 0.42) .. (6.0, 0.35);
-        \draw[blue!30, thin] (0, -0.5) .. controls (2.0, -0.53) and (4.0, -0.58) .. (6.0, -0.65);
+        % --- REAL STRESS MESH FROM SIMULATION APP ---
+        \input{chapters/4_simulation/stress_mesh_raw.tex}
 
         % --- LOADING FORCE ARROW ---
-        \draw[->, ultra thick, red!85!black] (6.0, -1.15) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.0, -2.15);
+        \draw[->, ultra thick, red!85!black] (6.5, -1.10) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.5, -1.80);
 
         % --- COLORBAR ---
-        \begin{scope}[xshift=7.4cm, yshift=-1.5cm]
-            \path[shading=ygradient, top color=red!80, bottom color=blue!60] (0, 0) rectangle (0.25, 2.0);
+        \begin{scope}[xshift=8.2cm, yshift=-1.0cm]
+            \path[shading=jet] (0, 0) rectangle (0.25, 2.0);
             \draw[thick, black!50] (0, 0) rectangle (0.25, 2.0);
             \node[right, font=\tiny] at (0.25, 2.0) {$\sigma_{\text{VM}}^{\text{max}}$ (High)};
             \node[right, font=\tiny] at (0.25, 0.0) {$\sigma_{\text{VM}}^{\text{min}}$ (Low)};
-            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Stress \\ $\sigma_{\text{VM}}$};
+            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Stress $\sigma_{\text{VM}}$};
         \end{scope}
     \end{tikzpicture}
     \caption{Conceptual schema of the Full Order Model (FOM) transient simulation, depicting the stress concentrations ($\sigma_{\text{VM}}$) localized near the notch throats.}
@@ -212,73 +176,39 @@ To evaluate the dynamic performance of the Full Order Model (FOM) under shape va
     \begin{tikzpicture}[scale=1.2, >=stealth]
         % --- UNDEFORMED REFERENCE STATE (dashed) ---
         \draw[dashed, black!25, thick]
-            (0, 1.0) -- (2.0, 1.0)
-            .. controls (2.5, 1.0) and (2.7, 0.4) .. (3.0, 0.4)
-            .. controls (3.3, 0.4) and (3.5, 1.0) .. (4.0, 1.0)
-            -- (6.0, 1.0) -- (6.0, -1.0) -- (4.0, -1.0)
-            .. controls (3.5, -1.0) and (3.3, -0.4) .. (3.0, -0.4)
-            .. controls (2.7, -0.4) and (2.5, -1.0) .. (2.0, -1.0)
-            -- (0, -1.0) -- cycle;
-        \node[black!40, font=\small] at (4.5, 0.3) {Undeformed};
+            (0, 0.65) -- (2.275, 0.65)
+            .. controls (2.7625, 0.65) and (2.925, 0.26) .. (3.25, 0.26)
+            .. controls (3.575, 0.26) and (3.7375, 0.65) .. (4.225, 0.65)
+            -- (6.5, 0.65) -- (6.5, -0.65) -- (4.225, -0.65)
+            .. controls (3.7375, -0.65) and (3.575, -0.26) .. (3.25, -0.26)
+            .. controls (2.925, -0.26) and (2.7625, -0.65) .. (2.275, -0.65)
+            -- (0, -0.65) -- cycle;
+        \node[black!40, font=\small] at (4.8, 0.2) {Undeformed};
 
         % --- CLAMPED BOUNDARY HATCHING ---
-        \foreach \y in {-1.2, -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0} {
-            \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.2);
+        \foreach \y in {-0.65, -0.55, -0.45, -0.35, -0.25, -0.15, -0.05, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65} {
+            \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.1);
         }
-        \draw[ultra thick, black!70] (0, -1.2) -- (0, 1.2);
+        \draw[ultra thick, black!70] (0, -0.7) -- (0, 0.7);
 
-        % --- DEFORMED STRUCTURE WITH DISPLACEMENT CONTOUR ---
-        \begin{scope}
-            % Clip to the deformed notched plate boundary (barely deformed)
-            \clip (0, 1.0) 
-                .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
-                .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
-                .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
-                .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
-                -- (6.0, -1.15)
-                .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
-                .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
-                .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
-                .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
-                -- cycle;
-
-            % Horizontal gradient representing displacement increasing from left to right
-            \path[shading=xgradient, left color=blue!20, right color=red!60] (0, -2.0) rectangle (6.0, 2.0);
-        \end{scope}
-
-        % Draw the boundary of the deformed notched plate
-        \draw[draw=blue!60, thick] (0, 1.0) 
-            .. controls (1.0, 0.99) and (1.5, 0.98) .. (2.0, 0.97)
-            .. controls (2.5, 0.97) and (2.7, 0.37) .. (3.0, 0.37)
-            .. controls (3.3, 0.37) and (3.5, 0.95) .. (4.0, 0.92)
-            .. controls (5.0, 0.9) and (5.5, 0.88) .. (6.0, 0.85)
-            -- (6.0, -1.15)
-            .. controls (5.5, -1.12) and (5.0, -1.1) .. (4.0, -1.08)
-            .. controls (3.5, -1.08) and (3.3, -0.43) .. (3.0, -0.43)
-            .. controls (2.7, -0.43) and (2.5, -1.05) .. (2.0, -1.03)
-            .. controls (1.5, -1.02) and (1.0, -1.01) .. (0, -1.0)
-            -- cycle;
-
-        % NURBS-like deformed coordinate lines (subtle)
-        \draw[blue!30, thin] (0, 0) .. controls (2.0, -0.03) and (4.0, -0.08) .. (6.0, -0.15);
-        \draw[blue!30, thin] (0, 0.5) .. controls (2.0, 0.47) and (4.0, 0.42) .. (6.0, 0.35);
-        \draw[blue!30, thin] (0, -0.5) .. controls (2.0, -0.53) and (4.0, -0.58) .. (6.0, -0.65);
+        % --- REAL MESH FROM SIMULATION APP ---
+        \input{chapters/4_simulation/displacement_mesh_raw.tex}
 
         % --- LOADING FORCE ARROW ---
-        \draw[->, ultra thick, red!85!black] (6.0, -1.15) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.0, -2.15);
+        \draw[->, ultra thick, red!85!black] (6.5, -1.10) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.5, -1.80);
 
         % --- DEFLECTION INDICATORS ---
-        \draw[dashed, black!40] (6.0, -1.0) -- (6.8, -1.0);
-        \draw[dashed, black!40] (6.0, -1.15) -- (6.8, -1.15);
-        \draw[<->, thick, black!70] (6.6, -1.0) -- node[right, font=\small] {$U_y(t)$} (6.6, -1.15);
+        \draw[dashed, black!40] (6.5, -0.65) -- (7.1, -0.65);
+        \draw[dashed, black!40] (6.5, -1.10) -- (7.1, -1.10);
+        \draw[<->, thick, black!70] (6.9, -0.65) -- node[right, font=\small] {$U_y(t)$} (6.9, -1.10);
 
         % --- COLORBAR ---
-        \begin{scope}[xshift=7.4cm, yshift=-1.5cm]
-            \path[shading=ygradient, top color=red!80, bottom color=blue!60] (0, 0) rectangle (0.25, 2.0);
+        \begin{scope}[xshift=8.2cm, yshift=-1.0cm]
+            \path[shading=jet] (0, 0) rectangle (0.25, 2.0);
             \draw[thick, black!50] (0, 0) rectangle (0.25, 2.0);
             \node[right, font=\tiny] at (0.25, 2.0) {$U_{\text{max}}$ (Tip)};
             \node[right, font=\tiny] at (0.25, 0.0) {$0$ (Clamped)};
-            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Displacement \\ $U$};
+            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Displacement $U$};
         \end{scope}
     \end{tikzpicture}
     \caption{Conceptual schema of the displacement field distribution, showing the smooth transition of displacement magnitude from zero at the clamped support to maximum at the loaded tip.}
