@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build LaTeX Thesis (PDF)",
+            "type": "shell",
+            "command": "tectonic main.tex",
+            "options": {
+                "cwd": "${workspaceFolder}/thesis"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Build LaTeX Thesis",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "Build LaTeX Thesis (PDF)"
+        }
+    ]
+}
