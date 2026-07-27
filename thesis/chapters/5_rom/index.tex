@@ -59,7 +59,7 @@ To determine the number of modes $r$ needed to represent the displacement field 
 \begin{equation}
     \eta(r) = \frac{\sum_{i=1}^{r} \sigma_i^2}{\sum_{j=1}^{d} \sigma_j^2}, \quad \epsilon(r) = \sqrt{1 - \eta(r)}
 \end{equation}
-where $\sigma_i$ represents the $i$-th singular value obtained from the Singular Value Decomposition (SVD) of the snapshot matrix $\mathbf{S}_u$, and $d$ is the total number of snapshots. The convergence of the relative $L_2$ reconstruction error as a function of the number of POD modes is shown in Figure \ref{fig:pod_energy_decay}.
+where $\sigma_i$ represents the $i$-th singular value obtained from the Singular Value Decomposition (SVD) of the snapshot matrix $\mathbf{S}_u$, and $d$ is the total number of snapshots. In this work, a singular value energy ratio threshold of $\eta(r) \ge 99.99\%$ (corresponding to a relative projection error $\epsilon(r) \le 0.01\%$) is enforced to truncate the basis dimension to $r$, guaranteeing that all dominant deformation dynamics are captured while filtering numerical noise. The convergence of the relative $L_2$ reconstruction error as a function of the number of POD modes is shown in Figure \ref{fig:pod_energy_decay}.
 
 \begin{figure}[htbp]
     \centering
