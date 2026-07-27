@@ -1,0 +1,100 @@
+% !TEX root = main.tex
+\section{Dynamic Time Integration \& Full Order Model (FOM) Formulas}
+\label{sec:time_integration}
+
+This section details the governing semi-discrete equations of structural dynamics, Rayleigh damping models, and the Generalized-$\alpha$ dynamic time integration algorithm used for stable, second-order accurate transient simulations.
+
+\subsection{Semi-Discrete Equations of Motion}
+
+\subsubsection{Formula}
+Applying spatial discretization via Isogeometric Analysis yields a system of second-order ordinary differential equations (ODEs):
+\begin{equation}
+\mathbf{M} \ddot{\mathbf{u}}(t) + \mathbf{C} \dot{\mathbf{u}}(t) + \mathbf{K}(\boldsymbol{\mu}) \mathbf{u}(t) = \mathbf{F}(t)
+\end{equation}
+where:
+\begin{itemize}
+    \item $\mathbf{u}(t), \dot{\mathbf{u}}(t), \ddot{\mathbf{u}}(t) \in \mathbb{R}^N$ are global displacement, velocity, and acceleration vectors.
+    \item $N$ is the number of unconstrained physical degrees of freedom ($N = 2 \times n_u \times n_v - N_{\text{BC}}$).
+    \item $\mathbf{M} \in \mathbb{R}^{N \times N}$ is the symmetric positive-definite mass matrix.
+    \item $\mathbf{C} \in \mathbb{R}^{N \times N}$ is the viscous damping matrix.
+    \item $\mathbf{K}(\boldsymbol{\mu}) \in \mathbb{R}^{N \times N}$ is the parameter-dependent stiffness matrix.
+    \item $\mathbf{F}(t) \in \mathbb{R}^N$ is the external force load vector.
+\end{itemize}
+
+\hr
+
+\subsection{Rayleigh Damping Formulation}
+
+\subsubsection{Formula}
+The global damping matrix $\mathbf{C}$ is constructed as a linear combination of mass and stiffness matrices:
+\begin{equation}
+\mathbf{C} = \alpha_m \mathbf{M} + \beta_k \mathbf{K}
+\end{equation}
+where $\alpha_m \ge 0$ is mass-proportional damping ($\text{s}^{-1}$), and $\beta_k \ge 0$ is stiffness-proportional damping ($\text{s}$).
+
+\subsubsection{Modal Damping Ratio Connection}
+For natural frequency $\omega_i$, modal damping ratio $\zeta_i$ is:
+\begin{equation}
+\zeta_i = \frac{\alpha_m}{2 \omega_i} + \frac{\beta_k \omega_i}{2}
+\end{equation}
+
+\hr
+
+\subsection{Generalized-$\alpha$ Dynamic Time Integration Scheme}
+
+\subsubsection{Governing Interpolation Formulas}
+Generalized-$\alpha$ evaluates equations of motion at intermediate time levels $t_{n+1-\alpha_f}$ and $t_{n+1-\alpha_m}$:
+\begin{equation}
+\mathbf{M} \ddot{\mathbf{u}}_{n+1-\alpha_m} + \mathbf{C} \dot{\mathbf{u}}_{n+1-\alpha_f} + \mathbf{K} \mathbf{u}_{n+1-\alpha_f} = \mathbf{F}(t_{n+1-\alpha_f})
+\end{equation}
+
+Where intermediate state vectors are defined by convex combinations:
+\begin{equation}
+\mathbf{u}_{n+1-\alpha_f} = (1 - \alpha_f) \mathbf{u}_{n+1} + \alpha_f \mathbf{u}_n
+\end{equation}
+\begin{equation}
+\dot{\mathbf{u}}_{n+1-\alpha_f} = (1 - \alpha_f) \dot{\mathbf{u}}_{n+1} + \alpha_f \dot{\mathbf{u}}_n
+\end{equation}
+\begin{equation}
+\ddot{\mathbf{u}}_{n+1-\alpha_m} = (1 - \alpha_m) \ddot{\mathbf{u}}_{n+1} + \alpha_m \ddot{\mathbf{u}}_n
+\end{equation}
+
+\subsubsection{Newmark-Beta Kinematic Update Relations}
+\begin{equation}
+\mathbf{u}_{n+1} = \mathbf{u}_n + \Delta t \dot{\mathbf{u}}_n + \Delta t^2 \left[ \left(\frac{1}{2} - \beta\right) \ddot{\mathbf{u}}_n + \beta \ddot{\mathbf{u}}_{n+1} \right]
+\end{equation}
+\begin{equation}
+\dot{\mathbf{u}}_{n+1} = \dot{\mathbf{u}}_n + \Delta t \left[ (1 - \gamma) \ddot{\mathbf{u}}_n + \gamma \ddot{\mathbf{u}}_{n+1} \right]
+\end{equation}
+
+\subsubsection{Algorithmic Parameter Relations via High-Frequency Spectral Radius $\rho_\infty$}
+To control high-frequency numerical dissipation while maintaining unconditional stability and second-order accuracy, all parameters $(\alpha_m, \alpha_f, \beta, \gamma)$ are uniquely determined by spectral radius $\rho_\infty \in [0, 1]$:
+\begin{equation}
+\alpha_m = \frac{2\rho_\infty - 1}{\rho_\infty + 1}, \quad \alpha_f = \frac{\rho_\infty}{\rho_\infty + 1}
+\end{equation}
+\begin{equation}
+\beta = \frac{1}{4} (1 + \alpha_f - \alpha_m)^2 = \frac{1}{(1 + \rho_\infty)^2}
+\end{equation}
+\begin{equation}
+\gamma = \frac{1}{2} + \alpha_f - \alpha_m = \frac{1}{2} + \frac{1 - \rho_\infty}{1 + \rho_\infty}
+\end{equation}
+
+\hr
+
+\subsection{Effective Tangent Matrix $\mathbf{K}_{\text{eff}}$ \& System Solution}
+
+\subsubsection{Formula}
+Substituting kinematic relations into intermediate equilibrium yields a linear system for unknown acceleration $\ddot{\mathbf{u}}_{n+1}$:
+\begin{equation}
+\mathbf{K}_{\text{eff}} \ddot{\mathbf{u}}_{n+1} = \mathbf{F}_{\text{eff}}
+\end{equation}
+where Effective Tangent Matrix $\mathbf{K}_{\text{eff}}$ is:
+\begin{equation}
+\mathbf{K}_{\text{eff}} = (1 - \alpha_m) \mathbf{M} + (1 - \alpha_f) \gamma \Delta t \mathbf{C} + (1 - \alpha_f) \beta \Delta t^2 \mathbf{K}
+\end{equation}
+
+\subsubsection{App \& Code Alignment}
+In \texttt{app/shared/fom-solver.js}:
+\begin{itemize}
+    \item Uses $\rho_\infty = 0.8$, computes coefficients \texttt{cM}, \texttt{cC}, \texttt{cK}, and solves linear tangent system per time step.
+\end{itemize}

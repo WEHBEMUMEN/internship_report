@@ -1,0 +1,154 @@
+% !TEX root = main.tex
+\section{Cox-de Boor Recursion, B-Splines, and NURBS Formulas}
+\label{sec:nurbs}
+
+This section details the foundational mathematical formulas for B-Splines, Non-Uniform Rational B-Splines (NURBS), derivative calculations, and parametric-to-physical domain mappings used in Isogeometric Analysis (IGA) and in the Digital Twin web application.
+
+\subsection{Cox-de Boor Recursion Formula (B-Spline Basis Functions)}
+
+\subsubsection{Formula}
+The $i$-th B-spline basis function of polynomial degree $p$ evaluated at parametric coordinate $u \in \mathbb{R}$ is defined recursively by the Cox-de Boor formula:
+\begin{equation}
+N_{i,0}(u) = \begin{cases} 
+1 & \text{if } u_i \le u < u_{i+1} \\ 
+0 & \text{otherwise} 
+\end{cases}
+\end{equation}
+
+\begin{equation}
+N_{i,p}(u) = \frac{u - u_i}{u_{i+p} - u_i} N_{i,p-1}(u) + \frac{u_{i+p+1} - u}{u_{i+p+1} - u_{i+1}} N_{i+1,p-1}(u)
+\end{equation}
+with the convention that $\frac{0}{0} = 0$.
+
+\subsubsection{Mathematical Explanation \& Structural Rationale}
+\begin{itemize}
+    \item \textbf{Recursive Structure}: Lower-degree ($p-1$) basis functions are blended linearly to form degree-$p$ basis functions. This triangular evaluation structure guarantees that $N_{i,p}(u)$ is piecewise polynomial of degree $p$.
+    \item \textbf{Partition of Unity}: $\sum_{i=1}^n N_{i,p}(u) = 1$ for all $u$ inside the active parametric domain $[u_p, u_{n+1}]$.
+    \item \textbf{Non-negativity}: $N_{i,p}(u) \ge 0$ everywhere, ensuring geometric convex-hull properties.
+    \item \textbf{Local Support}: $N_{i,p}(u) > 0$ strictly within the interval $[u_i, u_{i+p+1})$. Outside this interval, it is identically zero.
+    \item \textbf{Continuity}: Across a knot $u_k$ of multiplicity $k_m$, the basis function is $C^{p - k_m}$ continuous. For open knot vectors (where end knots repeat $p+1$ times), basis functions are interpolatory ($N = 1$) at the domain boundaries.
+\end{itemize}
+
+\subsubsection{Variable Dependencies}
+\begin{enumerate}
+    \item \textbf{$u$ (Parametric Coordinate)}: Specifies the location along the 1D parameter domain $[0, 1]$. Changing $u$ moves along the curve/mesh.
+    \item \textbf{$p$ (Polynomial Degree)}: Determines the degree of polynomials, smoothness ($C^{p-1}$ across simple knots), and the support width (covers $p+1$ knot spans).
+    \item \textbf{$\Xi = \{u_0, u_1, \dots, u_{m}\}$ (Knot Vector)}: Sets element boundaries and local continuity. Repeating a knot reduces continuity by 1 order per repetition.
+    \item \textbf{$i$ (Basis Index / Control Point Index)}: Positions the support window $[u_i, u_{i+p+1})$ along the knot vector.
+\end{enumerate}
+
+\subsubsection{App \& Code Alignment}
+In \texttt{app/shared/nurbs-core.js} and \texttt{visualizer/mesh\_convergence.py}:
+\begin{itemize}
+    \item \texttt{basisFuns(i, u, p, U)} implements the linear combination loop equivalent to Cox-de Boor using Algorithm A2.2 (Piegl \& Tiller).
+\end{itemize}
+
+\hr
+
+\subsection{B-Spline First Derivative Formula}
+
+\subsubsection{Formula}
+The derivative of a degree-$p$ B-spline basis function $N_{i,p}(u)$ with respect to $u$ is expressed in terms of degree-$(p-1)$ basis functions:
+\begin{equation}
+N'_{i,p}(u) = \frac{p}{u_{i+p} - u_i} N_{i,p-1}(u) - \frac{p}{u_{i+p+1} - u_{i+1}} N_{i+1,p-1}(u)
+\end{equation}
+
+\subsubsection{Mathematical Explanation \& Structural Rationale}
+\begin{itemize}
+    \item \textbf{Degree Reduction}: Differentiating a polynomial of degree $p$ yields a polynomial of degree $p-1$. The factor $p$ comes directly from the power rule $\frac{d}{dx}(x^p) = p x^{p-1}$.
+    \item \textbf{Difference Operator}: The negative sign on the second term reflects the finite-difference nature of B-spline derivatives, enforcing that the integral of $N'_{i,p}(u)$ over its support equals zero (since $N_{i,p}$ vanishes at boundaries).
+\end{itemize}
+
+\subsubsection{Variable Dependencies}
+\begin{enumerate}
+    \item \textbf{$p$ (Degree)}: Scales the derivative magnitude linearly.
+    \item \textbf{Knot Spans $(u_{i+p} - u_i)$}: Inverse knot span lengths act as parametric element sizes $h$. Narrow knot spans produce larger derivatives (steeper gradients).
+\end{enumerate}
+
+\subsubsection{App \& Code Alignment}
+In \texttt{app/shared/nurbs-core.js} and \texttt{visualizer/mesh\_convergence.py}:
+\begin{itemize}
+    \item \texttt{dersBasisFuns(i, u, p, U, nDerivs)} evaluates both $N_{i,p}(u)$ and $N'_{i,p}(u)$ in a single pass.
+\end{itemize}
+
+\hr
+
+\subsection{2D Tensor-Product B-Spline Basis Functions}
+
+\subsubsection{Formula}
+For a bivariate surface defined on the parametric domain $(u, v) \in [0, 1] \times [0, 1]$, the tensor-product B-spline shape function associated with control point $(i, j)$ is:
+\begin{equation}
+N_{i,j}^{p,q}(u, v) = N_{i,p}(u) \cdot M_{j,q}(v)
+\end{equation}
+where $N_{i,p}(u)$ is the degree-$p$ univariate basis in $u$, and $M_{j,q}(v)$ is the degree-$q$ univariate basis in $v$.
+
+\subsubsection{Mathematical Explanation \& Structural Rationale}
+\begin{itemize}
+    \item \textbf{Separation of Variables}: The 2D domain is formed by the Cartesian product of two 1D knot vectors $\Xi$ and $H$. Taking the product $N_{i,p}(u) M_{j,q}(v)$ creates a rectangular parametric patch element $\hat{\Omega}_e = [u_i, u_{i+1}] \times [v_j, v_{j+1}]$.
+    \item \textbf{Knot Span Connectivity}: $p+1$ basis functions in $u$ and $q+1$ basis functions in $v$ overlap on each element, giving $(p+1)(q+1)$ active shape functions per 2D element.
+\end{itemize}
+
+\hr
+
+\subsection{Non-Uniform Rational B-Splines (NURBS) Basis Functions}
+
+\subsubsection{Formula}
+NURBS shape functions introduce scalar weights $w_{i,j} > 0$ for each control point to exactly represent conic sections:
+\begin{equation}
+R_{i,j}^{p,q}(u, v) = \frac{N_{i,p}(u) M_{j,q}(v) w_{i,j}}{W(u, v)}
+\end{equation}
+where $W(u, v)$ is the weight weighting function (denominator):
+\begin{equation}
+W(u, v) = \sum_{k=1}^{n_u} \sum_{l=1}^{n_v} N_{k,p}(u) M_{l,q}(v) w_{k,l}
+\end{equation}
+
+\subsubsection{Mathematical Explanation \& Structural Rationale}
+\begin{itemize}
+    \item \textbf{Projective Geometry}: Rational functions arise from projecting a 3D non-rational B-spline curve/surface in homogeneous coordinates $(w x, w y, w z, w)$ onto the 2D physical hyperplane $w = 1$.
+    \item \textbf{Exact Conic Representation}: Polynomials alone cannot represent circular arcs exactly. Rational functions can. For example, a quarter circle uses degree $p=2$ with control point weight $w_1 = \frac{1}{\sqrt{2}} \approx 0.7071$.
+\end{itemize}
+
+\subsubsection{Variable Dependencies}
+\begin{enumerate}
+    \item \textbf{$w_{i,j}$ (Control Point Weight)}: Increasing $w_{i,j}$ pulls the surface closer to control point $\mathbf{P}_{i,j}$. When all weights are equal ($w_{i,j} = w_0$), $W(u,v)$ cancels out and NURBS reduces back to standard B-splines.
+\end{enumerate}
+
+\hr
+
+\subsection{Parametric-to-Physical Geometric Mapping $\mathbf{x}(u, v)$}
+
+\subsubsection{Formula}
+Any point $\mathbf{x} = (x, y)^T$ in physical domain $\Omega$ is mapped from parametric coordinates $(u, v)$ via:
+\begin{equation}
+\mathbf{x}(u, v) = \sum_{i=1}^{n_u} \sum_{j=1}^{n_v} R_{i,j}^{p,q}(u, v) \mathbf{P}_{i,j}
+\end{equation}
+where $\mathbf{P}_{i,j} = (x_{i,j}, y_{i,j})^T$ are the coordinates of control point $(i, j)$.
+
+\hr
+
+\subsection{Mapping Jacobian Matrix $\mathbf{J}$ and Determinant $J$}
+
+\subsubsection{Formula}
+The coordinate transformation Jacobian matrix $\mathbf{J}$ maps derivatives from physical coordinates $(x, y)$ to parametric coordinates $(u, v)$:
+\begin{equation}
+\mathbf{J}(u, v) = \frac{\partial (x, y)}{\partial (u, v)} = \begin{bmatrix} \dfrac{\partial x}{\partial u} & \dfrac{\partial y}{\partial u} \\[8pt] \dfrac{\partial x}{\partial v} & \dfrac{\partial y}{\partial v} \end{bmatrix}
+\end{equation}
+
+The Jacobian determinant $J = \det(\mathbf{J})$ (area scaling factor) is:
+\begin{equation}
+J = \det(\mathbf{J}) = \frac{\partial x}{\partial u} \frac{\partial y}{\partial v} - \frac{\partial x}{\partial v} \frac{\partial y}{\partial u}
+\end{equation}
+
+\subsubsection{Inverse Jacobian Matrix $\mathbf{J}^{-1}$ and Physical Derivatives}
+To compute physical gradients $\begin{bmatrix} \frac{\partial R_a}{\partial x} \\ \frac{\partial R_a}{\partial y} \end{bmatrix}$, we invert $\mathbf{J}$:
+\begin{equation}
+\begin{bmatrix} \dfrac{\partial R_a}{\partial x} \\[8pt] \dfrac{\partial R_a}{\partial y} \end{bmatrix} = \mathbf{J}^{-1} \begin{bmatrix} \dfrac{\partial R_a}{\partial u} \\[8pt] \dfrac{\partial R_a}{\partial v} \end{bmatrix}
+\quad \text{where} \quad
+\mathbf{J}^{-1} = \frac{1}{J} \begin{bmatrix} \dfrac{\partial y}{\partial v} & -\dfrac{\partial y}{\partial u} \\[8pt] -\dfrac{\partial x}{\partial v} & \dfrac{\partial x}{\partial u} \end{bmatrix}
+\end{equation}
+
+\subsubsection{App \& Code Alignment}
+In \texttt{app/shared/nurbs-core.js} and \texttt{visualizer/mesh\_convergence.py}:
+\begin{itemize}
+    \item Explicitly computes \texttt{detJ}, \texttt{invJ}, and physical basis derivatives \texttt{dR\_dx}, \texttt{dR\_dy}.
+\end{itemize}

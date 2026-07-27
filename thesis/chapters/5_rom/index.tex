@@ -340,9 +340,9 @@ This maps the transient states dynamically across the parameter-dependent manifo
 
 % ==============================================================================
 \section{Reference-Mapped Linear ECSW Hyper-reduction} \label{sec:ecsw}
-To resolve the online assembly bottleneck, the \textbf{Energy-Conserving Sampling and Weighting (ECSW)} method \cite{Farhat2014} is implemented on the reference configuration. ECSW replaces full-mesh integration with a sparse, weighted combination evaluated over a minimal subset of active elements $\widehat{\Omega} \subset \Omega$:
+To resolve the online assembly bottleneck, the \textbf{Energy-Conserving Sampling and Weighting (ECSW)} method \cite{Farhat2014} is implemented on the reference configuration. ECSW replaces full-mesh integration with a sparse, weighted combination evaluated over a minimal subset of active elements $\Omega_{\text{ECSW}} \subset \hat{\Omega}$:
 \begin{equation}
-    \mathbf{K}_{r, \text{ECSW}}(\boldsymbol{\mu}) = \sum_{e \in \widehat{\Omega}} w_e \boldsymbol{\Phi}_e^T \mathbf{K}_{e}(\boldsymbol{\mu}) \boldsymbol{\Phi}_e
+    \mathbf{K}_{r, \text{ECSW}}(\boldsymbol{\mu}) = \sum_{e \in \Omega_{\text{ECSW}}} w_e \boldsymbol{\Phi}_e^T \mathbf{K}_{e}(\boldsymbol{\mu}) \boldsymbol{\Phi}_e
 \end{equation}
 where $\mathbf{K}_{e}$ is the element-level stiffness matrix, and $w_e$ are trained non-negative weights.
 
@@ -357,9 +357,9 @@ where the target vector $\vect{b}$ is the exact unreduced projected force, and t
 \subsection{Dirichlet and Notch Seeding for Coercivity}
 Standard greedy selection algorithms (such as Orthogonal Matching Pursuit) often fail to select clamped boundary elements. Without these elements, the hyper-reduced stiffness matrix $\mathbf{K}_{\text{ECSW}}$ loses its connection to the Dirichlet boundary constraints. This leads to a loss of \textbf{coercivity} (singular matrices and rigid-body modes). 
 
-To guarantee coercivity and capture high-stress gradients near the defect notches, we pre-seed the active set $\widehat{\Omega}$ before initiating the greedy selection:
+To guarantee coercivity and capture high-stress gradients near the defect notches, we pre-seed the active set $\Omega_{\text{ECSW}}$ before initiating the greedy selection:
 \begin{equation}
-    \widehat{\Omega}_{\text{seed}} = \{e_{\text{clamp}}\} \cup \{e_{\text{notch}}\}
+    \Omega_{\text{ECSW, seed}} = \{e_{\text{clamp}}\} \cup \{e_{\text{notch}}\}
 \end{equation}
 The offline training workflow is formalized in Algorithm \ref{alg:ecsw_training} and illustrated in Figure \ref{fig:ecsw_flowchart}.
 

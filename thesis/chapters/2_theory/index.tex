@@ -5,7 +5,7 @@
 
 \section{Geometry Configurations}
 
-Let $\Omega_0 \subset \mathbb{R}^d$ ($d \in \{1, 2, 3\}$) define the initial reference coordinate configuration, and let $\Omega(\boldsymbol{\mu})$ define the parameterized physical configuration, parameterized by a vector of design variables $\boldsymbol{\mu} \in \mathcal{D} \subset \mathbb{R}^P$. The fig.~\ref{fig:notched_beam_geometry} illustrates the geometry of a 2D cantilever beam under geometric parameter variations. The active design parameters are grouped into a vector 
+Let $\hat{\Omega} \subset \mathbb{R}^d$ ($d \in \{1, 2, 3\}$, also denoted $\Omega_0 \equiv \hat{\Omega}$ in classical continuum mechanics) define the static reference coordinate configuration, and let $\Omega(\boldsymbol{\mu})$ define the parameterized physical configuration, parameterized by a vector of design variables $\boldsymbol{\mu} \in \mathcal{D} \subset \mathbb{R}^P$. The fig.~\ref{fig:notched_beam_geometry} illustrates the geometry of a 2D cantilever beam under geometric parameter variations. The active design parameters are grouped into a vector 
 $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ represents the radius of the symmetric circular notches cut out from the top and bottom boundaries, and $x_c$ denotes the spatial position (distance from the clamped boundary on the left) of the notch center along the longitudinal axis of the beam. The notch width factor $\sigma$ is kept constant as a configuration parameter ($\sigma = 0.6$ m).
   
 
@@ -40,9 +40,9 @@ $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             \draw[dimline] (3.25, 0.25) -- (3.25, 1.1);
             \draw[dimension] (0, 1.0) -- (3.25, 1.0) node[midway, above] {$x_c$};
 
-            % Dimension: d
+            % Dimension: r
             \draw[dimline] (2.2, 0.6) -- (3.25, 0.6);
-            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.25, 0.6) -- (3.25, 0.25) node[midway, right] {$d$};
+            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.25, 0.6) -- (3.25, 0.25) node[midway, right] {$r$};
 
             \node[below, font=\bfseries] at (2.4, -1.8) {(a) Reference Configuration $\Omega_0$};
         \end{scope}
@@ -65,16 +65,16 @@ $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
             \draw[dimline] (3.8, 0.2) -- (3.8, 1.1);
             \draw[dimension] (0, 1.0) -- (3.8, 1.0) node[midway, above] {$x_c$};
 
-            % Dimension: d
+            % Dimension: r
             \draw[dimline] (3.0, 0.6) -- (3.8, 0.6);
-            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.8, 0.6) -- (3.8, 0.2) node[midway, right] {$d$};
+            \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.8, 0.6) -- (3.8, 0.2) node[midway, right] {$r$};
 
             \node[below, font=\bfseries] at (3.6, -1.8) {(b) Parameterized Configuration $\Omega(\boldsymbol{\mu})$};
         \end{scope}
 
     \end{tikzpicture}%
     }
-    \caption{Schematic of the notched cantilever beam: (a) reference configuration $\Omega_0$ showing support and design parameters $x_c$ and $d$; (b) parameterized configuration $\Omega(\boldsymbol{\mu})$.}
+    \caption{Schematic of the notched cantilever beam: (a) reference configuration $\hat{\Omega}$ (or $\Omega_0$) showing support and design parameters $x_c$ and $r$; (b) parameterized configuration $\Omega(\boldsymbol{\mu})$.}
     \label{fig:notched_beam_geometry}
 \end{figure}
 
@@ -183,7 +183,7 @@ $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
         \toprule
         \textbf{Symbol} & \textbf{Description} \\
         \midrule
-        $\Omega_0$ & Undeformed reference configuration \\
+        $\hat{\Omega}$ (or $\Omega_0$) & Static undeformed reference configuration \\
         $\Omega(\boldsymbol{\mu})$ & Parameterized physical configuration (depending on $\boldsymbol{\mu}$) \\
         $\Gamma_D(\boldsymbol{\mu})$ & Dirichlet boundary (clamped left edge where $\vect{u} = \vect{0}$) \\
         $\Gamma_N(\boldsymbol{\mu})$ & Neumann boundary (surface under traction forces) \\

@@ -106,8 +106,9 @@ Evaluating the transient dynamic response of structural components (such as a 2D
 
 ## ✅ Priority Action Checklist
 
-- [ ] **Fix TikZ Figure 2.1**: Update dimension label $d \to r$ in [2_theory/index.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/2_theory/index.tex#L45).
-- [ ] **Unify Reference Domain**: Add clarifying sentence in Section 2.1 of [2_theory/index.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/2_theory/index.tex#L8) ($\hat{\Omega} \equiv \Omega_0$).
-- [ ] **Disambiguate ECSW Mesh**: Rename $\widehat{\Omega} \to \Omega_{\text{ECSW}}$ in [5_rom/index.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/5_rom/index.tex#L343).
-- [ ] **Update Nomenclature**: Add $\hat{\Omega}_{\text{param}}$, $\Omega_{\text{ECSW}}$, and $\omega_n$ to [nomenclature.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/0_frontmatter/nomenclature.tex#L11).
-- [ ] **Add Generalized-$\alpha$ Damping Param**: Specify $\rho_{\infty}$ in [4_simulation/index.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/4_simulation/index.tex).
+- [x] **Fix TikZ Figure 2.1**: Updated dimension label $d \to r$ in [2_theory/index.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/2_theory/index.tex#L45).
+- [x] **Unify Reference Domain**: Added clarifying sentence in Section 2.1 of [2_theory/index.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/2_theory/index.tex#L8) ($\hat{\Omega} \equiv \Omega_0$).
+- [x] **Disambiguate ECSW Mesh**: Renamed $\widehat{\Omega} \to \Omega_{\text{ECSW}}$ in [5_rom/index.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/5_rom/index.tex#L343) and [nomenclature.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/0_frontmatter/nomenclature.tex).
+- [x] **Update Nomenclature**: Added $\hat{\Omega}_{\text{param}}$, $\Omega_{\text{ECSW}}$, and $\omega_n$ to [nomenclature.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/0_frontmatter/nomenclature.tex#L11).
+- [x] **Add Generalized-$\alpha$ Damping Param**: Specified $\rho_{\infty}$ in [4_simulation/index.tex](file:///c:/Users/moume/Documents/report/thesis/chapters/4_simulation/index.tex).
+- [ ] **Mapping Field**: Retained $\mathbf{d}(\boldsymbol{\mu})$ per user instruction (excluded from changes).

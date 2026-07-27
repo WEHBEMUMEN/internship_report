@@ -1,0 +1,79 @@
+% !TEX root = main.tex
+\documentclass[11pt,a4paper]{article}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+% --- Colors ---
+\definecolor{primary}{RGB}{30, 64, 175}
+\definecolor{secondary}{RGB}{71, 85, 105}
+\definecolor{accent}{RGB}{15, 118, 110}
+\definecolor{bglight}{RGB}{248, 250, 252}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    citecolor=accent,
+    urlcolor=primary,
+    pdftitle={Mathematical Formulas, Variable Rationale & App Code Mapping},
+    pdfauthor={CNAM Internship Project}
+}
+
+% --- Header and Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\textcolor{secondary}{\small Mathematical Notes \& Code Mapping}}
+\lhead{\textcolor{secondary}{\small IGA \& ROM Digital Twin}}
+\cfoot{\thepage}
+
+% --- Section Styling ---
+\titleformat{\section}{\Large\bfseries\color{primary}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{accent}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{secondary}}{\thesubsubsection}{1em}{}
+
+% --- Horizontal Rule Command ---
+\newcommand{\hr}{\par\vspace{0.5em}\hrule height 0.4pt\vspace{0.5em}}
+
+% --- Title Information ---
+\title{\vspace{-1.5cm}\Huge\bfseries\color{primary} Mathematical Formulas, Derivations, and Code Mapping Notes}
+\author{\Large\bfseries Isogeometric Analysis \& Reduced Order Modeling Digital Twin}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{tcolorbox}[colback=bglight,colframe=primary,arc=3mm,title=\textbf{Executive Overview}]
+This document compiles all governing mathematical formulas, derivations, structural rationales, variable dependencies, and direct source code mappings across the \textbf{Isogeometric Analysis (IGA)}, \textbf{Full Order Model (FOM)}, and \textbf{Reduced Order Model (ROM)} real-time web application and numerical solvers.
+\end{tcolorbox}
+
+\tableofcontents
+\newpage
+
+\input{01_cox_de_boor_and_nurbs.tex}
+\newpage
+
+\input{02_iga_continuum_and_discretization.tex}
+\newpage
+
+\input{03_time_integration_and_fom.tex}
+\newpage
+
+\input{04_pod_rom_and_hyper_reduction.tex}
+\newpage
+
+\input{05_formula_summary_and_code_mapping.tex}
+
+\end{document}

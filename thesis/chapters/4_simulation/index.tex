@@ -90,8 +90,8 @@ To enforce the homogeneous Dirichlet boundary conditions (e.g., rigid clamping a
 \end{equation}
 This forces the displacement at those boundary degrees of freedom to zero, accurately satisfying the clamping constraint without altering the size or structure of the system matrix.
 
-\section{Implicit Time Integration (\texorpdfstring{Newmark-$\beta$}{Newmark-beta})}
-To resolve the linear semi-discrete second-order system of equations of motion, we couple the implicit \textbf{Newmark-$\beta$} average acceleration scheme ($\beta=0.25$, $\gamma=0.5$). For a linear system, the equations can be solved directly at each time step without the need for iterative Newton-Raphson solvers. The detailed solver steps are formalized in Algorithm \ref{alg:fom_dynamics}.
+\section{Implicit Time Integration (\texorpdfstring{Newmark-$\beta$}{Newmark-beta} / Generalized-\texorpdfstring{$\alpha$}{alpha})}
+To resolve the linear semi-discrete second-order system of equations of motion, we couple the implicit \textbf{Newmark-$\beta$} average acceleration scheme ($\beta=0.25$, $\gamma=0.5$), which corresponds to the Generalized-$\alpha$ method with high-frequency dissipation spectral radius $\rho_{\infty} = 1.0$ ($\alpha_m = 0$, $\alpha_f = 0$). For a linear system, the equations can be solved directly at each time step without the need for iterative Newton-Raphson solvers. The detailed solver steps are formalized in Algorithm \ref{alg:fom_dynamics}.
 
 \begin{algorithm}[htbp]
 \caption{Full Order Model (FOM) Implicit Dynamics Solver}
