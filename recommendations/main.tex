@@ -26,7 +26,7 @@
 \title{\textbf{\Large Comprehensive Thesis Review \& Actionable Recommendations}\\[0.3em]
 \large Technical Evaluation, Symbol Audits, and Quality Enhancements}
 \author{\textbf{Antigravity AI Pair Programmer}}
-\date{\today}
+\date{July 27, 2026}
 
 \begin{document}
 
@@ -35,9 +35,9 @@
 \section*{Executive Summary}
 This report provides a comprehensive review of the Master's Thesis / Internship Report repository on \textbf{Isogeometric Analysis (IGA) and Reduced Order Modeling (ROM) for Parameterized Structural Dynamics}. 
 
-The overall manuscript is of \textbf{exceptional academic and technical quality}. The integration of NURBS-based IGA, Proper Orthogonal Decomposition (POD), Diffeomorphic Pullback Mappings, and Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction is mathematically rigorous, clearly derived, and validated by real-time client-side Digital Twin performance (\textbf{39$\times$ assembly speedup}, 20 FPS web visualizer).
+The overall manuscript is of \textbf{exceptional academic and technical quality}. The integration of NURBS-based IGA, Proper Orthogonal Decomposition (POD), Diffeomorphic Pullback Mappings, and Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction is mathematically rigorous, clearly derived, and validated by real-time client-side Digital Twin performance (\textbf{64.5$\times$ assembly speedup}, 20+ FPS web visualizer, relative $L_2$ error $< 0.054\%$).
 
-This document outlines a high-level technical overview of the engineering pipeline, targeted chapter notes, mathematical symbol audits, and actionable recommendations for manuscript refinement.
+This document outlines a high-level technical overview of the engineering pipeline, targeted chapter notes, mathematical symbol audits, and the current implementation status of all recommendations.
 
 \vspace{0.5em}
 \hrule
@@ -48,7 +48,7 @@ This document outlines a high-level technical overview of the engineering pipeli
 \subsection*{1. Core Engineering Bottlenecks}
 Evaluating the transient dynamic response of structural components (such as a 2D notched cantilever beam) under varying geometric design parameters $\boldsymbol{\mu} = (r, x_c)^T$ presents two major computational challenges:
 \begin{enumerate}
-    \item \textbf{Online Remeshing \& Assembly Overhead}: Standard Finite Element Method (FEM) solvers require spatial remeshing of the physical domain $\Omega(\boldsymbol{\mu})$ whenever parameters change, incurring high latency ($\approx 35.10\text{ ms}$ per step just for matrix assembly).
+    \item \textbf{Online Remeshing \& Assembly Overhead}: Standard Finite Element Method (FEM) solvers require spatial remeshing of the physical domain $\Omega(\boldsymbol{\mu})$ whenever parameters change, incurring high latency ($154.50\text{ ms}$ per step for unreduced matrix assembly).
     \item \textbf{Vector Space Incompatibility}: As geometry changes, snapshot vectors collected across different parameter settings lie in different physical function spaces ($\mathcal{V}(\Omega(\boldsymbol{\mu}_1)) \neq \mathcal{V}(\Omega(\boldsymbol{\mu}_2))$), invalidating standard subspace projection methods like Proper Orthogonal Decomposition (POD) in physical space.
 \end{enumerate}
 
@@ -61,7 +61,7 @@ To resolve these bottlenecks, the thesis establishes a unified 4-pillar methodol
     \begin{equation}
         \mathbf{M}_r \ddot{\mathbf{q}}(t) + \mathbf{C}_r \dot{\mathbf{q}}(t) + \mathbf{K}_r(\boldsymbol{\mu}) \mathbf{q}(t) = \mathbf{F}_r(t)
     \end{equation}
-    \item \textbf{Hyper-Reduction via ECSW}: Bypasses full-mesh integration of parameter-dependent stiffness matrices $\mathbf{K}_r(\boldsymbol{\mu})$ by selecting a minimal active element subset $\Omega_{\text{ECSW}} \subset \hat{\Omega}$ and positive weights $w_e$ via Non-Negative Least Squares (NNLS). Operator assembly is reduced from $35.10\text{ ms}$ down to $0.90\text{ ms}$ (\textbf{39$\times$ speedup}), preserving energy conservation and exact natural frequencies ($\omega_{n,\text{ROM}} = 1.107\text{ rad/s}$ vs. $\omega_{n,\text{FOM}} = 1.108\text{ rad/s}$, deviation $0.09\%$).
+    \item \textbf{Hyper-Reduction via ECSW}: Bypasses full-mesh integration of parameter-dependent stiffness matrices $\mathbf{K}_r(\boldsymbol{\mu})$ by selecting a minimal active element subset $\Omega_{\text{ECSW}} \subset \hat{\Omega}$ ($28$ active elements out of $3,200$) and positive weights $w_e$ via Non-Negative Least Squares (NNLS). Operator assembly is reduced from $154.50\text{ ms}$ down to $2.20\text{ ms}$ (\textbf{64.5$\times$ speedup}), preserving energy conservation and exact natural frequencies ($\omega_{n,\text{ROM}} = 1.107\text{ rad/s}$ vs. $\omega_{n,\text{FOM}} = 1.108\text{ rad/s}$, deviation $0.09\%$).
 \end{enumerate}
 
 \subsection*{3. Quantitative Performance Metric Comparison}
@@ -76,54 +76,51 @@ To resolve these bottlenecks, the thesis establishes a unified 4-pillar methodol
 \midrule
 Mesh Topology & Spatial remeshing on $\Omega(\boldsymbol{\mu})$ & Static reference mesh on $\hat{\Omega}$ \\
 Snapshot Space & Incompatible across $\boldsymbol{\mu}$ & Unified space $\mathcal{V}_0(\hat{\Omega})$ (valid POD) \\
-Operator Assembly Time & $35.10\text{ ms}$ & $\mathbf{0.90\text{ ms}}$ (\textbf{39$\times$ speedup}) \\
-Total Step Latency & $> 40.00\text{ ms}$ & $\mathbf{1.30\text{ ms}}$ (Interactive budget) \\
-Graphics Refresh Rate & $\approx 2 - 5\text{ FPS}$ & $\mathbf{20\text{ FPS}}$ (Real-time Digital Twin) \\
+Operator Assembly Time & $154.50\text{ ms}$ (Unreduced) & $\mathbf{2.20\text{ ms}}$ (\textbf{64.5$\times$ speedup}) \\
+Total Step Latency & $> 160.00\text{ ms}$ & $\mathbf{< 1.00\text{ ms}}$ (Interactive budget) \\
+Graphics Refresh Rate & $\approx 2 - 5\text{ FPS}$ & $\mathbf{20+\text{ FPS}}$ (Real-time Digital Twin) \\
 Natural Frequency Error & Baseline & $\mathbf{0.09\%}$ (Exact spectrum saved) \\
+Relative $L_2$ Error & Baseline & $\mathbf{0.054\%}$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\section{Chapter-by-Chapter Technical Notes \& Review}
+\section{Chapter-by-Chapter Technical Review \& Implementation Status}
 
 \subsection*{Chapter 1: Introduction \& State of the Art}
 \begin{itemize}
-    \item \textbf{Strengths}: Section 1.2 (\textit{Conceptual Parallels to Data Compression}) is a standout addition. Comparing CAD/IGA to vector graphics vs. raster grids, POD to spectral audio compression, and ECSW to optimal sensor placement builds strong intuition.
-    \item \textbf{Recommendation}: In Section 1.4 (\textit{Hyper-Reduction Methods}), explicitly contrast ECSW with the Discrete Empirical Interpolation Method (DEIM / MDEIM). Since DEIM papers are cited in \texttt{references.bib} (\cite{Chaturantabut2010}, \cite{Bonomi2017}), articulating why ECSW was chosen for structural dynamics (preserving symmetry, system structure, and energy conservation) adds academic depth.
+    \item \textbf{Strengths}: Section 1.2 (\textit{Conceptual Parallels to Data Compression}) compares IGA to vector graphics vs. raster grids, POD to spectral audio compression, and ECSW to optimal sensor placement.
+    \item \textbf{Implementation}: Section 1.4 explicitly contrasts ECSW with point-collocation hyper-reduction (DEIM / MDEIM \cite{Chaturantabut2010, Bonomi2017}), highlighting why ECSW was chosen for structural dynamics (preserving symmetry, system structure, and energy conservation).
 \end{itemize}
 
 \subsection*{Chapter 2: Theory: Problem Definition}
 \begin{itemize}
     \item \textbf{Strengths}: Clean formulation of continuum mechanics, balance of linear momentum, Cauchy stress tensor, small strain tensor, and boundary conditions.
-    \item \textbf{Symbol Inconsistency 1 (Notch Parameter)}: In Figure 2.1 (TikZ schematic and caption), the notch depth/radius is labeled with the letter $d$. However, in equations, text, algorithms, and the Nomenclature, the design parameter vector is defined as $\boldsymbol{\mu} = (r, x_c)^T$ using $r$ for notch radius.
-    \item \textbf{Symbol Inconsistency 2 (Reference Domain)}: Section 2.1 defines the initial undeformed domain as $\Omega_0$. In Chapters 3, 4, 5, and the Nomenclature, this domain is denoted as $\hat{\Omega}$.
-    \item \textbf{Action}: Change $d \to r$ in Figure 2.1, and add a sentence in Section 2.1 linking $\Omega_0$ to $\hat{\Omega}$ ($\hat{\Omega} \equiv \Omega_0$).
+    \item \textbf{Implementation}: Figure 2.1 dimension labels updated ($d \to r$), and Section 2.1 unifies the classical domain $\Omega_0$ with the reference domain $\hat{\Omega}$ ($\hat{\Omega} \equiv \Omega_0$).
 \end{itemize}
 
 \subsection*{Chapter 3: Discretization: Isogeometric Analysis (IGA)}
 \begin{itemize}
-    \item \textbf{Strengths}: Detailed derivation of Cox-de Boor recursion, B-splines, NURBS, spatial derivative evaluation, and B-matrix formulation. Section 3.2 gives a brilliant explanation of why spatial remeshing breaks vector space compatibility for SVD basis extraction.
-    \item \textbf{Symbol Collision ($\mathbf{d}$)}: The symbol $\mathbf{d}(\boldsymbol{\mu})$ is used for the parameter-dependent geometric mapping displacement ($\mathbf{x} = \hat{\mathbf{x}} + \mathbf{d}(\boldsymbol{\mu})$), while $\mathbf{d}_a$ in the Nomenclature denotes control node degrees of freedom.
-    \item \textbf{Action}: Rename mapping field to $\mathbf{u}_{\text{geom}}(\boldsymbol{\mu})$ or $\mathbf{v}_{\text{map}}(\boldsymbol{\mu})$ to avoid confusion with control point displacement DOFs.
+    \item \textbf{Strengths}: Detailed derivation of Cox-de Boor recursion, B-splines, NURBS, spatial derivative evaluation, and B-matrix formulation. Section 3.2 gives a brilliant explanation of why spatial remeshing breaks vector space compatibility.
+    \item \textbf{Implementation}: Added $\hat{\Omega}_{\text{param}} = [0,1]^2$ to Nomenclature to distinguish parent parametric domain from physical/reference domains; retained mapping field notation $\mathbf{d}(\boldsymbol{\mu})$ per author preference.
 \end{itemize}
 
 \subsection*{Chapter 4: Simulation: Full Order Model (FOM)}
 \begin{itemize}
-    \item \textbf{Strengths}: Solid derivation of semi-discrete equations of motion and Generalized-$\alpha$ dynamic time integration.
-    \item \textbf{Recommendation}: Explicitly state the high-frequency dissipation spectral radius $\rho_{\infty} \in [0, 1]$ used to determine the algorithmic damping parameters ($\alpha_m, \alpha_f, \beta, \gamma$). Standard choice is $\rho_{\infty} = 0.8$ or $1.0$.
+    \item \textbf{Strengths}: Solid derivation of semi-discrete equations of motion and implicit dynamic time integration.
+    \item \textbf{Implementation}: Explicitly stated high-frequency dissipation spectral radius $\rho_{\infty} = 1.0$ ($\alpha_m=0, \alpha_f=0$) for the Newmark-$\beta$ average acceleration scheme in Section 4.5.
 \end{itemize}
 
 \subsection*{Chapter 5: Reduced Order Modeling \& Real-Time Digital Twin}
 \begin{itemize}
     \item \textbf{Strengths}: Comprehensive coverage of SVD basis extraction, Galerkin projection, ECSW hyper-reduction, and client-side MVC Web application architecture.
-    \item \textbf{Visual Ambiguity ($\hat{\Omega}$ vs. $\widehat{\Omega}$)}: The ECSW active element subset is written as $\widehat{\Omega}$ (wide hat), whereas the full reference domain is $\hat{\Omega}$ (regular hat). In print, these look virtually identical.
-    \item \textbf{Action}: Rename the active element subset to $\Omega_{\text{ECSW}}$ or $\hat{\Omega}_E$ in Chapter 5 and the Nomenclature. Add the singular value truncation energy threshold (e.g., $99.99\%$).
+    \item \textbf{Implementation}: Replaced wide-hat notation $\widehat{\Omega}$ with $\Omega_{\text{ECSW}} \subset \hat{\Omega}$ across Section 5.4 and Nomenclature; added cumulative energy truncation threshold $\eta(r) \ge 99.99\%$ ($\epsilon(r) \le 0.01\%$) in Section 5.1.
 \end{itemize}
 
 \subsection*{Chapter 6 \& Appendix: Conclusion \& Benchmark Results}
 \begin{itemize}
-    \item \textbf{Strengths}: Concise summary of achievements against all research goals, backed by quantitative benchmark metrics ($35.10\text{ ms}$ physical vs. $0.90\text{ ms}$ reference assembly).
-    \item \textbf{Recommendation}: Suggest extending the pullback mapping framework to 3D solid mechanics or hyperelastic material models in future work.
+    \item \textbf{Strengths}: Concise summary of achievements against all research goals, backed by quantitative benchmark metrics ($64.5\times$ assembly speedup, $<1.0\text{ ms}$ solve latency).
+    \item \textbf{Status}: Confirmed detailed future perspectives covering geometrically non-linear kinematics, 3D continuum formulations, multi-patch topologies, and adaptive online hyper-reduction.
 \end{itemize}
 
 \newpage
@@ -134,30 +131,25 @@ Natural Frequency Error & Baseline & $\mathbf{0.09\%}$ (Exact spectrum saved) \\
 \caption{Summary of Notation Audits and Standardizations}
 \vspace{0.5em}
 \small
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Element} & \textbf{Current Thesis Notation} & \textbf{Proposed Standard} & \textbf{Target File / Location} \\
+\textbf{Element} & \textbf{Thesis Notation} & \textbf{Status} & \textbf{Target File / Location} \\
 \midrule
-Reference Domain & $\Omega_0$ \& $\hat{\Omega}$ & $\hat{\Omega}$ (note $\Omega_0 \equiv \hat{\Omega}$) & \texttt{thesis/chapters/}\\
-& & & \texttt{2\_theory/index.tex} \\
+Reference Domain & $\hat{\Omega}$ (note $\Omega_0 \equiv \hat{\Omega}$) & Standardized & \texttt{thesis/chapters/2\_theory/index.tex} \\
 \addlinespace
-Notch Radius & $d$ (in Fig 2.1) \& $r$ & $r$ everywhere & \texttt{thesis/chapters/}\\
-& & & \texttt{2\_theory/index.tex} \\
+Notch Radius & $r$ everywhere & Standardized & \texttt{thesis/chapters/2\_theory/index.tex} \\
 \addlinespace
-ECSW Reduced Domain & $\widehat{\Omega}$ & $\Omega_{\text{ECSW}}$ or $\hat{\Omega}_E$ & \texttt{thesis/chapters/}\\
-& & & \texttt{5\_rom/index.tex} \\
+ECSW Sub-Mesh & $\Omega_{\text{ECSW}}$ & Standardized & \texttt{thesis/chapters/5\_rom/index.tex} \\
 \addlinespace
-Mapping Field & $\mathbf{d}(\boldsymbol{\mu})$ & $\mathbf{u}_{\text{geom}}(\boldsymbol{\mu})$ or $\mathbf{u}_{\text{map}}$ & \texttt{thesis/chapters/}\\
-& & & \texttt{3\_discretization/}\\
-& & & \texttt{index.tex} \\
+Mapping Field & $\mathbf{d}(\boldsymbol{\mu})$ & Retained & \texttt{thesis/chapters/3\_discretization/index.tex} \\
 \addlinespace
-Parametric Parent Space & $\hat{\Omega} = [0,1]^2$ & $\hat{\Omega}_{\text{param}} = [0,1]^2$ & \texttt{thesis/chapters/}\\
-& & & \texttt{0\_frontmatter/}\\
-& & & \texttt{nomenclature.tex} \\
+Parametric Space & $\hat{\Omega}_{\text{param}} = [0,1]^2$ & Standardized & \texttt{thesis/chapters/0\_frontmatter/nomenclature.tex} \\
 \addlinespace
-Natural Frequency & $\omega_{n,\text{FOM}}$ & Add $\omega_n$ to Nomenclature & \texttt{thesis/chapters/}\\
-& & & \texttt{0\_frontmatter/}\\
-& & & \texttt{nomenclature.tex} \\
+Natural Frequency & $\omega_n$ & Standardized & \texttt{thesis/chapters/0\_frontmatter/nomenclature.tex} \\
+\addlinespace
+DEIM vs ECSW & Explicit comparison & Standardized & \texttt{thesis/chapters/1\_introduction/index.tex} \\
+\addlinespace
+POD Energy Ratio & $\eta(r) \ge 99.99\%$ & Standardized & \texttt{thesis/chapters/5\_rom/index.tex} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -165,12 +157,14 @@ Natural Frequency & $\omega_{n,\text{FOM}}$ & Add $\omega_n$ to Nomenclature & \
 \section{Actionable Priority Checklist}
 
 \begin{itemize}[label=$\checkmark$]
+    \item \textbf{DEIM vs. ECSW Comparison}: Added explicit comparison with point-collocation hyper-reduction (DEIM/MDEIM) in\\ \texttt{thesis/chapters/1\_introduction/index.tex}.
+    \item \textbf{Singular Value Truncation Threshold}: Specified $\eta(r) \ge 99.99\%$ energy ratio threshold in\\ \texttt{thesis/chapters/5\_rom/index.tex}.
     \item \textbf{Fix TikZ Figure 2.1}: Updated dimension label $d \to r$ in\\ \texttt{thesis/chapters/2\_theory/index.tex}.
     \item \textbf{Unify Reference Domain}: Added clarifying sentence linking $\Omega_0$ to $\hat{\Omega}$ in\\ \texttt{thesis/chapters/2\_theory/index.tex}.
     \item \textbf{Disambiguate ECSW Mesh}: Replaced $\widehat{\Omega} \to \Omega_{\text{ECSW}}$ in\\ \texttt{thesis/chapters/5\_rom/index.tex} and \texttt{nomenclature.tex}.
     \item \textbf{Update Nomenclature}: Added $\hat{\Omega}_{\text{param}}$, $\Omega_{\text{ECSW}}$, and $\omega_n$ to\\ \texttt{thesis/chapters/0\_frontmatter/nomenclature.tex}.
-    \item \textbf{Specify Generalized-$\alpha$ Damping}: Stated spectral radius $\rho_{\infty}$ in\\ \texttt{thesis/chapters/4\_simulation/index.tex}.
-    \item \textbf{Mapping Field}: Retained $\mathbf{d}(\boldsymbol{\mu})$ per user decision (excluded mapping change).
+    \item \textbf{Specify Generalized-$\alpha$ Damping}: Stated spectral radius $\rho_{\infty} = 1.0$ in\\ \texttt{thesis/chapters/4\_simulation/index.tex}.
+    \item \textbf{Mapping Field}: Retained $\mathbf{d}(\boldsymbol{\mu})$ per author decision (excluded mapping change).
 \end{itemize}
 
 \end{document}
