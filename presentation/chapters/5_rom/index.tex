@@ -149,9 +149,9 @@
     \footnotesize
     Coordinate transformation maps varying physical coordinates $\vect{x} \in \Omega(\boldsymbol{\mu})$ to static reference coordinates $\hat{\vect{x}} \in \hat{\Omega}$:
     \[
-      \nabla_{\vect{x}} \vect{u} = \mat{J}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu}) \nabla_{\boldsymbol{\xi}} \hat{\vect{u}}, \quad d\Omega = \color{cnamred}{J_{\boldsymbol{\mu}}(\boldsymbol{\xi})} \, d\hat{\Omega}
+      \nabla_{\vect{x}} \vect{u} = \mat{J}_{\boldsymbol{\xi}}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu}) \nabla_{\boldsymbol{\xi}} \hat{\vect{u}}, \quad d\Omega = \color{cnamred}{J_{\boldsymbol{\xi}, \boldsymbol{\mu}}(\boldsymbol{\xi})} \, d\hat{\Omega}
     \]
-    where $\mat{J}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \frac{\partial \vect{x}}{\partial \hat{\vect{x}}}$ is the coordinate Jacobian, and \color{cnamred}{$J_{\boldsymbol{\mu}}(\boldsymbol{\xi}) = \det\mat{J}$} is the mapping weight.
+    where $\mat{J}_{\boldsymbol{\xi}}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \frac{\partial \vect{x}}{\partial \boldsymbol{\xi}}$ is the coordinate Jacobian, and \color{cnamred}{$J_{\boldsymbol{\xi}, \boldsymbol{\mu}}(\boldsymbol{\xi}) = \det\mat{J}_{\boldsymbol{\xi}}$} is the mapping weight.
   \end{block}
 
   \begin{columns}[T]
@@ -174,7 +174,7 @@
         \scriptsize
         Stiffness bilinear form maps parameter $\boldsymbol{\mu}$ into the spatial integral:
         \[
-          \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \int_{\hat{\Omega}} \left(\mat{J}^{-T} \nabla_{\boldsymbol{\xi}}\vect{u}\right) : \mat{D} : \left(\mat{J}^{-T} \nabla_{\boldsymbol{\xi}}\delta\vect{u}\right) \color{cnamred}{J_{\boldsymbol{\mu}}} \, d\hat{\Omega}
+          \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \int_{\hat{\Omega}} \left(\mat{J}_{\boldsymbol{\xi}}^{-T} \nabla_{\boldsymbol{\xi}}\vect{u}\right) : \mat{D} : \left(\mat{J}_{\boldsymbol{\xi}}^{-T} \nabla_{\boldsymbol{\xi}}\delta\vect{u}\right) \color{cnamred}{J_{\boldsymbol{\xi}, \boldsymbol{\mu}}} \, d\hat{\Omega}
         \]
         \textbf{Why it matters}:
         \begin{itemize}
@@ -443,7 +443,7 @@
       \textbf{\large Controller} \\[0.15cm]
       \textbf{Application Manager} \\[0.15cm]
       {\footnotesize $\bullet$ Event Listeners for UI Sliders} \\
-      {\footnotesize $\bullet$ Parameter binding $\boldsymbol{\mu} = (d, x_c)$} \\
+      {\footnotesize $\bullet$ Parameter binding $\boldsymbol{\mu} = (r, x_c)$} \\
       {\footnotesize $\bullet$ Animation Frame Scheduler}
     };
     

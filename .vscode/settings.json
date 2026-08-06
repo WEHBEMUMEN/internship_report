@@ -1,12 +1,23 @@
 {
     "latex-workshop.formatting.latex": "latexindent",
-    "latex-workshop.latex.rootFile.useSubFile": true,
+    "latex-workshop.latex.rootFile.useSubFile": false,
+    "latex-workshop.latex.autoBuild.run": "onSave",
     "latex-workshop.latex.search.rootFiles.include": [
         "**/main.tex"
     ],
     "latex-workshop.latex.autoClean.run": "never",
     "latex-workshop.latex.clean.method": "glob",
     "latex-workshop.latex.tools": [
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ]
+        },
         {
             "name": "tectonic",
             "command": "tectonic",
@@ -20,6 +31,12 @@
         }
     ],
     "latex-workshop.latex.recipes": [
+        {
+            "name": "pdflatex",
+            "tools": [
+                "pdflatex"
+            ]
+        },
         {
             "name": "tectonic",
             "tools": [

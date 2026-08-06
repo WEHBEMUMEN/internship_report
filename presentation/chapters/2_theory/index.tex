@@ -4,12 +4,12 @@
 \begin{frame}{Geometry Configurations}
   We consider a 2D cantilever beam with \textbf{symmetric smooth notches} parameterized by:
   \[
-    \boldsymbol{\mu} = (d,\, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2
+    \boldsymbol{\mu} = (r,\, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2
   \]
   \small
   \begin{itemize}
-    \item $d$ — notch depth;\quad $x_c$ — notch center position
-    \item $\mathcal{D} = [d_{\min},\, d_{\max}] \times [x_{c,\min},\, x_{c,\max}]$ — compact parameter domain
+    \item $r$ — notch radius;\quad $x_c$ — notch center position
+    \item $\mathcal{D} = [r_{\min},\, r_{\max}] \times [x_{c,\min},\, x_{c,\max}]$ — compact parameter domain
   \end{itemize}
   
   \centering
@@ -34,9 +34,9 @@
     \draw[dimline] (3.25, 0.25) -- (3.25, 1.1);
     \draw[dimension] (0, 1.0) -- (3.25, 1.0) node[midway, above] {$x_c$};
     
-    % Dimension: d
+    % Dimension: r
     \draw[dimline] (2.2, 0.6) -- (3.25, 0.6);
-    \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.25, 0.6) -- (3.25, 0.25) node[midway, right] {$d$};
+    \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.25, 0.6) -- (3.25, 0.25) node[midway, right] {$r$};
     
     \node[below, font=\scriptsize\bfseries] at (3.0, -0.9) {Configuration $\Omega(\boldsymbol{\mu})$};
   \end{tikzpicture}
@@ -188,7 +188,7 @@
   \small
   To resolve space incompatibility, we map $\Omega(\textcolor{red}{\boldsymbol{\mu}})$ to a fixed reference domain $\hat{\Omega}$ via a geometric diffeomorphism:
   \[
-    \vect{x} = \boldsymbol{\Phi}(\hat{\vect{x}};\,\textcolor{red}{\boldsymbol{\mu}}), \quad \mat{J}(\hat{\vect{x}};\textcolor{red}{\boldsymbol{\mu}}) = \frac{\partial \boldsymbol{\Phi}}{\partial \hat{\vect{x}}}, \quad J_{\textcolor{red}{\boldsymbol{\mu}}} = \det\mat{J} > 0
+    \vect{x} = \boldsymbol{\Psi}(\hat{\vect{x}};\,\textcolor{red}{\boldsymbol{\mu}}), \quad \mat{J}_{\hat{\vect{x}}}(\hat{\vect{x}};\textcolor{red}{\boldsymbol{\mu}}) = \frac{\partial \boldsymbol{\Psi}}{\partial \hat{\vect{x}}}, \quad J_{\hat{\vect{x}}, \textcolor{red}{\boldsymbol{\mu}}} = \det\mat{J}_{\hat{\vect{x}}} > 0
   \]
   
   \begin{columns}[T]
@@ -197,9 +197,9 @@
       \footnotesize
       \begin{enumerate}
         \setlength{\itemsep}{3pt}
-        \item \textbf{Map functions:} Define $\hat{\vect{u}}(\hat{\vect{x}}) = \vect{u}(\boldsymbol{\Phi}(\hat{\vect{x}};\textcolor{red}{\boldsymbol{\mu}}))$ in parameter-independent space $\mathcal{V}(\hat{\Omega})$.
-        \item \textbf{Transform gradients:} $\nabla_{\vect{x}}\vect{u} = \nabla_{\hat{\vect{x}}}\hat{\vect{u}}\,\mat{J}^{-1}(\hat{\vect{x}};\textcolor{red}{\boldsymbol{\mu}})$ (chain rule).
-        \item \textbf{Change integration variables:} $\mathrm{d}\Omega = J_{\textcolor{red}{\boldsymbol{\mu}}}\,\mathrm{d}\hat{\Omega}$ and $\mathrm{d}\Gamma = J_{\textcolor{red}{\boldsymbol{\mu}}}^{\Gamma}\,\mathrm{d}\hat{\Gamma}$.
+        \item \textbf{Map functions:} Define $\hat{\vect{u}}(\hat{\vect{x}}) = \vect{u}(\boldsymbol{\Psi}(\hat{\vect{x}};\textcolor{red}{\boldsymbol{\mu}}))$ in parameter-independent space $\mathcal{V}(\hat{\Omega})$.
+        \item \textbf{Transform gradients:} $\nabla_{\vect{x}}\vect{u} = \nabla_{\hat{\vect{x}}}\hat{\vect{u}}\,\mat{J}_{\hat{\vect{x}}}^{-1}(\hat{\vect{x}};\textcolor{red}{\boldsymbol{\mu}})$ (chain rule).
+        \item \textbf{Change integration variables:} $\mathrm{d}\Omega = J_{\hat{\vect{x}}, \textcolor{red}{\boldsymbol{\mu}}}\,\mathrm{d}\hat{\Omega}$ and $\mathrm{d}\Gamma = J_{\hat{\vect{x}}, \textcolor{red}{\boldsymbol{\mu}}}^{\Gamma}\,\mathrm{d}\hat{\Gamma}$.
       \end{enumerate}
     \end{column}
     
@@ -213,16 +213,16 @@
               physdom/.style={thick, draw=blue!70!black, fill=blue!10, fill opacity=0.5},
               maparrow/.style={->, line width=1.5pt, black!60!gray}
           }
-
+ 
           % Reference Domain \hat{\Omega} (Top)
           \begin{scope}[xshift=0cm, yshift=1.8cm]
               \draw[refdom] (0,0.5) -- (1.5,0.5) .. controls (1.8, 0.5) and (1.9, 0.25) .. (2.0, 0.25) .. controls (2.1, 0.25) and (2.2, 0.5) .. (2.5, 0.5) -- (4,0.5) -- (4,-0.5) -- (2.5,-0.5) .. controls (2.2, -0.5) and (2.1, -0.25) .. (2.0, -0.25) .. controls (1.9, -0.25) and (1.8, -0.5) .. (1.5,-0.5) -- (0,-0.5) -- cycle;
               \node[black, font=\scriptsize] at (1.0, 0) {$\hat{\Omega}$};
               \fill[black] (2.8,0.1) circle (1.5pt) node[above, font=\scriptsize] {$\hat{\vect{x}}$};
           \end{scope}
-
+ 
           % Mapping Arrow (vertical downwards)
-          \draw[maparrow] (2.0,1.1) -- (2.0,-0.1) node[midway, right, font=\scriptsize] {$\boldsymbol{\Phi}(\cdot;\textcolor{red}{\boldsymbol{\mu}})$};
+          \draw[maparrow] (2.0,1.1) -- (2.0,-0.1) node[midway, right, font=\scriptsize] {$\boldsymbol{\Psi}(\cdot;\textcolor{red}{\boldsymbol{\mu}})$};
 
           % Physical Domain \Omega(x_c) (Bottom)
           \begin{scope}[xshift=0cm, yshift=-0.8cm]
@@ -266,13 +266,13 @@
         \footnotesize
         Dependency on $\textcolor{red}{\boldsymbol{\mu}}$ is isolated inside the Jacobian mapping terms:
         \[
-          \hat{m}(\ddot{\vect{u}},\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u}\, J_{\textcolor{red}{\boldsymbol{\mu}}} \,\mathrm{d}\hat{\Omega}
+          \hat{m}(\ddot{\vect{u}},\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u}\, J_{\hat{\vect{x}}, \textcolor{red}{\boldsymbol{\mu}}} \,\mathrm{d}\hat{\Omega}
         \]
         \[
-          \hat{f}(\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} \vect{f}_b \cdot \delta\vect{u}\, J_{\textcolor{red}{\boldsymbol{\mu}}} \,\mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{h}_N \cdot \delta\vect{u}\, J_{\textcolor{red}{\boldsymbol{\mu}}}^{\Gamma} \,\mathrm{d}\hat{\Gamma}
+          \hat{f}(\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} \vect{f}_b \cdot \delta\vect{u}\, J_{\hat{\vect{x}}, \textcolor{red}{\boldsymbol{\mu}}} \,\mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{h}_N \cdot \delta\vect{u}\, J_{\hat{\vect{x}}, \textcolor{red}{\boldsymbol{\mu}}}^{\Gamma} \,\mathrm{d}\hat{\Gamma}
         \]
         \[
-          \hat{k}(\vect{u},\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} (\mat{J}_{\textcolor{red}{\boldsymbol{\mu}}}^{-T}\nabla_{\hat{\vect{x}}}\vect{u}):\mat{D}:(\mat{J}_{\textcolor{red}{\boldsymbol{\mu}}}^{-T}\nabla_{\hat{\vect{x}}}\delta\vect{u})\,J_{\textcolor{red}{\boldsymbol{\mu}}}\,\mathrm{d}\hat{\Omega}
+          \hat{k}(\vect{u},\delta\vect{u}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\hat{\Omega}} (\mat{J}_{\hat{\vect{x}}}^{-T}\nabla_{\hat{\vect{x}}}\vect{u}):\mat{D}:(\mat{J}_{\hat{\vect{x}}}^{-T}\nabla_{\hat{\vect{x}}}\delta\vect{u})\,J_{\hat{\vect{x}}, \textcolor{red}{\boldsymbol{\mu}}}\,\mathrm{d}\hat{\Omega}
         \]
         \par\vspace{0.1cm}
         \textbf{Advantage:}

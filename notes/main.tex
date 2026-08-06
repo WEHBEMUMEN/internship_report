@@ -1,79 +1,134 @@
-% !TEX root = main.tex
-\documentclass[11pt,a4paper]{article}
-
-% --- Packages ---
+\documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[margin=1.0in]{geometry}
-\usepackage{amsmath,amssymb,amsfonts,mathtools}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{pdflscape}
-\usepackage{xcolor}
-\usepackage{fancyhdr}
-\usepackage{titlesec}
-\usepackage[most]{tcolorbox}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{geometry}
 \usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{xcolor}
 
-% --- Colors ---
-\definecolor{primary}{RGB}{30, 64, 175}
-\definecolor{secondary}{RGB}{71, 85, 105}
-\definecolor{accent}{RGB}{15, 118, 110}
-\definecolor{bglight}{RGB}{248, 250, 252}
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
 
-% --- Hyperref Setup ---
-\hypersetup{
-    colorlinks=true,
-    linkcolor=primary,
-    citecolor=accent,
-    urlcolor=primary,
-    pdftitle={Mathematical Formulas, Variable Rationale & App Code Mapping},
-    pdfauthor={CNAM Internship Project}
-}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
 
-% --- Header and Footer ---
-\pagestyle{fancy}
-\fancyhf{}
-\rhead{\textcolor{secondary}{\small Mathematical Notes \& Code Mapping}}
-\lhead{\textcolor{secondary}{\small IGA \& ROM Digital Twin}}
-\cfoot{\thepage}
-
-% --- Section Styling ---
-\titleformat{\section}{\Large\bfseries\color{primary}}{\thesection}{1em}{}
-\titleformat{\subsection}{\large\bfseries\color{accent}}{\thesubsection}{1em}{}
-\titleformat{\subsubsection}{\normalsize\bfseries\color{secondary}}{\thesubsubsection}{1em}{}
-
-% --- Horizontal Rule Command ---
-\newcommand{\hr}{\par\vspace{0.5em}\hrule height 0.4pt\vspace{0.5em}}
-
-% --- Title Information ---
-\title{\vspace{-1.5cm}\Huge\bfseries\color{primary} Mathematical Formulas, Derivations, and Code Mapping Notes}
-\author{\Large\bfseries Isogeometric Analysis \& Reduced Order Modeling Digital Twin}
+\title{\textbf{Comprehensive Thesis Notes \& Manuscript Critique}\\[0.5em]
+\large Synthesis of Strengths, Manuscript Improvements, and Potential Theoretical Vulnerabilities}
+\author{\textbf{Author:} Mumen Wehbe \quad|\quad \textbf{Supervisor:} Christophe Hoareau}
 \date{\today}
 
 \begin{document}
 
 \maketitle
 
-\begin{tcolorbox}[colback=bglight,colframe=primary,arc=3mm,title=\textbf{Executive Overview}]
-This document compiles all governing mathematical formulas, derivations, structural rationales, variable dependencies, and direct source code mappings across the \textbf{Isogeometric Analysis (IGA)}, \textbf{Full Order Model (FOM)}, and \textbf{Reduced Order Model (ROM)} real-time web application and numerical solvers.
-\end{tcolorbox}
+\begin{abstract}
+This document serves as the unified, single-file note repository for evaluating the Master 2 thesis manuscript: \textit{Isogeometric Analysis and Reduced Order Modeling for Parameterized Structural Dynamics}. It combines an executive summary of key strengths, actionable manuscript improvement recommendations (text, structure, notation, and result plots), and a rigorous theoretical critique highlighting potential assumption limits and mathematical edge cases.
+\end{abstract}
 
 \tableofcontents
 \newpage
 
-\input{01_cox_de_boor_and_nurbs.tex}
-\newpage
+\section{Executive Summary \& Strengths}
 
-\input{02_iga_continuum_and_discretization.tex}
-\newpage
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Coherent Structural Narrative:} The thesis flows logically from continuum mechanics and non-linear shell theory through discretization via Isogeometric Analysis (IGA), parametric domain transformation (pullback), dynamical numerical simulation, and Reduced Order Modeling (POD/RB).
+    \item \textbf{High Technical Depth:} Strong mathematical rigor, particularly concerning non-linear shell kinematics, metric tensor transformations under parametric mappings, and high-order smooth B-Splines/NURBS basis functions.
+    \item \textbf{Engineering Relevance:} Combining IGA with Model Order Reduction (MOR) directly addresses major industrial bottlenecks in parametric structural optimization, real-time control, and digital twins.
+\end{itemize}
 
-\input{03_time_integration_and_fom.tex}
-\newpage
+\section{Manuscript \& Writing Style Improvements}
 
-\input{04_pod_rom_and_hyper_reduction.tex}
-\newpage
+\begin{enumerate}[label=\textbf{Item 2.\arabic*:}, leftmargin=*]
+    \item \textbf{Transition from Implementation Log to Scientific Thesis}
+    \begin{itemize}
+        \item \textit{Current State:} Certain sections in Chapters 3 and 4 present formulations in a step-by-step programming style (similar to code documentation).
+        \item \textit{Improvement:} Elevate the prose into formal scientific narrative. Explain \textit{why} specific mathematical choices were made (e.g., choice of $k$-refinement over $h$-refinement for shell continuity) rather than just detailing \textit{how} the code loops over Gauss integration points.
+    \end{itemize}
 
-\input{05_formula_summary_and_code_mapping.tex}
+    \item \textbf{Notation Standardization Across Chapters}
+    \begin{itemize}
+        \item \textit{Current State:} Notations shift slightly between chapters.
+        \item \textit{Improvement:} Define a strict, unified notation table early in the frontmatter (\texttt{nomenclature.tex}):
+        \begin{itemize}
+            \item Reference domain coordinates: $\hat{\vect{x}} \in \hat{\Omega}$
+            \item Parametric space coordinates: $\boldsymbol{\xi} = (\xi, \eta)^T \in \hat{\Omega}_{\text{param}}$
+            \item Physical domain coordinates: $\vect{x} \in \Omega(\boldsymbol{\mu})$
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
+
+\section{Chapter-by-Chapter Manuscript Recommendations}
+
+\subsection*{Chapter 1: Introduction \& State of the Art}
+\begin{itemize}
+    \item Include a comparison table contrasting \textbf{FEA vs. IGA} (CAD integration, $C^{k}$ continuity across elements, exact geometry representation).
+    \item Add a dedicated section on \textbf{Model Order Reduction for Shape Parameters}, categorizing previous approaches (remeshing, morphing grids, pullback maps).
+\end{itemize}
+
+\subsection*{Chapter 2 \& 3: Theoretical Foundations \& IGA}
+\begin{itemize}
+    \item Add an explicit schematic showing how B-spline knot vectors map the 1D parent space $[0,1]$ to 2D surface patches and 3D physical control meshes.
+    \item Include a brief discussion on quadrature rules ($p+1$ Gauss points) and reduced integration techniques to avoid potential stiffness overestimation in IGA shells.
+\end{itemize}
+
+\subsection*{Chapter 4: Pullback Mapping Exposition}
+\begin{itemize}
+    \item Add a visual flowchart contrasting the \textbf{Naive Workflow} (Parameter $\rightarrow$ Remesh $\rightarrow$ New Vector Space $\rightarrow$ Full Integration) vs. \textbf{Pullback Workflow} (Parameter $\rightarrow$ Update Jacobian at Gauss Points $\rightarrow$ Fixed Reference Space $\rightarrow$ ROM Projection).
+    \item Explicitly present the tensor transformation equations for mass and stiffness matrices in structured display boxes.
+\end{itemize}
+
+\subsection*{Chapter 5 \& 6: Numerical Validation \& ROM Analysis}
+\begin{itemize}
+    \item \textbf{Relative Error Metrics:} Plot relative energy norm error and $L^2$-error against reduced basis size $r$:
+    $$e_{\text{ROM}}(r) = \frac{\|\vect{u}_{\text{full}} - \vect{u}_{\text{ROM}}(r)\|_{L^2}}{\|\vect{u}_{\text{full}}\|_{L^2}}$$
+    \item \textbf{Singular Value Decay Spectrum:} Add a logarithmic plot of singular values ($\sigma_i$) from the SVD of the snapshot matrix to justify the choice of reduced dimension $r$.
+    \item \textbf{Computational Speedup Table:} Add a comprehensive table comparing Full Order Model (FOM) vs. Reduced Order Model (ROM) runtime across different parameter samples $\boldsymbol{\mu}_k$.
+\end{itemize}
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Model} & \textbf{DOF Count} & \textbf{Offline Time (s)} & \textbf{Online Time (s)} & \textbf{Speedup Factor} \\
+        \midrule
+        Full Order (FOM - IGA) & $10,000+$ & N/A & $120.5 \text{ s}$ & $1\times$ \\
+        Reduced Order ($r=5$)  & $5$        & $45.2 \text{ s}$ & $0.08 \text{ s}$  & $\approx 1500\times$ \\
+        Reduced Order ($r=10$) & $10$       & $45.2 \text{ s}$ & $0.12 \text{ s}$  & $\approx 1000\times$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Recommended Benchmark Table to include in Chapter 6.}
+\end{table}
+
+\section{Theoretical Analysis \& Potential Edge-Case Failure Modes}
+
+\begin{enumerate}[label=\textbf{Critique 4.\arabic*:}, leftmargin=*]
+    \item \textbf{Small-Strain vs. Large Geometric Variations}
+    \begin{itemize}
+        \item \textit{Issue:} Linearized strain assumption ($\boldsymbol{\varepsilon} = \frac{1}{2}(\nabla\vect{u} + \nabla\vect{u}^T)$) fails if notch variations induce local finite rotations.
+        \item \textit{Mitigation Note:} Discuss limits of small strain vs. Green-Lagrange strain tensor $\mathbf{E}$.
+    \end{itemize}
+
+    \item \textbf{Control Point Mapping vs. Physical Boundary}
+    \begin{itemize}
+        \item \textit{Issue:} In IGA, moving control points linearly $\Delta \mathbf{P} \propto \Delta r$ distorts circular notch profiles into non-circular curves.
+        \item \textit{Mitigation Note:} Specify exact boundary-to-control-point geometric constraints.
+    \end{itemize}
+
+    \item \textbf{Risk of Negative Jacobian ($J_{\boldsymbol{\xi},\boldsymbol{\mu}} \le 0$)}
+    \begin{itemize}
+        \item \textit{Issue:} Extreme parameter values may cause interior element tangling.
+        \item \textit{Mitigation Note:} Define admissible parameter domain bounds $\mathcal{D}_{\text{admissible}}$ ensuring $J > 0$.
+    \end{itemize}
+
+    \item \textbf{Non-Affine Integrand Bottleneck}
+    \begin{itemize}
+        \item \textit{Issue:} Pulled-back stiffness integrands $\mathbf{J}^{-1} \mat{D} \mathbf{J}^{-T} J$ are non-affine rational functions of $\boldsymbol{\mu}$.
+        \item \textit{Mitigation Note:} Note the need for Hyper-Reduction (DEIM / MDEIM) for true online speedup.
+    \end{itemize}
+\end{enumerate}
 
 \end{document}
