@@ -1,0 +1,736 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{bm}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{tcolorbox}
+
+\geometry{
+    top=2.5cm,
+    bottom=2.5cm,
+    left=2.5cm,
+    right=2.5cm
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    pdftitle={Thesis Equations & Term Definitions Handbook},
+    pdfauthor={Mumen Wehbe}
+}
+
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+
+\title{
+    \textbf{Comprehensive Thesis Equations \& Term Definitions Handbook} \\
+    \large{Detailed Term Breakdown and Parameter Dependency Analysis for Every Thesis Equation}
+}
+\author{\textbf{Mumen Wehbe}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\setcounter{chapter}{1}
+
+% ==============================================================================
+\chapter{Theory: Problem Definition}
+\label{ch:theory}
+% ==============================================================================
+
+\section{Governing Continuum Equations \& Kinematics}
+
+Balance of linear momentum:
+\begin{equation}
+    \rho \ddot{\vect{u}} - \nabla \cdot \boldsymbol{\sigma}(\vect{u}) = \vect{f}_b \quad \text{in } \Omega(\boldsymbol{\mu}) \times (0, T]
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\rho$: Material mass density (constant physical property).
+    \item $\ddot{\vect{u}}(\vect{x}, t; \boldsymbol{\mu})$: Acceleration vector field. Depends on space $\vect{x}$, time $t$, and shape parameters $\boldsymbol{\mu}$ because changing geometry alters structural mass/stiffness distributions and dynamic response trajectories.
+    \item $\boldsymbol{\sigma}(\vect{u})$: Cauchy stress tensor. Depends on $\vect{u}$ via constitutive relations.
+    \item $\vect{f}_b$: Volumetric body force vector (e.g., gravity).
+    \item $\Omega(\boldsymbol{\mu})$: Physical domain boundary. Depends explicitly on $\boldsymbol{\mu} = (r, x_c)^T$ because the notches alter spatial boundaries.
+\end{itemize}
+\end{tcolorbox}
+
+Boundary conditions on Dirichlet $\Gamma_D(\boldsymbol{\mu})$ and Neumann $\Gamma_N(\boldsymbol{\mu})$ boundaries:
+\begin{align}
+    \vect{u}                                     & = \vect{0} \quad \text{on } \Gamma_D(\boldsymbol{\mu}) \times (0, T]   \\
+    \boldsymbol{\sigma}(\vect{u}) \cdot \vect{n} & = \vect{h}_N \quad \text{on } \Gamma_N(\boldsymbol{\mu}) \times (0, T]
+\end{align}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\vect{u} = \vect{0}$: Zero displacement vector enforced on the clamped left boundary $\Gamma_D$.
+    \item $\vect{h}_N$: External surface traction vector applied on Neumann boundary $\Gamma_N$.
+    \item $\vect{n}$: Outward unit normal vector to $\Gamma_N(\boldsymbol{\mu})$. Depends on $\boldsymbol{\mu}$ because boundary surface orientations change with notch geometry.
+\end{itemize}
+\end{tcolorbox}
+
+Initial conditions at $t = 0$:
+\begin{align}
+    \vect{u}(\vect{x}, 0)       & = \vect{u}_0(\vect{x}) \quad \text{for } \vect{x} \in \Omega(\boldsymbol{\mu}) \\
+    \dot{\vect{u}}(\vect{x}, 0) & = \vect{v}_0(\vect{x}) \quad \text{for } \vect{x} \in \Omega(\boldsymbol{\mu})
+\end{align}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\vect{u}_0(\vect{x}), \vect{v}_0(\vect{x})$: Initial displacement and initial velocity field functions evaluated over $\Omega(\boldsymbol{\mu})$.
+\end{itemize}
+\end{tcolorbox}
+
+Linearized strain tensor definition:
+\begin{equation}
+    \boldsymbol{\varepsilon}(\vect{u}) = \frac{1}{2}\left(\nabla\vect{u} + (\nabla\vect{u})^T\right)
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\boldsymbol{\varepsilon}$: Symmetric second-order strain tensor under small-deformation kinematics.
+    \item $\nabla\vect{u}$: Spatial displacement gradient tensor $\frac{\partial u_i}{\partial x_j}$.
+\end{itemize}
+\end{tcolorbox}
+
+Hooke's stress-strain constitutive relation:
+\begin{equation}
+    \boldsymbol{\sigma}(\vect{u}) = \mat{D} \boldsymbol{\varepsilon}(\vect{u})
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\boldsymbol{\sigma}$: Cauchy stress vector in Voigt notation.
+    \item $\mat{D}$: Elastic constitutive material matrix. Parameter-independent for homogeneous isotropic material.
+\end{itemize}
+\end{tcolorbox}
+
+\section{Weak Formulation at the Continuum Level}
+
+Kinematically admissible test space:
+\begin{equation}
+    \mathcal{V}_0(\Omega(\boldsymbol{\mu})) = \{ \vect{v} \in [H^1(\Omega(\boldsymbol{\mu}))]^2 \mid \vect{v} = \vect{0} \text{ on } \Gamma_D(\boldsymbol{\mu}) \}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mathcal{V}_0$: Sobolev test space $H^1$. Depends on $\boldsymbol{\mu}$ because the domain of integration $\Omega(\boldsymbol{\mu})$ changes with shape parameters.
+\end{itemize}
+\end{tcolorbox}
+
+Weak variational statement:
+\begin{equation}
+    m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = f(\delta\vect{u}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu}))
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $m(\cdot, \cdot; \boldsymbol{\mu})$: Inertial bilinear mass form over $\Omega(\boldsymbol{\mu})$.
+    \item $k(\cdot, \cdot; \boldsymbol{\mu})$: Elastic bilinear stiffness form over $\Omega(\boldsymbol{\mu})$.
+    \item $f(\cdot)$: Linear external work load form.
+    \item $\delta\vect{u}$: Virtual displacement test function.
+\end{itemize}
+\end{tcolorbox}
+
+Bilinear mass, stiffness, and linear load forms:
+\begin{align}
+    m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) & = \int_{\Omega(\boldsymbol{\mu})} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, d\Omega                                                                      \\
+    k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})        & = \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\varepsilon}(\delta\vect{u})^T \mat{D} \boldsymbol{\varepsilon}(\vect{u}) \, d\Omega                          \\
+    f(\delta\vect{u})                                    & = \int_{\Omega(\boldsymbol{\mu})} \vect{f}_b \cdot \delta\vect{u} \, d\Omega + \int_{\Gamma_N(\boldsymbol{\mu})} \vect{h}_N \cdot \delta\vect{u} \, d\Gamma
+\end{align}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Integrals depend explicitly on $\boldsymbol{\mu}$ because the integration domains $\Omega(\boldsymbol{\mu})$ and boundaries $\Gamma_N(\boldsymbol{\mu})$ deform when geometric parameters change.
+\end{itemize}
+\end{tcolorbox}
+
+
+% ==============================================================================
+\chapter{Discretization: Isogeometric Analysis (IGA)}
+\label{ch:discretization}
+% ==============================================================================
+
+\section{Geometric Representation via B-Splines and NURBS}
+
+Cox-de Boor recursive basis definitions:
+\begin{equation}
+    N_{i,0}(\xi) = \begin{cases} 1 & \text{if } \xi_i \le \xi < \xi_{i+1} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+\begin{equation}
+    N_{i,p}(\xi) = \frac{\xi - \xi_i}{\xi_{i+p} - \xi_i} N_{i,p-1}(\xi) + \frac{\xi_{i+p+1} - \xi}{\xi_{i+p+1} - \xi_{i+1}} N_{i+1,p-1}(\xi)
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $N_{i,p}(\xi)$: $i$-th B-spline basis function of polynomial degree $p$.
+    \item $\xi$: Parametric coordinate in $[0, 1]$.
+    \item $\xi_i$: $i$-th entry in the knot vector $\Xi$. Parameter-independent (fixed parametric grid topology).
+\end{itemize}
+\end{tcolorbox}
+
+B-spline analytical derivative recurrence:
+\begin{equation}
+    \frac{d}{d\xi} N_{i,p}(\xi) = p \left( \frac{N_{i,p-1}(\xi)}{\xi_{i+p} - \xi_i} - \frac{N_{i+1,p-1}(\xi)}{\xi_{i+p+1} - \xi_{i+1}} \right)
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Computes exact parametric derivatives using lower-degree basis polynomials $N_{i,p-1}(\xi)$.
+\end{itemize}
+\end{tcolorbox}
+
+1D Rational NURBS basis function:
+\begin{equation}
+    R_{i,p}(\xi) = \frac{N_{i,p}(\xi) w_i}{\sum_{j=0}^{n-1} N_{j,p}(\xi) w_j}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $R_{i,p}(\xi)$: Rational NURBS basis function.
+    \item $w_i$: Projective weight for control node $i$ (enables exact conic section representation).
+\end{itemize}
+\end{tcolorbox}
+
+Spatial gradient of rational basis functions via quotient rule:
+\begin{equation}
+    \frac{d}{d\xi} R_{i,p}(\xi) = w_i \frac{\frac{d N_{i,p}(\xi)}{d\xi} W(\xi) - N_{i,p}(\xi) \frac{d W(\xi)}{d\xi}}{[W(\xi)]^2}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $W(\xi) = \sum_{j=0}^{n-1} N_{j,p}(\xi) w_j$: Denominator weighting sum function.
+\end{itemize}
+\end{tcolorbox}
+
+1D B-spline parametric curve:
+\begin{equation}
+    \vect{C}(\xi) = \sum_{i=0}^{n-1} R_{i,p}(\xi) \vect{P}_i
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\vect{C}(\xi)$: Physical spatial position of points along the curve.
+    \item $\vect{P}_i$: Nodal control point spatial coordinates.
+\end{itemize}
+\end{tcolorbox}
+
+Bivariate 2D NURBS basis function:
+\begin{equation}
+    R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k=0}^{n-1} \sum_{l=0}^{m-1} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $R_{i,j}^{p,q}$: Bivariate basis function over parametric space $(\xi, \eta) \in [0,1]^2$. Parameter-independent because evaluation depends only on parametric coordinates and fixed weights.
+\end{itemize}
+\end{tcolorbox}
+
+2D NURBS surface patch mapping:
+\begin{equation}
+    \vect{S}(\xi, \eta) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\vect{S}(\xi, \eta)$: Physical surface spatial coordinates $(x, y)^T$.
+    \item $\vect{P}_{i,j}$: 2D control point lattice coordinates.
+\end{itemize}
+\end{tcolorbox}
+
+Physical coordinate 2D Jacobian matrix $\mat{J}(\xi, \eta)$:
+\begin{equation}
+    \mat{J}(\xi, \eta) = \begin{bmatrix} \frac{\partial x}{\partial \xi} & \frac{\partial y}{\partial \xi} \\[0.3em] \frac{\partial x}{\partial \eta} & \frac{\partial y}{\partial \eta} \end{bmatrix} = \begin{bmatrix} \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} y_{i,j} \\[0.5em] \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} y_{i,j} \end{bmatrix}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mat{J}$: Coordinate mapping Jacobian from parametric space to physical domain. Depends on control point positions $x_{i,j}, y_{i,j}$.
+\end{itemize}
+\end{tcolorbox}
+
+Outward surface unit normal vector:
+\begin{equation}
+    \vect{n}(\xi, \eta) = \frac{\vect{g}_{\xi} \times \vect{g}_{\eta}}{\|\vect{g}_{\xi} \times \vect{g}_{\eta}\|}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\vect{g}_{\xi} = \frac{\partial \vect{S}}{\partial \xi}, \vect{g}_{\eta} = \frac{\partial \vect{S}}{\partial \eta}$: Physical surface tangent vectors.
+\end{itemize}
+\end{tcolorbox}
+
+Boehm 1D control point update:
+\begin{equation}
+    \vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}
+\end{equation}
+\begin{equation}
+    \alpha_i = \begin{cases}
+        1                                           & \text{if } i \le k - p           \\
+        \frac{\bar{\xi} - \xi_i}{\xi_{i+p} - \xi_i} & \text{if } k - p + 1 \le i \le k \\
+        0                                           & \text{if } i \ge k + 1
+    \end{cases}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\bar{\xi}$: Newly inserted knot value.
+    \item $\alpha_i$: Linear knot insertion blending coefficient.
+\end{itemize}
+\end{tcolorbox}
+
+Boehm 2D tensor-product control point refinement:
+\begin{equation}
+    \mat{P}^{\text{new}} = \mat{T}_{\xi} \mat{P} \mat{T}_{\eta}^T
+\end{equation}
+\begin{equation}
+    \vect{P}^{\text{new}} = \left( \mat{T}_{\eta} \otimes \mat{T}_{\xi} \right) \vect{P}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mat{T}_{\xi}, \mat{T}_{\eta}$: Directional knot insertion refinement matrices.
+    \item $\otimes$: Kronecker matrix product operator.
+\end{itemize}
+\end{tcolorbox}
+
+Linear degree elevation mapping:
+\begin{equation}
+    \vect{P}^{\text{new}} = \mat{T}_p \vect{P}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mat{T}_p$: Degree elevation operator matrix.
+\end{itemize}
+\end{tcolorbox}
+
+Field approximation:
+\begin{equation}
+    \vect{u}(\xi, \eta) = \sum_{a=0}^{N_{\text{bas}}-1} R_a(\xi, \eta) \vect{d}_a
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\vect{d}_a = [u_a, v_a]^T$: Nodal degrees of freedom at control node $a$.
+    \item $N_{\text{bas}}$: Total number of basis functions ($n \times m$).
+\end{itemize}
+\end{tcolorbox}
+
+Semi-discrete equations of motion:
+\begin{equation}
+    \mat{M}(\boldsymbol{\mu}) \ddot{\vect{U}} + \mat{K}(\boldsymbol{\mu}) \vect{U} = \lambda(t) \vect{F}_{\text{ext}}(\boldsymbol{\mu})
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mat{M}(\boldsymbol{\mu}), \mat{K}(\boldsymbol{\mu})$: Global mass and stiffness matrices. Depend on $\boldsymbol{\mu}$ because integration is evaluated over physical geometry $\Omega(\boldsymbol{\mu})$.
+    \item $\lambda(t)$: Time-dependent load scale factor function.
+\end{itemize}
+\end{tcolorbox}
+
+IGA numerical integration pipeline:
+\begin{align}
+    k(u^h, \delta u^h; \boldsymbol{\mu}) & = \int_{\Omega^h(\boldsymbol{\mu})} \vect{\epsilon}(\delta u^h)^T \vect{\sigma}(u^h) \, dv \\
+    & \Rightarrow \sum_e \int_{\Omega_p^e} \left( \mat{B}^T \mat{D} \mat{B} \right) |J(\boldsymbol{\xi}; \boldsymbol{\mu})| \, dv_p^e \\
+    & \Rightarrow \sum_e \int_{-1}^{1} \int_{-1}^{1} \left( \mat{B}^T \mat{D} \mat{B} \right) |J(\tilde{\xi}, \tilde{\eta}; \boldsymbol{\mu})| |J_{\text{parent}}| \, d\tilde{\xi} \, d\tilde{\eta}
+\end{align}
+\begin{equation}
+    \mat{K}_e(\boldsymbol{\mu}) = \sum_{g} \mat{B}^T(\tilde{\boldsymbol{\xi}}_g) \mat{D} \mat{B}(\tilde{\boldsymbol{\xi}}_g) |J(\tilde{\boldsymbol{\xi}}_g; \boldsymbol{\mu})| |J_{\text{parent}}| w_g
+\end{equation}
+\begin{equation}
+    \mat{K}(\boldsymbol{\mu}) = \mathcal{A}_e \left( \mat{K}_e(\boldsymbol{\mu}) \right) = \sum_e \mat{L}_e^T \mat{K}_e(\boldsymbol{\mu}) \mat{L}_e
+\end{equation}
+\begin{equation}
+    \mat{D} = \frac{E}{1 - \nu^2} \begin{bmatrix} 1 & \nu & 0 \\ \nu & 1 & 0 \\ 0 & 0 & \frac{1 - \nu}{2} \end{bmatrix}
+\end{equation}
+\begin{equation}
+    \mat{B} = \begin{bmatrix} \mat{B}_0 & \mat{B}_1 & \dots & \mat{B}_{N_{\text{bas}}-1} \end{bmatrix}, \quad \mat{B}_a = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \\[0.3em] \frac{\partial R_a}{\partial y} & \frac{\partial R_a}{\partial x} \end{bmatrix}
+\end{equation}
+\begin{equation}
+    \begin{bmatrix} \frac{\partial R_a}{\partial x} \\[0.3em] \frac{\partial R_a}{\partial y} \end{bmatrix} = \mat{J}_{\boldsymbol{\xi}}^{-1} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix} = \frac{1}{|J_{\boldsymbol{\xi}}|} \begin{bmatrix} \frac{\partial y}{\partial \eta} & -\frac{\partial y}{\partial \xi} \\[0.3em] -\frac{\partial x}{\partial \eta} & \frac{\partial x}{\partial \xi} \end{bmatrix} \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mat{K}_e(\boldsymbol{\mu})$: Element stiffness matrix. Depends on $\boldsymbol{\mu}$ through coordinate Jacobian mapping $|J(\tilde{\boldsymbol{\xi}}_g; \boldsymbol{\mu})|$ at Gauss integration points $\tilde{\boldsymbol{\xi}}_g$.
+    \item $\mat{D}$: Elastic plane stress material matrix (depends on Young's modulus $E$ and Poisson's ratio $\nu$).
+    \item $\mat{B}_a$: Strain-displacement matrix block for node $a$. Depends on $\boldsymbol{\mu}$ because spatial derivatives $\frac{\partial R_a}{\partial x}, \frac{\partial R_a}{\partial y}$ require inverse Jacobian mapping $\mat{J}_{\boldsymbol{\xi}}^{-1}(\boldsymbol{\mu})$.
+    \item $\mat{L}_e$: Element localization Boolean mapping matrix.
+\end{itemize}
+\end{tcolorbox}
+
+
+% ==============================================================================
+\chapter{Shape Parameterization: Reference Configuration Mapping}
+\label{ch:pullback}
+% ==============================================================================
+
+\section{Pullback Mapping at the Continuum Level}
+
+Parameterized geometric mapping:
+\begin{equation}
+    \vect{x} = \boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\boldsymbol{\Psi}$: Diffeomorphic mapping function from static reference coordinates $\hat{\vect{x}} \in \hat{\Omega}$ to physical coordinates $\vect{x} \in \Omega(\boldsymbol{\mu})$. Depends on $\boldsymbol{\mu}$ to map parameter variations.
+\end{itemize}
+\end{tcolorbox}
+
+Coordinate Jacobian matrix:
+\begin{equation}
+    \mathbf{J}_{\hat{\vect{x}}}(\hat{\vect{x}}; \boldsymbol{\mu}) = \frac{\partial \boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})}{\partial \hat{\vect{x}}}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mathbf{J}_{\hat{\vect{x}}}$: Spatial deformation gradient of reference mapping. Depends on $\boldsymbol{\mu}$ because geometric deformation rates vary with notch size/position.
+\end{itemize}
+\end{tcolorbox}
+
+Orientation preservation condition:
+\begin{equation}
+    J_{\hat{\vect{x}}, \boldsymbol{\mu}} = \det \mathbf{J}_{\hat{\vect{x}}}(\hat{\vect{x}}; \boldsymbol{\mu}) > 0 \quad \forall \hat{\vect{x}} \in \hat{\Omega}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $J_{\hat{\vect{x}}, \boldsymbol{\mu}}$: Volume scaling determinant. Strictly positive requirement guarantees no element inversion or self-intersection.
+\end{itemize}
+\end{tcolorbox}
+
+Gradient and volume element pullback:
+\begin{equation}
+    \nabla_{\vect{x}} u = \mathbf{J}_{\hat{\vect{x}}}^{-T} \nabla_{\hat{\vect{x}}} \hat{u}, \quad \mathrm{d}\Omega = J_{\hat{\vect{x}}, \boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Pulls spatial gradients back using inverse transpose Jacobian $\mathbf{J}_{\hat{\vect{x}}}^{-T}$ and scales volume element $\mathrm{d}\Omega$ by determinant $J_{\hat{\vect{x}}, \boldsymbol{\mu}}$.
+\end{itemize}
+\end{tcolorbox}
+
+Weak formulation on the static reference configuration:
+\begin{equation}
+    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \hat{f}(\delta\vect{u}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\hat{\Omega})
+\end{equation}
+\begin{align}
+    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) & = \int_{\hat{\Omega}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\hat{\vect{x}}, \boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega}                                                                                                                                                 \\
+    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})        & = \int_{\hat{\Omega}} \boldsymbol{\varepsilon}_{\hat{\vect{x}}}(\delta\vect{u})^T \mathbf{J}_{\hat{\vect{x}}}^{-1} \mat{D} \mathbf{J}_{\hat{\vect{x}}}^{-T} \boldsymbol{\varepsilon}_{\hat{\vect{x}}}(\vect{u}) \, J_{\hat{\vect{x}}, \boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega} \\
+    \hat{f}(\delta\vect{u})                                    & = \int_{\hat{\Omega}} \vect{f}_b \cdot \delta\vect{u} \, J_{\hat{\vect{x}}, \boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \vect{h}_N \cdot \delta\vect{u} \, J_{\hat{\vect{x}}, \boldsymbol{\mu}, \Gamma} \, \mathrm{d}\hat{\Gamma}
+\end{align}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Integration domain $\hat{\Omega}$ is parameter-independent (static).
+    \item All parameter dependencies $\boldsymbol{\mu}$ are shifted into Jacobians $\mathbf{J}_{\hat{\vect{x}}}(\boldsymbol{\mu})$ and determinants $J_{\hat{\vect{x}}, \boldsymbol{\mu}}$.
+\end{itemize}
+\end{tcolorbox}
+
+Diffeomorphic parametric mapping:
+\begin{equation}
+    \boldsymbol{x} = \boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\boldsymbol{\xi}) \vect{P}_{i,j}(\boldsymbol{\mu})
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Maps flat parametric space $\hat{\Omega}_{\text{param}} = [0,1]^2$ to physical coordinates $\vect{x}(\boldsymbol{\mu})$ using parameter-dependent control point lattice $\vect{P}_{i,j}(\boldsymbol{\mu})$.
+\end{itemize}
+\end{tcolorbox}
+
+Jacobian determinant and gradient pullbacks in IGA:
+\begin{equation}
+    J_{\boldsymbol{\xi}, \boldsymbol{\mu}} = \det \mathbf{J}_{\boldsymbol{\xi}}(\boldsymbol{\xi}; \boldsymbol{\mu}) > 0
+\end{equation}
+\begin{equation}
+    \nabla_{\boldsymbol{x}} u = \mathbf{J}_{\boldsymbol{\xi}}^{-T} \nabla_{\boldsymbol{\xi}} \hat{u}, \quad d\Omega = J_{\boldsymbol{\xi}, \boldsymbol{\mu}} \, d\hat{\Omega}_{\text{param}}
+\end{equation}
+\begin{equation}
+    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \hat{f}(\delta\vect{u}; \boldsymbol{\mu}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\hat{\Omega})
+\end{equation}
+\begin{align}
+    \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) & = \int_{\hat{\Omega}_{\text{param}}} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, J_{\boldsymbol{\xi}, \boldsymbol{\mu}} \, d\hat{\Omega}_{\text{param}}                                                                                                                                        \\
+    \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})        & = \int_{\hat{\Omega}_{\text{param}}} \hat{\boldsymbol{\varepsilon}}(\delta\vect{u})^T \mat{D} \hat{\boldsymbol{\varepsilon}}(\vect{u}) \, J_{\boldsymbol{\xi}, \boldsymbol{\mu}} \, d\hat{\Omega}_{\text{param}}                                   \\
+    \hat{f}(\delta\vect{u}; \boldsymbol{\mu})                  & = \int_{\hat{\Omega}_{\text{param}}} \vect{\hat{f}}_b \cdot \delta\vect{u} \, J_{\boldsymbol{\xi}, \boldsymbol{\mu}} \, d\hat{\Omega}_{\text{param}} + \int_{\hat{\Gamma}_{N,\text{param}}} \vect{\hat{h}}_N \cdot \delta\vect{u} \, J_{\boldsymbol{\xi}, \boldsymbol{\mu}, \Gamma} \, d\hat{\Gamma}_{\text{param}}
+\end{align}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $J_{\boldsymbol{\xi}, \boldsymbol{\mu}, \Gamma}$: Boundary surface area scaling factor $\|\mathbf{J}_{\boldsymbol{\xi}}^{-T} \hat{\vect{n}}\| J_{\boldsymbol{\xi}, \boldsymbol{\mu}}$.
+\end{itemize}
+\end{tcolorbox}
+
+Nominal reference coordinates and physical displacement decomposition:
+\begin{equation}
+    \hat{\vect{x}} = \hat{\boldsymbol{\Psi}}(\boldsymbol{\xi}) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\boldsymbol{\xi}) \vect{P}_{i,j}^0
+\end{equation}
+\begin{equation}
+    \vect{x} = \hat{\vect{x}} + \vect{d} = \hat{\boldsymbol{\Psi}}(\boldsymbol{\xi}) + \vect{d}(\boldsymbol{\mu})
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\vect{P}_{i,j}^0$: Nominal unnotched control point lattice coordinates (constant).
+    \item $\vect{d}(\boldsymbol{\mu})$: Parameter-dependent control point displacement field vector that moves control points to form notch cuts.
+\end{itemize}
+\end{tcolorbox}
+
+Naive vs Pullback field discretizations:
+\begin{equation}
+    u^h(\boldsymbol{\mu}) = \sum_{a=0}^{N_{\text{bas}}-1} R_a(\boldsymbol{\mu}) \vect{u}_a(\boldsymbol{\mu}) = \mat{R}(\boldsymbol{\mu}) \vect{U}(\boldsymbol{\mu}), \quad \delta u^h = \mat{R}(\boldsymbol{\mu}) \delta\vect{U}
+\end{equation}
+\begin{equation}
+    k(u^h, \delta u^h; \boldsymbol{\mu}) \Rightarrow \delta\vect{U}^T \mat{K}(\boldsymbol{\mu}) \vect{U}
+\end{equation}
+\begin{equation}
+    \hat{u}^h(\boldsymbol{\mu}) = \sum_{a=0}^{N_{\text{bas}}-1} \hat{R}_a \hat{\vect{u}}_a(\boldsymbol{\mu}) = \hat{\mat{R}} \hat{\vect{U}}(\boldsymbol{\mu}), \quad \delta\hat{u}^h = \hat{\mat{R}} \delta\hat{\vect{U}}
+\end{equation}
+\begin{equation}
+    \hat{k}(\hat{u}^h, \delta\hat{u}^h; \boldsymbol{\mu}) \Rightarrow \delta\hat{\vect{U}}^T \hat{\mat{K}}(\boldsymbol{\mu}) \hat{\vect{U}}
+\end{equation}
+\begin{equation}
+    \vect{d}(\boldsymbol{\mu}) = \sum_{a=0}^{N_{\text{bas}}-1} \hat{R}_a \vect{d}_a(\boldsymbol{\mu})
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item In Naive: Basis functions $R_a(\boldsymbol{\mu})$ depend on $\boldsymbol{\mu}$ because mesh changes, creating vector space mismatch.
+    \item In Pullback: Basis functions $\hat{R}_a$ are parameter-independent (static on $\hat{\Omega}_{\text{param}}$). Only degrees of freedom $\hat{\vect{U}}(\boldsymbol{\mu})$ change with physical response.
+\end{itemize}
+\end{tcolorbox}
+
+
+% ==============================================================================
+\chapter{Simulation: Full Order Model (FOM)}
+\label{ch:fom}
+% ==============================================================================
+
+FOM semi-discrete equations of motion:
+\begin{equation}
+        \mat{M}(\boldsymbol{\mu}) \ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu}) \dot{\vect{U}}(t) + \mat{K}(\boldsymbol{\mu}) \vect{U}(t) = \lambda(t) \mathbf{F}_{\text{ext}}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mat{M}(\boldsymbol{\mu}), \mat{C}(\boldsymbol{\mu}), \mat{K}(\boldsymbol{\mu})$: Global $N \times N$ mass, damping, stiffness system matrices. Depend on $\boldsymbol{\mu}$ through pullback Jacobians.
+    \item $\mathbf{F}_{\text{ext}}$: Spatial external force profile vector.
+\end{itemize}
+\end{tcolorbox}
+
+Element mass matrix integration:
+\begin{equation}
+        \mat{M}_{e, ab} = \int_{-1}^{1} \int_{-1}^{1} \rho R_a(\xi, \eta) R_b(\xi, \eta) |J(\xi, \eta)| \, d\xi \, d\eta
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Evaluates consistent element mass using mass density $\rho$ and basis shape functions $R_a, R_b$.
+\end{itemize}
+\end{tcolorbox}
+
+Rayleigh damping model:
+\begin{equation}
+        \mat{C}(\boldsymbol{\mu}) = \alpha_M \mat{M}(\boldsymbol{\mu}) + \beta_K \mat{K}(\boldsymbol{\mu})
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\alpha_M$: Mass-proportional damping constant ($0.05$).
+    \item $\beta_K$: Stiffness-proportional damping constant ($0.002$).
+    \item Depends on $\boldsymbol{\mu}$ because both $\mat{M}$ and $\mat{K}$ depend on shape parameter $\boldsymbol{\mu}$.
+\end{itemize}
+\end{tcolorbox}
+
+Parameterized element stiffness matrix pullback integration:
+\begin{equation}
+    \mat{K}_{e, ab}(\boldsymbol{\mu}) = \int_{-1}^{1} \int_{-1}^{1} \mat{B}_a^T(\xi, \eta; \boldsymbol{\mu}) \mat{D} \mat{B}_b(\xi, \eta; \boldsymbol{\mu}) |J(\xi, \eta; \boldsymbol{\mu})| \, d\xi \, d\eta
+\end{equation}
+\begin{equation}
+    \mat{B}_a(\xi, \eta; \boldsymbol{\mu}) = \begin{bmatrix} \frac{\partial R_a}{\partial x} & 0 \\[0.3em] 0 & \frac{\partial R_a}{\partial y} \\[0.3em] \frac{\partial R_a}{\partial y} & \frac{\partial R_a}{\partial x} \end{bmatrix}, \quad \text{with} \quad \begin{bmatrix} \frac{\partial R_a}{\partial x} \\[0.3em] \frac{\partial R_a}{\partial y} \end{bmatrix} = \mat{J}^{-1}(\xi, \eta; \boldsymbol{\mu}) \begin{bmatrix} \frac{\partial R_a}{\partial \xi} \\[0.3em] \frac{\partial R_a}{\partial \eta} \end{bmatrix}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Depends on $\boldsymbol{\mu}$ because strain-displacement matrix $\mat{B}_a$ and Jacobian determinant $|J|$ update at every Gauss quadrature point when notch geometry changes.
+\end{itemize}
+\end{tcolorbox}
+
+Penalty boundary condition enforcement:
+\begin{equation}
+    \mat{K}_{\text{eff}}[i, i] \gets k_{\text{p}}, \quad \vect{F}_{\text{eff}}[i] \gets 0 \quad \text{for all constrained boundary DOFs } i
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $k_{\text{p}} = 10^{30}$: Large penalty parameter forcing boundary displacements to zero.
+\end{itemize}
+\end{tcolorbox}
+
+Generalized-$\alpha$ intermediate evaluation scheme:
+\begin{equation}
+    \hat{\mathbf{M}}(\boldsymbol{\mu}) \ddot{\vect{U}}_{t+\alpha_m} + \mat{C}(\boldsymbol{\mu}) \dot{\vect{U}}_{t+\alpha_f} + \mat{K}(\boldsymbol{\mu}) \vect{U}_{t+\alpha_f} = \lambda(t+\alpha_f) \hat{\mathbf{F}}_{\text{ext}}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\alpha_m, \alpha_f$: High-frequency algorithmic damping evaluation stages.
+\end{itemize}
+\end{tcolorbox}
+
+
+% ==============================================================================
+\chapter{Reduced Order Modeling (ROM) \& Hyper-Reduction}
+\label{ch:rom}
+% ==============================================================================
+
+Subspace displacement projection:
+\begin{equation}
+    \vect{U}(t) \approx \boldsymbol{\Phi} \vect{q}(t)
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\boldsymbol{\Phi}$ (or $\mat{V}_r$): $N \times r$ orthonormal Reduced Basis matrix extracted via POD from snapshot matrix SVD.
+    \item $\vect{q}(t)$: Generalized reduced coordinate amplitude vector of dimension $r \ll N$.
+\end{itemize}
+\end{tcolorbox}
+
+POD cumulative energy fraction $\eta(r)$ and relative error $\epsilon(r)$:
+\begin{equation}
+    \eta(r) = \frac{\sum_{i=1}^{r} \sigma_i^2}{\sum_{j=1}^{d} \sigma_j^2}, \quad \epsilon(r) = \sqrt{1 - \eta(r)}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\sigma_i$: $i$-th singular value from snapshot matrix SVD. Truncated at $r$ modes where $\eta(r) \ge 99.99\%$.
+\end{itemize}
+\end{tcolorbox}
+
+Galerkin projected reduced system of equations:
+\begin{equation}
+    \mathbf{M}_{r} \ddot{\vect{q}}(t) + \mathbf{C}_{r} \dot{\vect{q}}(t) + \mathbf{K}_{r}(\boldsymbol{\mu}) \vect{q}(t) = \mathbf{F}_{r}(t)
+\end{equation}
+\begin{equation}
+    \mathbf{M}_{r} = \boldsymbol{\Phi}^T \hat{\mathbf{M}} \boldsymbol{\Phi}, \quad \mathbf{K}_{r}(\boldsymbol{\mu}) = \boldsymbol{\Phi}^T \hat{\mathbf{K}}(\boldsymbol{\mu}) \boldsymbol{\Phi}, \quad \mathbf{C}_{r} = \boldsymbol{\Phi}^T \hat{\mathbf{C}} \boldsymbol{\Phi}, \quad \mathbf{F}_{r}(t) = \boldsymbol{\Phi}^T \hat{\mathbf{F}}_{\text{ext}}(t)
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mathbf{K}_r(\boldsymbol{\mu})$: $r \times r$ reduced stiffness matrix. Depends on $\boldsymbol{\mu}$ because full stiffness $\hat{\mathbf{K}}(\boldsymbol{\mu})$ changes with shape parameters.
+\end{itemize}
+\end{tcolorbox}
+
+Analytical 2-DOF solver via Cramer's Rule:
+\begin{equation}
+    \Delta q_1 = \frac{R_1 K_{22} - R_2 K_{12}}{\det(\mathbf{K}_{\text{eff}, r})}, \quad \Delta q_2 = \frac{K_{11} R_2 - K_{21} R_1}{\det(\mathbf{K}_{\text{eff}, r})}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Bypasses linear system solver routines by explicitly solving $2 \times 2$ reduced system equations analytically.
+\end{itemize}
+\end{tcolorbox}
+
+Classical physical-domain FOM equations of motion:
+\begin{equation}
+\mat{M}(\boldsymbol{\mu})\ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu})\dot{\vect{U}}(t) + \mathbf{F}_{\text{int}}(\vect{U}(t); \boldsymbol{\mu}) = \mathbf{F}_{\text{ext}}(t)
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mathbf{F}_{\text{int}}$: Internal force vector. In linear elasticity, $\mathbf{F}_{\text{int}} = \mat{K}(\boldsymbol{\mu}) \vect{U}$.
+\end{itemize}
+\end{tcolorbox}
+
+FOM Pullback to static reference configuration:
+\begin{equation}
+\vect{x} = \boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu}), \quad \vect{x} \in \Omega(\boldsymbol{\mu}), \quad \boldsymbol{\xi} \in \hat{\Omega}
+\end{equation}
+\begin{equation}
+\nabla_{\vect{x}} R_i(\boldsymbol{\xi}) = \mathbf{J}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu}) \nabla_{\boldsymbol{\xi}} \hat{R}_i(\boldsymbol{\xi})
+\end{equation}
+\begin{equation}
+K_{ij}(\boldsymbol{\mu}) = \int_{\hat{\Omega}} \left( \mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \hat{R}_i \right) : \mat{D} : \left( \mathbf{J}^{-T} \nabla_{\boldsymbol{\xi}} \hat{R}_j \right) \det(\mathbf{J}) \, \mathrm{d}\hat{\Omega}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Integrals are computed over fixed domain $\hat{\Omega}$. Parameter changes $\boldsymbol{\mu}$ update only the inverse transpose Jacobian $\mathbf{J}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu})$ and determinant $\det(\mathbf{J})$.
+\end{itemize}
+\end{tcolorbox}
+
+Transient state projection for mid-simulation parameter updates:
+\begin{equation}
+    \mathbf{\Phi}_{\text{old}} \quad \longrightarrow \quad \mathbf{\Phi}_{\text{new}}
+\end{equation}
+\begin{equation}
+    q_{i, \text{new}}(t) = \sum_{k=1}^N \phi_{i, k, \text{new}} u_{\text{phys}, k}(t), \quad \dot{q}_{i, \text{new}}(t) = \sum_{k=1}^N \phi_{i, k, \text{new}} v_{\text{phys}, k}(t)
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Maps displacement and velocity fields dynamically onto newly loaded basis $\boldsymbol{\Phi}_{\text{new}}$ to avoid non-physical dynamic jumps when user alters shape parameters mid-simulation.
+\end{itemize}
+\end{tcolorbox}
+
+ECSW Hyper-reduction reduced stiffness assembly:
+\begin{equation}
+    \mathbf{K}_{r, \text{ECSW}}(\boldsymbol{\mu}) = \sum_{e \in \Omega_{\text{ECSW}}} w_e \boldsymbol{\Phi}_e^T \mathbf{K}_{e}(\boldsymbol{\mu}) \boldsymbol{\Phi}_e
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\Omega_{\text{ECSW}}$: Sparse active element subset ($E^* \ll E$).
+    \item $w_e$: Non-negative integration weights for active element $e$.
+    \item Bypasses full-mesh assembly because loop runs only over sparse active elements $E^*$.
+\end{itemize}
+\end{tcolorbox}
+
+Non-Negative Least Squares (NNLS) optimization problem:
+\begin{equation}
+    \min_{\vect{w}} \|\mat{A}\vect{w} - \vect{b}\|_2^2 \quad \text{subject to} \quad \vect{w} \ge \vect{0}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\mat{A}$: Matrix of projected element internal force vectors across training snapshots.
+    \item $\vect{b}$: Target projected full internal force vector.
+\end{itemize}
+\end{tcolorbox}
+
+Dirichlet and notch pre-seeding set:
+\begin{equation}
+    \Omega_{\text{ECSW, seed}} = \{e_{\text{clamp}}\} \cup \{e_{\text{notch}}\}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Forces inclusion of boundary clamping elements $e_{\text{clamp}}$ and notch throat elements $e_{\text{notch}}$ into active set to guarantee matrix coercivity and capture stress concentrations.
+\end{itemize}
+\end{tcolorbox}
+
+Dynamic stiffness calibration scaling factor:
+\begin{equation}
+    \gamma = \frac{\boldsymbol{\phi}_1^T \mathbf{K}_{\text{Full}}(\boldsymbol{\mu}) \boldsymbol{\phi}_1}{\boldsymbol{\phi}_1^T \mathbf{K}_{\text{ECSW}}(\boldsymbol{\mu}) \boldsymbol{\phi}_1}, \quad w_e \leftarrow \gamma \cdot w_e
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item $\gamma$: Real-time correction scale factor. Adjusts weights $w_e$ online to align hyper-reduced stiffness with unreduced fundamental mode energy under shape changes.
+\end{itemize}
+\end{tcolorbox}
+
+
+% ==============================================================================
+\chapter*{Appendices}
+\addcontentsline{toc}{chapter}{Appendices}
+% ==============================================================================
+
+\section*{Appendix A: Analytical Derivatives of NURBS Basis Functions}
+
+Analytical derivative of $N_{i,p}(\xi)$:
+\begin{equation}
+    N'_{i,p}(\xi) = \frac{d}{d\xi} N_{i,p}(\xi) = p \left( \frac{N_{i,p-1}(\xi)}{\xi_{i+p} - \xi_i} - \frac{N_{i+1,p-1}(\xi)}{\xi_{i+p+1} - \xi_{i+1}} \right)
+\end{equation}
+\begin{equation}
+    N'_{i,0}(\xi) = 0
+\end{equation}
+Rational basis functions $R_i(\xi)$:
+\begin{equation}
+    R_i(\xi) = \frac{N_i(\xi) w_i}{W(\xi)} \quad \text{where} \quad W(\xi) = \sum_{j=0}^{n-1} N_j(\xi) w_j
+\end{equation}
+Exact analytical gradient:
+\begin{equation}
+    \frac{d R_i(\xi)}{d\xi} = w_i \frac{N'_i(\xi) W(\xi) - N_i(\xi) W'(\xi)}{[W(\xi)]^2}
+\end{equation}
+Derivative of weighting denominator function:
+\begin{equation}
+    W'(\xi) = \sum_{j=0}^{n-1} N'_j(\xi) w_j
+\end{equation}
+Tensor product bivariate basis function:
+\begin{equation}
+    R_{i,j}(\xi, \eta) = \frac{N_i(\xi) M_j(\eta) w_{i,j}}{W(\xi, \eta)} \quad \text{where} \quad W(\xi, \eta) = \sum_{k=0}^{n-1}\sum_{l=0}^{m-1} N_k(\xi) M_l(\eta) w_{k,l}
+\end{equation}
+Partial derivatives:
+\begin{align}
+    \frac{\partial R_{i,j}(\xi, \eta)}{\partial \xi} &= w_{i,j} \frac{N'_i(\xi) M_j(\eta) W(\xi, \eta) - N_i(\xi) M_j(\eta) \frac{\partial W(\xi, \eta)}{\partial \xi}}{[W(\xi, \eta)]^2} \\
+    \frac{\partial R_{i,j}(\xi, \eta)}{\partial \eta} &= w_{i,j} \frac{N_i(\xi) M'_j(\eta) W(\xi, \eta) - N_i(\xi) M_j(\eta) \frac{\partial W(\xi, \eta)}{\partial \eta}}{[W(\xi, \eta)]^2}
+\end{align}
+Partial derivatives of weight denominator function:
+\begin{equation}
+    \frac{\partial W(\xi, \eta)}{\partial \xi} = \sum_{k=0}^{n-1}\sum_{l=0}^{m-1} N'_k(\xi) M_l(\eta) w_{k,l}, \quad \frac{\partial W(\xi, \eta)}{\partial \eta} = \sum_{k=0}^{n-1}\sum_{l=0}^{m-1} N_k(\xi) M'_l(\eta) w_{k,l}
+\end{equation}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!60!black,title={Term Definitions \& Parameter Dependencies}]
+\begin{itemize}
+    \item Parametric basis derivatives are parameter-independent. They are evaluated once offline on the parent element space and used for exact Jacobian mapping.
+\end{itemize}
+\end{tcolorbox}
+
+\end{document}
