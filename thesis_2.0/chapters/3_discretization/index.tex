@@ -1,0 +1,272 @@
+% ==============================================================================
+\chapter{Discretization: Isogeometric Analysis (IGA)}
+\label{ch:discretization}
+% ==============================================================================
+
+\begin{tcolorbox}[colback=lightbg, colframe=primaryblue, title=\textbf{Chapter at a Glance: CAD-Integrated Discretization}, fonttitle=\bfseries]
+\begin{description}[leftmargin=!, labelwidth=3.4cm]
+    \item[\textbf{Core Paradigm}] Use Non-Uniform Rational B-Splines (NURBS) as basis functions for both geometry definition and elastodynamic state approximation.
+    \item[\textbf{Refinement Vectors}] $h$-refinement (knot insertion), $p$-refinement (degree elevation), and $k$-refinement (order elevation maintaining $C^{p-1}$ continuity).
+    \item[\textbf{System Output}] Semi-discrete matrix equations of motion $\mat{M}\ddot{\vect{d}} + \mat{C}\dot{\vect{d}} + \mat{K}\vect{d} = \vect{F}_{\text{ext}}$ without geometry discretization error.
+\end{description}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------------------
+\section{Geometric Representation via B-Splines \& NURBS}
+% ------------------------------------------------------------------------------
+
+Isogeometric Analysis (IGA), pioneered by Hughes et al. (2005), eliminates the gap between Computer-Aided Design (CAD) and Finite Element Analysis (FEA) by employing NURBS basis functions directly in the analysis solver.
+
+\subsection{Univariate B-Spline Basis \& Cox-de Boor Recurrence}
+Given an open knot vector $\Xi = \{\xi_0, \xi_1, \dots, \xi_m\}$, univariate B-spline basis functions $N_{i,p}(\xi)$ of degree $p$ are defined recursively via the Cox-de Boor formula:
+
+\begin{equation}
+    N_{i,0}(\xi) = \begin{cases} 1 & \text{if } \xi_i \le \xi < \xi_{i+1} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+\begin{equation}
+    N_{i,p}(\xi) = \frac{\xi - \xi_i}{\xi_{i+p} - \xi_i} N_{i,p-1}(\xi) + \frac{\xi_{i+p+1} - \xi}{\xi_{i+p+1} - \xi_{i+1}} N_{i+1,p-1}(\xi)
+\end{equation}
+
+Analytical spatial gradients for strain evaluations are computed using derivative recurrence:
+\begin{equation}
+    \frac{d}{d\xi} N_{i,p}(\xi) = p \left( \frac{N_{i,p-1}(\xi)}{\xi_{i+p} - \xi_i} - \frac{N_{i+1,p-1}(\xi)}{\xi_{i+p+1} - \xi_{i+1}} \right)
+\end{equation}
+
+\subsection{Non-Uniform Rational B-Splines (NURBS)}
+Projective control weights $w_i$ define the rational basis functions $R_{i,p}(\xi)$:
+\begin{equation}
+    R_{i,p}(\xi) = \frac{N_{i,p}(\xi) w_i}{\sum_{j=0}^{n-1} N_{j,p}(\xi) w_j} = \frac{N_{i,p}(\xi) w_i}{W(\xi)}
+\end{equation}
+
+Spatial gradients of rational basis functions are evaluated using the quotient rule:
+\begin{equation}
+    \frac{d}{d\xi} R_{i,p}(\xi) = w_i \frac{\frac{d N_{i,p}(\xi)}{d\xi} W(\xi) - N_{i,p}(\xi) \frac{d W(\xi)}{d\xi}}{[W(\xi)]^2}
+\end{equation}
+where $W(\xi) = \sum_{j=0}^{n-1} N_{j,p}(\xi) w_j$. Physical coordinates of a 1D parametric curve $\vect{C}(\xi)$ are given by:
+\begin{equation}
+    \vect{C}(\xi) = \sum_{i=0}^{n-1} R_{i,p}(\xi) \vect{P}_i
+\end{equation}
+
+Figure \ref{fig:nurbs_curves_eval} illustrates quadratic B-spline basis functions $N_{i,2}(\xi)$ evaluated over an open knot vector.
+
+\begin{figure}[htbp]
+    \centering
+    \makebox[\textwidth][c]{%
+        \begin{tikzpicture}[scale=1.05, >=stealth]
+            \definecolor{n0color}{RGB}{37, 99, 235}
+            \definecolor{n1color}{RGB}{5, 150, 105}
+            \definecolor{n2color}{RGB}{217, 119, 6}
+            \definecolor{n3color}{RGB}{220, 38, 38}
+            \definecolor{n4color}{RGB}{124, 58, 237}
+            \definecolor{n5color}{RGB}{219, 39, 119}
+
+            \draw[gray!30, line width=0.5pt] (0, 0) grid[ystep=0.25, xstep=0.25] (10, 4.5);
+            \draw[gray!50, dashed, line width=0.5pt] (0, 2.25) -- (10, 2.25);
+
+            \draw[->, thick, black!70] (0,0) -- (10.5,0) node[right] {$\xi$};
+            \draw[->, thick, black!70] (0,0) -- (0,5.0) node[above] {$N_{i,2}(\xi)$};
+
+            \foreach \x/\label in {0/0.0, 2.5/0.25, 5/0.5, 7.5/0.75, 10/1.0} {
+                \draw[black!70, thick] (\x, 2pt) -- (\x, -2pt) node[below, font=\small] {\label};
+            }
+            \foreach \y/\label in {0/0.0, 2.25/0.5, 4.5/1.0} {
+                \draw[black!70, thick] (2pt, \y) -- (-2pt, \y) node[left, font=\small] {\label};
+            }
+
+            \fill[n0color, opacity=0.08] (0,4.5) -- plot[domain=0:0.25, samples=50] ({10*\x}, {4.5*(1-4*\x)^2}) -- (2.5,0) -- (0,0) -- cycle;
+            \draw[n0color, line width=1.5pt] plot[domain=0:0.25, samples=50] ({10*\x}, {4.5*(1-4*\x)^2});
+
+            \fill[n1color, opacity=0.08] (0,0) -- plot[domain=0:0.25, samples=50] ({10*\x}, {4.5*(8*\x - 24*\x^2)}) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {4.5*(8*(0.5-\x)^2)}) -- (5,0) -- cycle;
+            \draw[n1color, line width=1.5pt] plot[domain=0:0.25, samples=50] ({10*\x}, {4.5*(8*\x - 24*\x^2)}) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {4.5*(8*(0.5-\x)^2)});
+
+            \fill[n2color, opacity=0.08] (0,0) -- plot[domain=0:0.25, samples=50] ({10*\x}, {4.5*(8*\x^2)}) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {4.5*(12*\x - 16*\x^2 - 1.5)}) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {4.5*(8*(0.75-\x)^2)}) -- (7.5,0) -- cycle;
+            \draw[n2color, line width=1.5pt] plot[domain=0:0.25, samples=50] ({10*\x}, {4.5*(8*\x^2)}) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {4.5*(12*\x - 16*\x^2 - 1.5)}) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {4.5*(8*(0.75-\x)^2)});
+
+            \fill[n3color, opacity=0.08] (2.5,0) -- plot[domain=0.25:0.5, samples=50] ({10*\x}, {4.5*(8*(\x-0.25)^2)}) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {4.5*(12*(1-\x) - 16*(1-\x)^2 - 1.5)}) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {4.5*(8*(1-\x)^2)}) -- (10,0) -- cycle;
+            \draw[n3color, line width=1.5pt] plot[domain=0.25:0.5, samples=50] ({10*\x}, {4.5*(8*(\x-0.25)^2)}) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {4.5*(12*(1-\x) - 16*(1-\x)^2 - 1.5)}) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {4.5*(8*(1-\x)^2)});
+
+            \fill[n4color, opacity=0.08] (5,0) -- plot[domain=0.5:0.75, samples=50] ({10*\x}, {4.5*(8*(\x-0.5)^2)}) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {4.5*(8*(1-\x) - 24*(1-\x)^2)}) -- (10,0) -- cycle;
+            \draw[n4color, line width=1.5pt] plot[domain=0.5:0.75, samples=50] ({10*\x}, {4.5*(8*(\x-0.5)^2)}) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {4.5*(8*(1-\x) - 24*(1-\x)^2)});
+
+            \fill[n5color, opacity=0.08] (7.5,0) -- plot[domain=0.75:1.0, samples=50] ({10*\x}, {4.5*(4*\x-3)^2}) -- (10,4.5) -- (10,0) -- cycle;
+            \draw[n5color, line width=1.5pt] plot[domain=0.75:1.0, samples=50] ({10*\x}, {4.5*(4*\x-3)^2});
+
+            \matrix [draw, fill=white, at={(10.2, 4.5)}, anchor=north west, font=\small, row sep=1pt, ampersand replacement=\&] {
+                \node {\tikz[baseline=-0.5ex]{\draw[n0color, line width=1.5pt] (0,0) -- (0.4,0);}}; \& \node {$N_{0,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n1color, line width=1.5pt] (0,0) -- (0.4,0);}}; \& \node {$N_{1,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n2color, line width=1.5pt] (0,0) -- (0.4,0);}}; \& \node {$N_{2,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n3color, line width=1.5pt] (0,0) -- (0.4,0);}}; \& \node {$N_{3,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n4color, line width=1.5pt] (0,0) -- (0.4,0);}}; \& \node {$N_{4,2}$}; \\
+                \node {\tikz[baseline=-0.5ex]{\draw[n5color, line width=1.5pt] (0,0) -- (0.4,0);}}; \& \node {$N_{5,2}$}; \\
+            };
+        \end{tikzpicture}%
+    }
+    \caption{Quadratic B-spline basis functions $N_{i,2}(\xi)$ evaluated over knot vector $\Xi = \{0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1\}$.}
+    \label{fig:nurbs_curves_eval}
+\end{figure}
+
+\subsection{Bivariate Tensor-Product NURBS Surface Patches}
+To model 2D continuum surfaces, univariate basis functions are combined via tensor products across knot vectors $\Xi$ and $\mathcal{H}$. Weight factors $w_{i,j}$ define rational bivariate basis functions $R_{i,j}^{p,q}(\xi, \eta)$:
+
+\begin{equation}
+    R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k=0}^{n-1} \sum_{l=0}^{m-1} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
+\end{equation}
+
+The physical domain surface $\vect{S}(\xi, \eta)$ is constructed as a linear combination of a 2D control point lattice $\vect{P}_{i,j}$, as shown in Figure \ref{fig:bspline_surface_concept}:
+\begin{equation}
+    \vect{S}(\xi, \eta) = \sum_{i=0}^{n-1} \sum_{j=0}^{m-1} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
+\end{equation}
+
+For surface integration, parametric gradients map to physical space via 2D coordinate Jacobian $\mat{J}$:
+\begin{equation}
+    \mat{J}(\xi, \eta) = \begin{bmatrix} \frac{\partial x}{\partial \xi} & \frac{\partial y}{\partial \xi} \\[0.3em] \frac{\partial x}{\partial \eta} & \frac{\partial y}{\partial \eta} \end{bmatrix} = \begin{bmatrix} \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \xi} y_{i,j} \\[0.5em] \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} x_{i,j} & \sum \frac{\partial R_{i,j}^{p,q}}{\partial \eta} y_{i,j} \end{bmatrix}
+\end{equation}
+The local outward unit surface normal vector $\vect{n}(\xi, \eta)$ is extracted via the cross product:
+\begin{equation}
+    \vect{n}(\xi, \eta) = \frac{\vect{g}_{\xi} \times \vect{g}_{\eta}}{\|\vect{g}_{\xi} \times \vect{g}_{\eta}\|}
+\end{equation}
+where $\vect{g}_{\xi} = \partial \vect{S}/\partial \xi$ and $\vect{g}_{\eta} = \partial \vect{S}/\partial \eta$.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[scale=1.0, >=stealth]
+        \coordinate (P00) at (0, 0);   \coordinate (P10) at (2, 0.2);   \coordinate (P20) at (4, 0);
+        \coordinate (P01) at (0.5, 1.0); \coordinate (P11) at (2.5, 1.7); \coordinate (P21) at (4.5, 1.0);
+        \coordinate (P02) at (1.0, 2.0); \coordinate (P12) at (3.0, 2.2); \coordinate (P22) at (5.0, 2.0);
+
+        \draw[thick, gray!60, dashed] (P00) -- (P10) -- (P20);
+        \draw[thick, gray!60, dashed] (P01) -- (P11) -- (P21);
+        \draw[thick, gray!60, dashed] (P02) -- (P12) -- (P22);
+        \draw[thick, gray!60, dashed] (P00) -- (P01) -- (P02);
+        \draw[thick, gray!60, dashed] (P10) -- (P11) -- (P12);
+        \draw[thick, gray!60, dashed] (P20) -- (P21) -- (P22);
+
+        \fill[lightbg, opacity=0.8, draw=primaryblue, thick]
+        (P00) .. controls (1.0, 0.1) and (3.0, 0.1) .. (P20)
+        .. controls (4.3, 0.6) and (4.7, 1.4) .. (P22)
+        .. controls (4.0, 2.1) and (2.0, 2.1) .. (P02)
+        .. controls (0.7, 1.4) and (0.3, 0.6) .. (P00);
+
+        \draw[primaryblue!40, thin] (1.0, 0.1) .. controls (1.5, 1.0) and (2.0, 1.7) .. (2.0, 2.1);
+        \draw[primaryblue!40, thin] (3.0, 0.1) .. controls (3.2, 1.0) and (3.5, 1.7) .. (4.0, 2.1);
+        \draw[primaryblue!40, thin] (0.5, 1.0) .. controls (1.5, 1.3) and (3.5, 1.3) .. (4.5, 1.0);
+
+        \foreach \p in {P00, P01, P02, P10, P11, P12, P20, P21, P22} {
+            \fill[red!80!black] (\p) circle (2.5pt);
+        }
+
+        \node[red!80!black, above, fill=white, inner sep=1pt] at (P11) {$\vect{P}_{i,j}$};
+        \node[primaryblue] at (2.5, 1.0) {\textbf{$\vect{S}(\xi,\eta)$}};
+    \end{tikzpicture}
+    \caption{Bivariate B-spline surface patch $\vect{S}(\xi,\eta)$ guided by a control lattice $\vect{P}_{i,j}$.}
+    \label{fig:bspline_surface_concept}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\section{\texorpdfstring{Refinement Strategies: $h$-, $p$-, and $k$-Refinement}{Refinement Strategies: h-, p-, and k-Refinement}}
+% ------------------------------------------------------------------------------
+
+A major advantage of IGA is mesh refinement without modifying CAD geometry definitions:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Comparative synthesis of IGA refinement mechanisms.}
+    \label{tab:refinement_comparison}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{l l l l p{5.5cm}}
+        \toprule
+        \textbf{Refinement Type} & \textbf{Mechanism} & \textbf{Continuity} & \textbf{Exact CAD Geometry} & \textbf{Primary Advantage / Impact} \\
+        \midrule
+        \textbf{$h$-Refinement} & Knot Insertion & Retained ($C^{p-1}$) & Preserved Exactly & Local mesh enrichment near stress concentrations (notches). \\
+        \textbf{$p$-Refinement} & Degree Elevation & Increased ($C^p$) & Preserved Exactly & Higher-order accuracy without Runge oscillatory phenomena. \\
+        \textbf{$k$-Refinement} & Order Elevation & Maximum ($C^{p-1}$) & Preserved Exactly & Superior accuracy per DOF; non-local basis with high continuity. \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+\subsection{Boehm Knot Insertion Algorithm ($h$-Refinement)}
+In $h$-refinement, new control points $\vect{P}_i^{\text{new}}$ are computed via Boehm's algorithm:
+\begin{equation}
+    \vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}
+\end{equation}
+where blending coefficients $\alpha_i$ are:
+\begin{equation}
+    \alpha_i = \begin{cases}
+        1 & \text{if } i \le k - p \\
+        \frac{\bar{\xi} - \xi_i}{\xi_{i+p} - \xi_i} & \text{if } k - p + 1 \le i \le k \\
+        0 & \text{if } i \ge k + 1
+    \end{cases}
+\end{equation}
+
+For 2D domains with lattice matrix $\mat{P}$, directional transformations $\mat{T}_{\xi}$ and $\mat{T}_{\eta}$ yield:
+\begin{equation}
+    \mat{P}^{\text{new}} = \mat{T}_{\xi} \mat{P} \mat{T}_{\eta}^T, \quad \vect{P}^{\text{new}} = \left( \mat{T}_{\eta} \otimes \mat{T}_{\xi} \right) \vect{P}
+\end{equation}
+
+Degree elevation ($p$-refinement) operates via $\vect{P}^{\text{new}} = \mat{T}_p \vect{P}$.
+
+Figure \ref{fig:hrefinement_basis} demonstrates $h$-refinement (knot insertion), showing how the control polygon refines while preserving exact curve geometry.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.75, >=stealth]
+            \draw[gray!20, thin] (0,0) grid (4,3.0);
+            \draw[gray!70, dashed, line width=1.0pt] (0,0) -- (2,2.8) -- (4,0);
+            \fill[red!80!black] (0,0) circle (2.5pt) node[below left] {$\vect{P}_0$};
+            \fill[red!80!black] (2,2.8) circle (2.5pt) node[above] {$\vect{P}_1$};
+            \fill[red!80!black] (4,0) circle (2.5pt) node[below right] {$\vect{P}_2$};
+            \draw[primaryblue, line width=1.5pt, domain=0:1, samples=50] plot ({4*\x}, {5.6*\x*(1-\x)});
+        \end{tikzpicture}
+        \caption{Before Knot Insertion (3 Control Points)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.75, >=stealth]
+            \draw[gray!20, thin] (0,0) grid (4,3.0);
+            \draw[gray!70, dashed, line width=1.0pt] (0,0) -- (1,1.4) -- (3,1.4) -- (4,0);
+            \fill[red!80!black] (0,0) circle (2.5pt) node[below left] {$\vect{Q}_0$};
+            \fill[red!80!black] (1,1.4) circle (2.5pt) node[above left] {$\vect{Q}_1$};
+            \fill[red!80!black] (3,1.4) circle (2.5pt) node[above right] {$\vect{Q}_2$};
+            \fill[red!80!black] (4,0) circle (2.5pt) node[below right] {$\vect{Q}_3$};
+            \draw[primaryblue, line width=1.5pt, domain=0:1, samples=50] plot ({4*\x}, {5.6*\x*(1-\x)});
+        \end{tikzpicture}
+        \caption{After Knot Insertion at $\xi=0.5$ (4 Control Points)}
+    \end{subfigure}
+    \caption{$h$-refinement comparison showing refined control polygon while preserving exact curve geometry.}
+    \label{fig:hrefinement_basis}
+\end{figure}
+
+% ------------------------------------------------------------------------------
+\section{Isogeometric System Matrix Assembly}
+% ------------------------------------------------------------------------------
+
+Approximating the displacement field using bivariate NURBS basis functions $R_a(\vect{x})$ yields:
+\begin{equation}
+    \vect{u}^h(\vect{x}, t) = \sum_{a=1}^{N_{cp}} R_a(\vect{x}) \vect{d}_a(t)
+\end{equation}
+where $\vect{d}_a(t) \in \mathbb{R}^2$ represents control variable displacements. Substituting into the weak form leads to the semi-discrete equations of motion:
+
+\begin{equation}
+    \mathbf{M}\ddot{\vect{d}}(t) + \mathbf{C}\dot{\vect{d}}(t) + \mathbf{K}\vect{d}(t) = \vect{F}_{\text{ext}}(t)
+\end{equation}
+
+where global matrices are assembled from element integrals over knot spans $\Omega_e$:
+\begin{align}
+    \mathbf{M}_{ab} &= \int_{\Omega_e} \rho R_a R_b \mathbf{I}_2 \, d\Omega \\
+    \mathbf{K}_{ab} &= \int_{\Omega_e} \mathbf{B}_a^T \mathbf{D} \mathbf{B}_b \, d\Omega \\
+    \vect{F}_{ext, a} &= \int_{\Omega_e} R_a \vect{f}_b \, d\Omega + \int_{\Gamma_{N,e}} R_a \vect{h}_N \, d\Gamma
+\end{align}
+
+Here, $\mathbf{B}_a$ represents the strain-displacement matrix containing parametric derivatives of $R_a(\vect{x})$ mapped via the spatial Jacobian $\mathbf{J}(\xi, \eta)$.
+
+% ------------------------------------------------------------------------------
+\section{Chapter Summary}
+% ------------------------------------------------------------------------------
+
+\begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
+Isogeometric Analysis discretizes the continuous elastodynamic equations using exact NURBS CAD geometry basis functions, assembling the full-order matrices $\mathbf{M}$, $\mathbf{K}$, and $\mathbf{C}$. In Chapter \ref{ch:pullback}, we pull back these element integrals to a parameter-independent reference configuration $\hat{\Omega}$ to resolve shape parameter compatibility.
+\end{tcolorbox}

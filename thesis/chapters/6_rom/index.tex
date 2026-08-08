@@ -367,39 +367,41 @@ The offline training workflow is formalized in Algorithm \ref{alg:ecsw_training}
     \centering
     \makebox[\textwidth][c]{%
     \begin{tikzpicture}[
-        node distance=1.1cm,
-        block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=6.5cm, minimum height=0.75cm, align=center, font=\sffamily\scriptsize},
-        case/.style={rectangle, draw=orange!70, fill=orange!5, thick, rounded corners, text width=2.0cm, minimum height=3.2cm, align=left, font=\sffamily\tiny},
+        node distance=1.0cm,
+        block/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=8.0cm, minimum height=0.75cm, align=center, font=\sffamily\scriptsize},
+        hdr_n/.style={rectangle, draw=blue!60, fill=blue!5, thick, rounded corners, minimum width=2.3cm, minimum height=0.7cm, align=center, font=\sffamily\tiny\bfseries},
+        hdr_m/.style={rectangle, draw=cyan!70!black, fill=cyan!5, thick, rounded corners, minimum width=7.6cm, minimum height=0.7cm, align=center, font=\sffamily\tiny\bfseries},
+        trigger/.style={rectangle, draw=red!80!black, fill=red!5, thick, rounded corners=6pt, align=center, font=\sffamily\scriptsize\bfseries, text=red!85!black, inner sep=5pt},
+        case/.style={rectangle, draw=orange!70, fill=orange!5, thick, rounded corners, text width=2.1cm, minimum height=3.3cm, align=left, font=\sffamily\tiny},
         arrow/.style={thick,->,>=stealth},
         line/.style={thick}
     ]
         % --- OFFLINE STAGES ---
-        \node [block] (offline1) {\textbf{Offline Stage 1: Reference Config} \\ Instantiate Flat Reference Mesh $\hat{\Omega}$ \\ Precompute basis derivatives};
-        \node [block, below=0.5cm of offline1] (offline2) {\textbf{Offline Stage 2: Snapshot Collection} \\ Run full FOM sweeps over training targets $\boldsymbol{\mu}_{\text{train}}$ \\ Save displacements to snapshot matrix $\mathbf{S}_u$};
-        \node [block, below=0.5cm of offline2] (offline3) {\textbf{Offline Stage 3: Projection \& Selection} \\ 1. SVD on $\mathbf{S}_u$ to extract reduced basis $\boldsymbol{\Phi}$ \\ 2. Run NNLS internal force balancing \\ 3. Extract active elements $E^*$ and weights $w_e$};
+        \node [block] (offline1) {\textbf{Offline Stage 1: Reference Configuration} \\ Instantiate Flat Reference Mesh $\hat{\Omega}$ \ \textbullet\ \ Precompute basis derivatives};
+        \node [block, below=0.45cm of offline1] (offline2) {\textbf{Offline Stage 2: Snapshot Collection} \\ Run full FOM sweeps over training targets $\boldsymbol{\mu}_{\text{train}}$ \ \textbullet\ \ Save displacements to snapshot matrix $\mathbf{S}_u$};
+        \node [block, below=0.45cm of offline2] (offline3) {\textbf{Offline Stage 3: Projection \& Selection} \\ 1. SVD on $\mathbf{S}_u$ to extract reduced basis $\boldsymbol{\Phi}$ \quad 2. Run NNLS internal force balancing \\ 3. Extract active elements $E^*$ and weights $w_e$};
         
         \draw [arrow] (offline1) -- (offline2);
         \draw [arrow] (offline2) -- (offline3);
 
         % --- TRIGGER ---
-        \node [below=0.5cm of offline3, font=\sffamily\scriptsize\bfseries\color{red!85!black}] (trigger) {<<< USER RUNS ONLINE SOLVER (t=0) >>>};
+        \node [trigger, below=0.45cm of offline3] (trigger) {USER RUNS ONLINE SOLVER ($t=0$)};
         \draw [arrow] (offline3) -- (trigger);
 
         % --- PIPELINE HEADERS ---
-        \node [below=0.6cm of trigger, xshift=-2.6cm, font=\sffamily\tiny\bfseries, align=center, draw=blue!40, fill=blue!2] (hdr_naive) {NAIVE PHYSICAL PIPELINE \\ (Spatial Remeshing on $\Omega(\boldsymbol{\mu})$)};
-        \node [below=0.6cm of trigger, xshift=2.4cm, font=\sffamily\tiny\bfseries, align=center, draw=cyan!40, fill=cyan!2] (hdr_mapped) {MAPPED PULLBACK PIPELINE \\ (Reference Assembly on $\hat{\Omega}$)};
+        % Col 1 at x=-4.2cm, Cols 2,3,4 centered at x=+1.4cm (span from -2.6cm to +5.4cm)
+        \node [hdr_n, below=0.6cm of trigger, xshift=-4.2cm] (hdr_naive) {NAIVE PHYSICAL PIPELINE \\ (Spatial Remeshing on $\Omega(\boldsymbol{\mu})$)};
+        \node [hdr_m, below=0.6cm of trigger, xshift=1.4cm] (hdr_mapped) {MAPPED PULLBACK PIPELINE \\ (Reference Assembly on $\hat{\Omega}$)};
 
-        \draw [arrow] (trigger.south) -| (hdr_naive.north);
-        \draw [arrow] (trigger.south) -| (hdr_mapped.north);
+        \draw [arrow] (trigger.south) -- ++(0,-0.25) -| (hdr_naive.north);
+        \draw [arrow] (trigger.south) -- ++(0,-0.25) -| (hdr_mapped.north);
 
-        % --- CASES ---
-        % Naive Cases
+        % --- 4 CASES (SYMMETRIC AT x = -4.2, -1.4, +1.4, +4.2) ---
         \node [case, below=0.4cm of hdr_naive] (case1) {\textbf{Case 1: Naive FOM} \\ • Full physical remesh \\ • Assemble full size \\ \ \ $\mathbf{K} \in \mathbb{R}^{N \times N}$ \\ • Slow assembly};
         
-        % Mapped Cases
-        \node [case, below=0.4cm of hdr_mapped, xshift=-2.5cm] (case2) {\textbf{Case 2: Mapped FOM} \\ • Flat static mesh \\ • Solve at full size \\ \ \ $\mathbf{K} \in \mathbb{R}^{N \times N}$ \\ • Slow online assembly};
-        \node [case, below=0.4cm of hdr_mapped] (case3) {\textbf{Case 3: Mapped ROM} \\ • Flat static mesh \\ • Solve in reduced \\ \ \ subspace size $r \times r$ \\ • Loop scales with \\ \ \ full mesh $E$};
-        \node [case, below=0.4cm of hdr_mapped, xshift=2.5cm] (case4) {\textbf{Case 4: ECSW ROM} \\ • Flat static mesh \\ • Integrate over \\ \ \ sparse set $E^*$ only \\ • Scale weights $w_e$ \\ • Fastest solver};
+        \node [case, at={(hdr_mapped.south)}, anchor=north, xshift=-2.8cm, yshift=-0.4cm] (case2) {\textbf{Case 2: Mapped FOM} \\ • Flat static mesh \\ • Solve at full size \\ \ \ $\mathbf{K} \in \mathbb{R}^{N \times N}$ \\ • Slow online assembly};
+        \node [case, at={(hdr_mapped.south)}, anchor=north, xshift=0.0cm, yshift=-0.4cm] (case3) {\textbf{Case 3: Mapped ROM} \\ • Flat static mesh \\ • Solve in reduced \\ \ \ subspace size $r \times r$ \\ • Loop scales with \\ \ \ full mesh $E$};
+        \node [case, at={(hdr_mapped.south)}, anchor=north, xshift=2.8cm, yshift=-0.4cm] (case4) {\textbf{Case 4: ECSW ROM} \\ • Flat static mesh \\ • Integrate over \\ \ \ sparse set $E^*$ only \\ • Scale weights $w_e$ \\ • Fastest solver};
 
         \draw [arrow] (hdr_naive.south) -- (case1.north);
         \draw [arrow] (hdr_mapped.south) -| (case2.north);
@@ -407,16 +409,19 @@ The offline training workflow is formalized in Algorithm \ref{alg:ecsw_training}
         \draw [arrow] (hdr_mapped.south) -| (case4.north);
 
         % --- NEWMARK RESOLUTION BLOCK ---
-        \node [block, below=6.5cm of trigger] (newmark) {\textbf{Transient Newmark Implicit Solver} \\ Assemble effective dynamic operator (Size: $N \times N$ or $r \times r$) \\ Solve system equation $\mathbf{A}_{\text{eff}} \vect{x} = \vect{b}_{\text{eff}}$};
+        \node [block, below=6.3cm of trigger] (newmark) {\textbf{Transient Newmark Implicit Solver} \\ Assemble effective dynamic operator (Size: $N \times N$ or $r \times r$) \\ Solve system equation $\mathbf{A}_{\text{eff}} \vect{x} = \vect{b}_{\text{eff}}$};
 
-        \draw [line] (case1.south) -- ++(0,-0.3) -| (newmark.north);
-        \draw [line] (case2.south) -- ++(0,-0.3) -| (newmark.north);
-        \draw [line] (case3.south) -- ++(0,-0.3) -| (newmark.north);
-        \draw [line] (case4.south) -- ++(0,-0.3) -| (newmark.north);
+        % Centered bottom merge line
+        \draw [line] (case1.south) -- ++(0,-0.3) coordinate (b1);
+        \draw [line] (case2.south) -- ++(0,-0.3) coordinate (b2);
+        \draw [line] (case3.south) -- ++(0,-0.3) coordinate (b3);
+        \draw [line] (case4.south) -- ++(0,-0.3) coordinate (b4);
+        \draw [line] (b1) -- (b4);
+        \draw [arrow] (0, 0 |- b1) -- (newmark.north);
 
         % --- OUTPUT ---
-        \node [block, below=0.5cm of newmark] (visual) {\textbf{Update State Field \& Visual Layer} \\ Reconstruct field: $\vect{U}$ (Case 1, 2) or $\vect{U} \approx \boldsymbol{\Phi} \vect{q}$ (Case 3, 4) \\ Render stress contours and update screen};
-        \node [block, below=0.5cm of visual] (advance) {\textbf{Advance Time State Step} \\ $t \leftarrow t + \Delta t$};
+        \node [block, below=0.45cm of newmark] (visual) {\textbf{Update State Field \& Visual Layer} \\ Reconstruct field: $\vect{U}$ (Case 1, 2) or $\vect{U} \approx \boldsymbol{\Phi} \vect{q}$ (Case 3, 4) \\ Render stress contours and update screen};
+        \node [block, below=0.45cm of visual] (advance) {\textbf{Advance Time State Step} \\ $t \leftarrow t + \Delta t$};
 
         \draw [arrow] (newmark) -- (visual);
         \draw [arrow] (visual) -- (advance);

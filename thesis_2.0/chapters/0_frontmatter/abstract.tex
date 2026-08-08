@@ -1,0 +1,19 @@
+% ==============================================================================
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+% ==============================================================================
+
+Modern engineering design, structural health monitoring, and the realization of Digital Twins require high-fidelity numerical models that can be evaluated in real-time. In structural dynamics, resolving transient responses under varying parameter settings typically relies on the Finite Element Method (FEM). However, high-fidelity FEM simulations of structural components demand massive computational resources and time-consuming remeshing, preventing interactive design exploration or real-time control.
+
+To address these challenges, this thesis investigates the integration of two powerful numerical paradigms: \textbf{Isogeometric Analysis (IGA)} and projection-based \textbf{Reduced Order Modeling (ROM)}. By using Non-Uniform Rational B-Splines (NURBS) as basis functions for both geometry representation and field approximation, IGA eliminates geometric approximation errors. Concurrently, ROM projects full-order systems onto low-dimensional subspaces, drastically reducing the system size.
+
+A major contribution of this work is resolving the vector space incompatibility caused by shape parameter variations. By introducing a smooth geometric pullback mapping from parameter-dependent physical domains to a fixed reference configuration, snapshot vectors remain structurally invariant. To bypass full-mesh assembly online, the Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction scheme is implemented, isolating a minimal active element subset. The combined framework is deployed in a client-side WebGL Digital Twin, achieving sub-millisecond evaluation times ($>60\,\text{FPS}$) with relative displacement errors below $0.1\%$.
+
+\vspace{1.5cm}
+
+% ==============================================================================
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+% ==============================================================================
+
+\noindent Ce mémoire de thèse détaille le développement d'un jumeau numérique pédagogique en temps réel pour la dynamique des structures paramétrées, reliant les simulations structurelles de haute fidélité à des environnements logiciels interactifs. La méthodologie intègre l'analyse isogéométrique (IGA) aux modèles d'ordre réduit (ROM) basés sur la projection afin de surmonter les verrous numériques associés aux paramétrisations géométriques variables. En utilisant des B-splines rationnelles non uniformes (NURBS) pour une représentation géométrique exacte, les modes de déformation dominants sont extraits par décomposition orthogonale aux valeurs propres (POD). De plus, des stratégies d'hyper-réduction, spécifiquement la méthode ECSW (Energy-Conserving Sampling and Weighting), sont implémentées pour accélérer l'évaluation des forces internes paramétrées. L'application web client finalisée atteint des temps de résolution inférieurs à 16 ms (60 FPS), offrant une accélération de $\mathbf{64.5\times}$ et une erreur relative $L_2$ inférieure à $\mathbf{0.054\%}$ par rapport aux modèles d'ordre complet, et constitue un environnement interactif pour l'exploration paramétrique et la conception en temps réel.
