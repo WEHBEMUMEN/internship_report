@@ -167,35 +167,57 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
 \begin{figure}[htbp]
     \centering
     \begin{tikzpicture}[scale=0.95, >=stealth]
-        \begin{scope}[xshift=-3.75cm, yshift=0cm, scale=0.7]
-            \node[above=0.8cm, font=\small\bfseries\sffamily, text=black!85] at (0, 1.0) {Physical Domain $\Omega(\boldsymbol{\mu})$};
-            \foreach \y in {-0.7, 0, 0.7} {
-                \fill[red!70!black] (-3.3, \y) -- (-3.5, \y+0.12) -- (-3.5, \y-0.12) -- cycle;
+        % LEFT PANEL: Parameterized Physical Domain \Omega(\mu)
+        \begin{scope}[xshift=-3.8cm, yshift=0cm, scale=0.75]
+            \node[above=0.6cm, font=\small\bfseries\sffamily, text=primaryblue] at (2.5, 1.0) {Physical Domain $\Omega(\boldsymbol{\mu})$};
+            % Clamped support
+            \draw[line width=1.5pt] (0,1.0) -- (0,-1.0);
+            \foreach \y in {-0.9,-0.6,...,0.9} {
+                \draw (0,\y) -- (-0.2,\y-0.12);
             }
-            \shade[left color=primaryblue, middle color=accentcyan, right color=yellow!80!orange] 
-            (-3, -1) -- (-1.2, -1) .. controls (-0.6, -1.0) and (-0.4, -0.6) .. (0, -0.6)
-            .. controls (0.4, -0.6) and (0.6, -1.2) .. (1.2, -1.2) -- (3, -1.5) -- (3, 0.5) -- (1.2, 0.8)
-            .. controls (0.6, 0.8) and (0.4, 0.2) .. (0, 0.2) .. controls (-0.4, 0.2) and (-0.6, 1.0) .. (-1.2, 1.0) -- (-3, 1) -- cycle;
-            \foreach \y in {-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75} {
-                \draw[white, opacity=0.35, thin] (-3, \y) .. controls (-1.2, \y) and (-0.5, \y*0.4 - 0.2) .. (0, \y*0.4 - 0.2) .. controls (0.5, \y*0.4 - 0.2) and (1.2, \y - 0.25) .. (3, \y - 0.5);
+            % Notched deformed beam outline
+            \shade[left color=primaryblue!30, right color=accentcyan!20, draw=primaryblue, thick]
+            (0, 0.8) -- (1.6, 0.8) .. controls (2.1, 0.8) and (2.3, 0.25) .. (2.6, 0.25)
+            .. controls (2.9, 0.25) and (3.1, 0.8) .. (3.6, 0.8) -- (5.0, 0.8) -- (5.0, -0.8) -- (3.6, -0.8)
+            .. controls (3.1, -0.8) and (2.9, -0.25) .. (2.6, -0.25)
+            .. controls (2.3, -0.25) and (2.1, -0.8) .. (1.6, -0.8) -- (0, -0.8) -- cycle;
+            
+            % Deformed curvilinear grid lines
+            \foreach \x in {1.0, 2.0, 3.0, 4.0} {
+                \draw[primaryblue!40, thin] (\x, -0.7) -- (\x, 0.7);
             }
+            \draw[primaryblue!40, thin] (0, 0) -- (5.0, 0);
+            \node[font=\tiny\bfseries, primaryblue] at (2.6, 0) {$\vect{x} \in \Omega(\boldsymbol{\mu})$};
+            \node[font=\tiny, text=black!70] at (2.5, -1.3) {Notched Geometry $\boldsymbol{\mu} = (x_c, r)$};
         \end{scope}
 
-        \begin{scope}[xshift=3.75cm, yshift=0cm, scale=0.7]
-            \node[above=0.8cm, font=\small\bfseries\sffamily, text=black!85] at (0, 1.0) {Mapped Pullback Domain $\hat{\Omega}$};
-            \foreach \y in {-0.7, 0, 0.7} {
-                \fill[red!70!black] (-3.3, \y) -- (-3.5, \y+0.12) -- (-3.5, \y-0.12) -- cycle;
+        % CENTER ARROW: Bijective Pullback Diffeomorphism
+        \draw[<->, ultra thick, primaryblue] (-0.8, 0) -- (0.8, 0) node[midway, above, font=\small\bfseries] {$\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$} node[midway, below, font=\tiny] {Bijective Pullback};
+
+        % RIGHT PANEL: Static Rectangular Reference Domain \hat{\Omega}
+        \begin{scope}[xshift=3.8cm, yshift=0cm, scale=0.75]
+            \node[above=0.6cm, font=\small\bfseries\sffamily, text=black!85] at (2.5, 1.0) {Static Reference Domain $\hat{\Omega}$};
+            % Clamped support
+            \draw[line width=1.5pt] (0,1.0) -- (0,-1.0);
+            \foreach \y in {-0.9,-0.6,...,0.9} {
+                \draw (0,\y) -- (-0.2,\y-0.12);
             }
-            \shade[left color=gray!30, right color=gray!15, draw=black!70, thick] 
-            (-3, -1) -- (-1.2, -1) .. controls (-0.6, -1.0) and (-0.4, -0.4) .. (0, -0.4)
-            .. controls (0.3, -0.4) and (0.5, -1.0) .. (1.2, -1.0) -- (3, -1.0) -- (3, 1.0) -- (1.2, 1.0)
-            .. controls (0.6, 1.0) and (0.4, 0.4) .. (0, 0.4) .. controls (-0.4, 0.4) and (-0.6, 1.0) .. (-1.2, 1.0) -- (-3, 1.0) -- cycle;
-            \foreach \y in {-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75} {
-                \draw[white, opacity=0.35, thin] (-3, \y) -- (3, \y);
+            % Flat rectangular reference beam outline
+            \shade[left color=gray!25, right color=gray!10, draw=black!70, thick]
+            (0, -0.8) rectangle (5.0, 0.8);
+            
+            % Flat invariant reference grid
+            \foreach \x in {1.0, 2.0, 3.0, 4.0} {
+                \draw[black!30, thin] (\x, -0.8) -- (\x, 0.8);
             }
+            \foreach \y in {-0.4, 0.0, 0.4} {
+                \draw[black!30, thin] (0, \y) -- (5.0, \y);
+            }
+            \node[font=\tiny\bfseries, black!85] at (2.5, 0) {$\hat{\vect{x}} \in \hat{\Omega}$};
+            \node[font=\tiny, text=black!70] at (2.5, -1.3) {Invariant Rectangular Grid $[0,L] \times [0,H]$};
         \end{scope}
     \end{tikzpicture}
-    \caption{Interactive Digital Twin mapping dashboard comparing physical domain deformation $\Omega(\boldsymbol{\mu})$ (left) with static reference pullback domain $\hat{\Omega}$ (right).}
+    \caption{Diffeomorphic reference configuration mapping $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$ transforming the static rectangular reference domain $\hat{\Omega}$ into the parameterized physical notched domain $\Omega(\boldsymbol{\mu})$.}
     \label{fig:pullback_mapping_dt}
 \end{figure}
 
@@ -231,6 +253,72 @@ Weights $w_e$ are obtained by solving a Non-Negative Least Squares (NNLS) proble
 \begin{equation}
     \min_{\vect{w}} \|\mat{A}\vect{w} - \vect{b}\|_2^2 \quad \text{s.t.} \quad \vect{w} \ge \vect{0}
 \end{equation}
+
+Figure \ref{fig:galerkin_vs_ecsw_schematic} illustrates the structural mechanics contrast between unreduced Galerkin projection and ECSW hyper-reduction.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.72, every node/.style={transform shape}]
+            % Mesh (All active)
+            \foreach \x in {0,...,3} {
+                \foreach \y in {0,...,3} {
+                    \draw[fill=primaryblue!20, draw=primaryblue!70] (\x*0.4, \y*0.4) rectangle (\x*0.4+0.35, \y*0.4+0.35);
+                }
+            }
+            \node[below, font=\tiny\bfseries] at (0.75, 0) {Full Mesh ($E = 3,200$ elements)};
+            \node[right, font=\tiny, align=left] at (1.65, 0.8) {\textbf{Evaluate ALL}\\\textbf{3,200 elements}};
+            
+            \draw[->, thick, primaryblue] (0.75, -0.15) -- (0.75, -0.65);
+            
+            % Giant Matrix N x N
+            \draw[fill=gray!15, draw=gray!60, thick] (0.2, -1.7) rectangle (1.3, -0.8) node[midway, font=\scriptsize] {$\hat{\mat{K}}(\boldsymbol{\mu})$};
+            \node[below, font=\tiny] at (0.75, -1.7) {$N \times N$ (Full Matrix)};
+            
+            \draw[->, thick, primaryblue] (1.45, -1.25) -- (1.95, -1.25);
+            
+            % Small Matrix r x r
+            \draw[fill=primaryblue!15, draw=primaryblue, thick] (2.1, -1.5) rectangle (2.6, -1.0) node[midway, font=\tiny] {$\mat{K}_r$};
+            \node[below, font=\tiny] at (2.35, -1.5) {$r \times r$};
+        \end{tikzpicture}
+        \caption{Galerkin ROM: Full assembly $\mathcal{O}(E)$ ($0.92\times$ speedup).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.72, every node/.style={transform shape}]
+            % Mesh (Sparse active)
+            \foreach \x in {0,...,3} {
+                \foreach \y in {0,...,3} {
+                    \draw[fill=white, draw=gray!30] (\x*0.4, \y*0.4) rectangle (\x*0.4+0.35, \y*0.4+0.35);
+                }
+            }
+            % Highlighted active elements
+            \draw[fill=green!50!black!40, draw=green!60!black] (0*0.4, 2*0.4) rectangle (0*0.4+0.35, 2*0.4+0.35) node[midway, font=\tiny\bfseries, scale=0.8] {$w_1$};
+            \draw[fill=green!50!black!40, draw=green!60!black] (2*0.4, 3*0.4) rectangle (2*0.4+0.35, 3*0.4+0.35) node[midway, font=\tiny\bfseries, scale=0.8] {$w_2$};
+            \draw[fill=green!50!black!40, draw=green!60!black] (3*0.4, 1*0.4) rectangle (3*0.4+0.35, 3*0.4+0.35) node[midway, font=\tiny\bfseries, scale=0.8] {$w_3$};
+            
+            \node[below, font=\tiny\bfseries] at (0.75, 0) {Active Subset ($E^* = 28$ elements)};
+            \node[right, font=\tiny, align=left] at (1.65, 0.8) {\textbf{Evaluate ONLY}\\\textbf{28 active elements}};
+            
+            \draw[->, thick, green!60!black] (0.75, -0.15) -- (0.75, -0.95);
+            
+            % Small Matrix r x r
+            \draw[fill=green!15, draw=green!60!black, thick] (0.5, -1.5) rectangle (1.0, -1.0) node[midway, font=\tiny] {$\mat{K}_r$};
+            \node[below, font=\tiny] at (0.75, -1.5) {$r \times r$};
+            
+            % Crossed out giant matrix area (Bypassed)
+            \draw[dashed, gray!30] (1.6, -1.7) rectangle (2.7, -0.8);
+            \node[gray!40, font=\tiny\bfseries] at (2.15, -1.25) {BYPASSED};
+            \draw[red!60, thick] (1.7, -0.9) -- (2.6, -1.6);
+            \draw[red!60, thick] (1.7, -1.6) -- (2.6, -0.9);
+        \end{tikzpicture}
+        \caption{ECSW Hyper-reduction: Bypasses $N \times N$ assembly ($64.5\times$ speedup).}
+    \end{subfigure}
+    \caption{Structural mechanics comparison between Unreduced Galerkin ROM (left) and Reference-Mapped ECSW Hyper-reduction (right).}
+    \label{fig:galerkin_vs_ecsw_schematic}
+\end{figure}
 
 Dynamic stiffness calibration scales weights online via:
 \begin{equation}
