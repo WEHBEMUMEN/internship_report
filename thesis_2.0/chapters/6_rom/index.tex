@@ -166,17 +166,17 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
 
 \begin{figure}[htbp]
     \centering
-    \begin{tikzpicture}[scale=0.95, >=stealth]
+    \begin{tikzpicture}[scale=0.9, >=stealth]
         % LEFT PANEL: Parameterized Physical Domain \Omega(\mu)
-        \begin{scope}[xshift=-3.8cm, yshift=0cm, scale=0.75]
-            \node[above=0.6cm, font=\small\bfseries\sffamily, text=primaryblue] at (2.5, 1.0) {Physical Domain $\Omega(\boldsymbol{\mu})$};
+        \begin{scope}[xshift=-4.5cm, yshift=0cm, scale=0.7]
+            \node[above=0.5cm, font=\small\bfseries\sffamily, text=primaryblue] at (2.5, 0.8) {Physical Domain $\Omega(\boldsymbol{\mu})$};
             % Clamped support
-            \draw[line width=1.5pt] (0,1.0) -- (0,-1.0);
-            \foreach \y in {-0.9,-0.6,...,0.9} {
+            \draw[line width=1.5pt] (0,0.8) -- (0,-0.8);
+            \foreach \y in {-0.7,-0.4,...,0.7} {
                 \draw (0,\y) -- (-0.2,\y-0.12);
             }
             % Notched deformed beam outline
-            \shade[left color=primaryblue!30, right color=accentcyan!20, draw=primaryblue, thick]
+            \shade[left color=primaryblue!25, right color=accentcyan!20, draw=primaryblue, thick]
             (0, 0.8) -- (1.6, 0.8) .. controls (2.1, 0.8) and (2.3, 0.25) .. (2.6, 0.25)
             .. controls (2.9, 0.25) and (3.1, 0.8) .. (3.6, 0.8) -- (5.0, 0.8) -- (5.0, -0.8) -- (3.6, -0.8)
             .. controls (3.1, -0.8) and (2.9, -0.25) .. (2.6, -0.25)
@@ -188,18 +188,20 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
             }
             \draw[primaryblue!40, thin] (0, 0) -- (5.0, 0);
             \node[font=\tiny\bfseries, primaryblue] at (2.6, 0) {$\vect{x} \in \Omega(\boldsymbol{\mu})$};
-            \node[font=\tiny, text=black!70] at (2.5, -1.3) {Notched Geometry $\boldsymbol{\mu} = (x_c, r)$};
+            \node[font=\tiny, text=black!70] at (2.5, -1.2) {Notched Geometry $\boldsymbol{\mu} = (x_c, r)$};
         \end{scope}
 
-        % CENTER ARROW: Bijective Pullback Diffeomorphism
-        \draw[<->, ultra thick, primaryblue] (-0.8, 0) -- (0.8, 0) node[midway, above, font=\small\bfseries] {$\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$} node[midway, below, font=\tiny] {Bijective Pullback};
+        % CENTER ARROW: Bijective Pullback Diffeomorphism (Clean Gap)
+        \draw[<->, ultra thick, primaryblue] (-0.7, 0) -- (0.7, 0) 
+            node[midway, above=2pt, font=\small\bfseries] {$\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$} 
+            node[midway, below=2pt, font=\tiny, text=black!70] {Bijective Pullback};
 
         % RIGHT PANEL: Static Rectangular Reference Domain \hat{\Omega}
-        \begin{scope}[xshift=3.8cm, yshift=0cm, scale=0.75]
-            \node[above=0.6cm, font=\small\bfseries\sffamily, text=black!85] at (2.5, 1.0) {Static Reference Domain $\hat{\Omega}$};
+        \begin{scope}[xshift=1.0cm, yshift=0cm, scale=0.7]
+            \node[above=0.5cm, font=\small\bfseries\sffamily, text=black!85] at (2.5, 0.8) {Static Reference Domain $\hat{\Omega}$};
             % Clamped support
-            \draw[line width=1.5pt] (0,1.0) -- (0,-1.0);
-            \foreach \y in {-0.9,-0.6,...,0.9} {
+            \draw[line width=1.5pt] (0,0.8) -- (0,-0.8);
+            \foreach \y in {-0.7,-0.4,...,0.7} {
                 \draw (0,\y) -- (-0.2,\y-0.12);
             }
             % Flat rectangular reference beam outline
@@ -214,7 +216,7 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
                 \draw[black!30, thin] (0, \y) -- (5.0, \y);
             }
             \node[font=\tiny\bfseries, black!85] at (2.5, 0) {$\hat{\vect{x}} \in \hat{\Omega}$};
-            \node[font=\tiny, text=black!70] at (2.5, -1.3) {Invariant Rectangular Grid $[0,L] \times [0,H]$};
+            \node[font=\tiny, text=black!70] at (2.5, -1.2) {Invariant Grid $[0,L] \times [0,H]$};
         \end{scope}
     \end{tikzpicture}
     \caption{Diffeomorphic reference configuration mapping $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$ transforming the static rectangular reference domain $\hat{\Omega}$ into the parameterized physical notched domain $\Omega(\boldsymbol{\mu})$.}
