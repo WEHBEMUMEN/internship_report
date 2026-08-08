@@ -166,9 +166,10 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
 
 \begin{figure}[htbp]
     \centering
-    \begin{tikzpicture}[scale=1.1, >=stealth]
+    \makebox[\textwidth][c]{%
+    \begin{tikzpicture}[scale=0.95, >=stealth]
         % LEFT PANEL: Parameterized Physical Domain \Omega(\mu)
-        \begin{scope}[xshift=-4.5cm, yshift=0cm, scale=0.85]
+        \begin{scope}[xshift=-4.2cm, yshift=0cm, scale=0.75]
             \node[above=0.5cm, font=\small\bfseries\sffamily, text=primaryblue] at (2.5, 0.8) {Physical Domain $\Omega(\boldsymbol{\mu})$};
             % Clamped support
             \draw[line width=1.5pt] (0,0.8) -- (0,-0.8);
@@ -192,12 +193,12 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
         \end{scope}
 
         % CENTER ARROW: Bijective Pullback Diffeomorphism (Clean Gap)
-        \draw[<->, ultra thick, primaryblue] (-0.6, 0) -- (0.6, 0) 
+        \draw[<->, ultra thick, primaryblue] (-0.8, 0) -- (0.8, 0) 
             node[midway, above=3pt, font=\small\bfseries] {$\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$} 
             node[midway, below=3pt, font=\small, text=black!70] {Bijective Pullback};
 
         % RIGHT PANEL: Static Rectangular Reference Domain \hat{\Omega}
-        \begin{scope}[xshift=0.8cm, yshift=0cm, scale=0.85]
+        \begin{scope}[xshift=1.0cm, yshift=0cm, scale=0.75]
             \node[above=0.5cm, font=\small\bfseries\sffamily, text=black!85] at (2.5, 0.8) {Static Reference Domain $\hat{\Omega}$};
             % Clamped support
             \draw[line width=1.5pt] (0,0.8) -- (0,-0.8);
@@ -218,7 +219,8 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
             \node[font=\small\bfseries, black!85] at (2.5, 0) {$\hat{\vect{x}} \in \hat{\Omega}$};
             \node[font=\small, text=black!70] at (2.5, -1.2) {Invariant Grid $[0,L] \times [0,H]$};
         \end{scope}
-    \end{tikzpicture}
+    \end{tikzpicture}%
+    }
     \caption{Diffeomorphic reference configuration mapping $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$ transforming the static rectangular reference domain $\hat{\Omega}$ into the parameterized physical notched domain $\Omega(\boldsymbol{\mu})$.}
     \label{fig:pullback_mapping_dt}
 \end{figure}
@@ -260,65 +262,79 @@ Figure \ref{fig:galerkin_vs_ecsw_schematic} illustrates the structural mechanics
 
 \begin{figure}[htbp]
     \centering
-    \begin{subfigure}{0.49\textwidth}
+    \begin{subfigure}{\textwidth}
         \centering
-        \begin{tikzpicture}[scale=0.92, >=stealth]
+        \begin{tikzpicture}[scale=0.9, >=stealth]
             % Mesh (All active)
-            \foreach \x in {0,...,3} {
-                \foreach \y in {0,...,3} {
-                    \draw[fill=primaryblue!20, draw=primaryblue!70] (\x*0.45, \y*0.45) rectangle (\x*0.45+0.38, \y*0.45+0.38);
+            \begin{scope}[xshift=-5.0cm]
+                \foreach \x in {0,...,3} {
+                    \foreach \y in {0,...,3} {
+                        \draw[fill=primaryblue!20, draw=primaryblue!70] (\x*0.5, \y*0.5) rectangle (\x*0.5+0.42, \y*0.42+0.42);
+                    }
                 }
-            }
-            \node[below, font=\small\bfseries] at (0.9, 0) {Full Mesh ($E = 3,200$ elements)};
-            \node[right, font=\small, align=left] at (1.9, 0.9) {\textbf{Evaluate ALL}\\[1pt]\textbf{3,200 elements}};
+                \node[below=4pt, font=\small\bfseries] at (1.0, 0) {Full Mesh ($E = 3,200$ elements)};
+                \node[right=8pt, font=\small\bfseries, align=left] at (2.1, 1.0) {Evaluate ALL\\3,200 elements};
+            \end{scope}
             
-            \draw[->, ultra thick, primaryblue] (0.9, -0.2) -- (0.9, -0.7);
+            \draw[->, ultra thick, primaryblue] (-1.8, 1.0) -- (-0.8, 1.0) node[midway, above, font=\tiny\bfseries] {Assemble};
             
             % Giant Matrix N x N
-            \draw[fill=gray!15, draw=gray!60, thick] (0.2, -1.9) rectangle (1.6, -0.8) node[midway, font=\small] {$\hat{\mat{K}}(\boldsymbol{\mu})$};
-            \node[below, font=\small] at (0.9, -1.9) {$N \times N$ (Full Matrix)};
-            
-            \draw[->, ultra thick, primaryblue] (1.8, -1.35) -- (2.3, -1.35);
-            
+            \begin{scope}[xshift=-0.5cm]
+                \draw[fill=gray!15, draw=gray!60, thick] (0, 0.1) rectangle (1.8, 1.9) node[midway, font=\small\bfseries] {$\hat{\mat{K}}(\boldsymbol{\mu})$};
+                \node[below=4pt, font=\small] at (0.9, 0.1) {$N \times N$ (Full Matrix)};
+            \end{scope}
+
+            \draw[->, ultra thick, primaryblue] (1.6, 1.0) -- (2.6, 1.0) node[midway, above, font=\tiny\bfseries] {Project $\boldsymbol{\Phi}^T \cdot \boldsymbol{\Phi}$};
+
             % Small Matrix r x r
-            \draw[fill=primaryblue!15, draw=primaryblue, thick] (2.5, -1.65) rectangle (3.1, -1.05) node[midway, font=\small] {$\mat{K}_r$};
-            \node[below, font=\small] at (2.8, -1.65) {$r \times r$};
+            \begin{scope}[xshift=2.9cm]
+                \draw[fill=primaryblue!15, draw=primaryblue, thick] (0, 0.3) rectangle (1.2, 1.7) node[midway, font=\small\bfseries] {$\mat{K}_r$};
+                \node[below=4pt, font=\small] at (0.6, 0.3) {$r \times r$};
+            \end{scope}
         \end{tikzpicture}
-        \caption{Galerkin ROM: Full assembly $\mathcal{O}(E)$ ($0.92\times$ speedup).}
+        \caption{Unreduced Galerkin ROM: Full assembly $\mathcal{O}(E)$ over all 3,200 elements ($0.92\times$ speedup).}
+        \vspace{0.3cm}
     \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.49\textwidth}
+    
+    \begin{subfigure}{\textwidth}
         \centering
-        \begin{tikzpicture}[scale=0.92, >=stealth]
+        \begin{tikzpicture}[scale=0.9, >=stealth]
             % Mesh (Sparse active)
-            \foreach \x in {0,...,3} {
-                \foreach \y in {0,...,3} {
-                    \draw[fill=white, draw=gray!30] (\x*0.45, \y*0.45) rectangle (\x*0.45+0.38, \y*0.45+0.38);
+            \begin{scope}[xshift=-5.0cm]
+                \foreach \x in {0,...,3} {
+                    \foreach \y in {0,...,3} {
+                        \draw[fill=white, draw=gray!30] (\x*0.5, \y*0.5) rectangle (\x*0.5+0.42, \y*0.42+0.42);
+                    }
                 }
-            }
-            % Highlighted active elements
-            \draw[fill=green!50!black!40, draw=green!60!black] (0*0.45, 2*0.45) rectangle (0*0.45+0.38, 2*0.45+0.38) node[midway, font=\small\bfseries] {$w_1$};
-            \draw[fill=green!50!black!40, draw=green!60!black] (2*0.45, 3*0.45) rectangle (2*0.45+0.38, 3*0.45+0.38) node[midway, font=\small\bfseries] {$w_2$};
-            \draw[fill=green!50!black!40, draw=green!60!black] (3*0.45, 1*0.45) rectangle (3*0.45+0.38, 1*0.45+0.38) node[midway, font=\small\bfseries] {$w_3$};
+                % Highlighted active elements
+                \draw[fill=green!50!black!40, draw=green!60!black] (0*0.5, 2*0.5) rectangle (0*0.5+0.42, 2*0.5+0.42) node[midway, font=\small\bfseries] {$w_1$};
+                \draw[fill=green!50!black!40, draw=green!60!black] (2*0.5, 3*0.5) rectangle (2*0.5+0.42, 3*0.5+0.42) node[midway, font=\small\bfseries] {$w_2$};
+                \draw[fill=green!50!black!40, draw=green!60!black] (3*0.5, 1*0.5) rectangle (3*0.5+0.42, 1*0.5+0.42) node[midway, font=\small\bfseries] {$w_3$};
+                
+                \node[below=4pt, font=\small\bfseries] at (1.0, 0) {Active Subset ($E^* = 28$ elements)};
+                \node[right=8pt, font=\small\bfseries, text=green!50!black, align=left] at (2.1, 1.0) {Evaluate ONLY\\28 active elements};
+            \end{scope}
             
-            \node[below, font=\small\bfseries] at (0.9, 0) {Active Subset ($E^* = 28$ elements)};
-            \node[right, font=\small, align=left] at (1.9, 0.9) {\textbf{Evaluate ONLY}\\[1pt]\textbf{28 active elements}};
-            
-            \draw[->, ultra thick, green!60!black] (0.9, -0.2) -- (0.9, -1.05);
-            
+            % Direct arrow to small matrix
+            \draw[->, ultra thick, green!60!black] (-1.8, 1.0) -- (2.6, 1.0) node[midway, above, font=\tiny\bfseries, text=green!60!black] {Direct Assembly $\sum_{e \in E^*} w_e \boldsymbol{\Phi}_e^T \mat{K}_e \boldsymbol{\Phi}_e$};
+
             % Small Matrix r x r
-            \draw[fill=green!15, draw=green!60!black, thick] (0.6, -1.65) rectangle (1.2, -1.05) node[midway, font=\small] {$\mat{K}_r$};
-            \node[below, font=\small] at (0.9, -1.65) {$r \times r$};
-            
+            \begin{scope}[xshift=2.9cm]
+                \draw[fill=green!15, draw=green!60!black, thick] (0, 0.3) rectangle (1.2, 1.7) node[midway, font=\small\bfseries] {$\mat{K}_r$};
+                \node[below=4pt, font=\small] at (0.6, 0.3) {$r \times r$};
+            \end{scope}
+
             % Crossed out giant matrix area (Bypassed)
-            \draw[dashed, gray!40, thick] (1.9, -1.9) rectangle (3.1, -0.8);
-            \node[gray!50, font=\small\bfseries] at (2.5, -1.35) {BYPASSED};
-            \draw[red!60, ultra thick] (2.0, -0.9) -- (3.0, -1.8);
-            \draw[red!60, ultra thick] (2.0, -1.8) -- (3.0, -0.9);
+            \begin{scope}[xshift=-0.5cm]
+                \draw[dashed, gray!40, thick] (0, 0.1) rectangle (1.8, 1.9);
+                \node[gray!40, font=\small\bfseries] at (0.9, 1.0) {BYPASSED};
+                \draw[red!60, ultra thick] (0.1, 0.2) -- (1.7, 1.8);
+                \draw[red!60, ultra thick] (0.1, 1.8) -- (1.7, 0.2);
+            \end{scope}
         \end{tikzpicture}
-        \caption{ECSW Hyper-reduction: Bypasses $N \times N$ assembly ($64.5\times$ speedup).}
+        \caption{Reference-Mapped ECSW Hyper-reduction: Bypasses $N \times N$ assembly entirely ($64.5\times$ speedup).}
     \end{subfigure}
-    \caption{Structural mechanics comparison between Unreduced Galerkin ROM (left) and Reference-Mapped ECSW Hyper-reduction (right).}
+    \caption{Structural mechanics comparison between Unreduced Galerkin ROM (top) and Reference-Mapped ECSW Hyper-reduction (bottom).}
     \label{fig:galerkin_vs_ecsw_schematic}
 \end{figure}
 
