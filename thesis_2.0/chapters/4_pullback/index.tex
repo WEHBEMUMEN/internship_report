@@ -5,15 +5,19 @@
 
 \begin{tcolorbox}[colback=lightbg, colframe=primaryblue, title=\textbf{Chapter at a Glance: Reference Diffeomorphic Mapping}, fonttitle=\bfseries]
 \begin{description}[leftmargin=!, labelwidth=3.4cm]
-    \item[\textbf{Core Objective}] Map parameterized physical domains $\Omega(\boldsymbol{\mu})$ onto a static reference domain $\hat{\Omega}$ to preserve snapshot vector space compatibility.
+    \item[\textbf{Core Objective}] Map parameterized physical domains $\Omega(\boldsymbol{\mu})$ onto a reference domain $\hat{\Omega}$ to preserve snapshot vector space compatibility.
     \item[\textbf{Mathematical Tool}] Smooth bijective mapping (diffeomorphism) $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu}): \hat{\Omega} \to \Omega(\boldsymbol{\mu})$ with Jacobian $J_{\hat{\vect{x}}, \boldsymbol{\mu}} > 0$.
-    \item[\textbf{Key Result}] Shifts geometric parameter dependency entirely into integration Jacobians, enabling static basis functions $\hat{\mat{R}}$ and sub-millisecond hyper-reduction.
+    \item[\textbf{Key Result}] Shifts geometric parameter dependency entirely into integration Jacobians, enabling invariant basis functions $\hat{\mat{R}}$ and sub-millisecond hyper-reduction.
 \end{description}
 \end{tcolorbox}
+
+Evaluating structural snapshots on varying physical meshes creates incompatible vector spaces across parameters, making global Model Order Reduction impossible. This chapter formulates the diffeomorphic pullback transformation $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$, mapping all parameter-dependent physical configurations onto a single invariant reference domain $\hat{\Omega}$ to enable consistent POD basis extraction and hyper-reduction.
 
 % ------------------------------------------------------------------------------
 \section{Coordinate Domain Mapping Architecture}
 % ------------------------------------------------------------------------------
+
+This section establishes the three-domain mapping framework linking parametric space $\hat{\Omega}_{\text{param}}$, reference domain $\hat{\Omega}$, and physical domain $\Omega(\boldsymbol{\mu})$.
 
 To resolve vector space incompatibility across varying geometric parameters $\boldsymbol{\mu}$, we establish a three-domain mapping framework. As illustrated in Figure \ref{fig:pullback_mapping}, the physical coordinates $\vect{x} \in \Omega(\boldsymbol{\mu})$ are expressed as a composition of reference coordinates $\hat{\vect{x}} \in \hat{\Omega}$ and a parameter-dependent displacement field $\vect{d}(\boldsymbol{\mu})$:
 
@@ -60,7 +64,7 @@ To resolve vector space incompatibility across varying geometric parameters $\bo
                 
                 \fill[black] (4.5, 0.3) circle (2.0pt) node[above] {$\hat{\vect{x}}$};
                 \node[fill=gray!5, inner sep=2pt] at (3.0, 0) {\large $\hat{\Omega}$};
-                \node[right=15pt, align=left] at (6.0, 0) {\small Reference Domain \\ (Static, $\hat{\vect{x}}$)};
+                \node[right=15pt, align=left] at (6.0, 0) {\small Reference Domain \\ (Invariant, $\hat{\vect{x}}$)};
             \end{scope}
 
             % --- PARAMETERIZED PHYSICAL DOMAIN (bottom right) ---
@@ -94,13 +98,17 @@ To resolve vector space incompatibility across varying geometric parameters $\bo
             \node[below, font=\small] at (8.8, -2.5) {$\vect{x} = \hat{\vect{x}} + \vect{d} = \hat{\boldsymbol{\Psi}}(\boldsymbol{\xi}) + \vect{d}(\boldsymbol{\mu})$};
         \end{tikzpicture}%
     }
-    \caption{Diffeomorphic coordinate mappings between Parametric Space $\hat{\Omega}_{\text{param}}$, static Reference Domain $\hat{\Omega}$, and Parameterized Physical Domain $\Omega(\boldsymbol{\mu})$.}
+    \caption{Diffeomorphic coordinate mappings between Parametric Space $\hat{\Omega}_{\text{param}}$, Reference Domain $\hat{\Omega}$, and Parameterized Physical Domain $\Omega(\boldsymbol{\mu})$.}
     \label{fig:pullback_mapping}
 \end{figure}
+
+This three-domain mapping framework (Figure \ref{fig:pullback_mapping}) seamlessly links parametric space $\hat{\Omega}_{\text{param}}$, reference domain $\hat{\Omega}$, and parameterized physical domain $\Omega(\boldsymbol{\mu})$.
 
 % ------------------------------------------------------------------------------
 \section{Continuum Pullback Formulation}
 % ------------------------------------------------------------------------------
+
+This section derives the pulled-back weak variational statements, expressing gradient operators and volume integrals on the invariant reference domain.
 
 Let $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu}) : \hat{\Omega} \to \Omega(\boldsymbol{\mu})$ be a smooth, orientation-preserving diffeomorphism with positive Jacobian determinant $J_{\hat{\vect{x}}, \boldsymbol{\mu}} = \det \mathbf{J}_{\hat{\vect{x}}} > 0$. Physical field gradients and volume elements pull back to $\hat{\Omega}$ via:
 
@@ -108,7 +116,7 @@ Let $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu}) : \hat{\Omega} \to \Ome
     \nabla_{\vect{x}} u = \mathbf{J}_{\hat{\vect{x}}}^{-T} \nabla_{\hat{\vect{x}}} \hat{u}, \quad \mathrm{d}\Omega = J_{\hat{\vect{x}}, \boldsymbol{\mu}} \, \mathrm{d}\hat{\Omega}
 \end{equation}
 
-Substituting these transformation laws into the elastodynamic weak form yields the pulled-back variational statement on the static reference configuration $\hat{\Omega}$:
+Substituting these transformation laws into the elastodynamic weak form yields the pulled-back variational statement on the reference domain $\hat{\Omega}$:
 
 \begin{equation}
     \hat{m}(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \hat{f}(\delta\vect{u}; \boldsymbol{\mu}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\hat{\Omega})
@@ -125,7 +133,9 @@ where the mapped bilinear and linear forms are evaluated as:
 \section{Naive vs. Pullback Algebraic Paradigms}
 % ------------------------------------------------------------------------------
 
-Table \ref{tab:naive_vs_pullback_algebraic} compares the discretization properties resulting from the Naive and Pullback approaches.
+This section contrasts classical physical remeshing against reference pullback integration, demonstrating how pullback eliminates snapshot vector space incompatibility.
+
+Comparing discretization properties highlights key structural differences between the Naive and Pullback approaches:
 
 \begin{table}[htbp]
     \centering
@@ -136,7 +146,7 @@ Table \ref{tab:naive_vs_pullback_algebraic} compares the discretization properti
         \toprule
         \textbf{Feature} & \textbf{Naive Physical Discretization} & \textbf{Pullback Reference Discretization} \\
         \midrule
-        \textbf{Basis Functions} & Parameter-dependent $\mat{R}(\boldsymbol{\mu})$ & Static reference basis $\hat{\mat{R}}$ \\
+        \textbf{Basis Functions} & Parameter-dependent $\mat{R}(\boldsymbol{\mu})$ & Invariant reference basis $\hat{\mat{R}}$ \\
         \textbf{Vector Space} & Variable DOF count across $\boldsymbol{\mu}$ & Constant reference DOF vector space \\
         \textbf{POD / SVD Basis} & Impossible (snapshot size mismatch) & Native snapshot matrix POD projection \\
         \textbf{Online Assembly} & Full physical remeshing \& re-assembly & Fast Jacobian updates at integration points \\
@@ -145,12 +155,14 @@ Table \ref{tab:naive_vs_pullback_algebraic} compares the discretization properti
     }
 \end{table}
 
-Under the pullback paradigm, because reference basis functions $\hat{\mat{R}}$ do not depend on parameter $\boldsymbol{\mu}$, all snapshot vectors belong to a single vector space $\mathbb{R}^{N_{dof}}$, making Proper Orthogonal Decomposition (POD) mathematically consistent and exact.
+Because reference basis functions $\hat{\mat{R}}$ do not depend on parameter $\boldsymbol{\mu}$ (Table \ref{tab:naive_vs_pullback_algebraic}), all snapshot vectors belong to a single vector space $\mathbb{R}^{N_{dof}}$, making Proper Orthogonal Decomposition (POD) mathematically consistent and exact.
 
 % ------------------------------------------------------------------------------
 \section{Chapter Summary}
 % ------------------------------------------------------------------------------
 
+This section synthesizes the reference pullback mapping framework and previews the Full Order Model simulation pipeline in Chapter \ref{ch:fom}.
+
 \begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
-The diffeomorphic pullback mapping shifts parameter dependencies into the integration Jacobians $\mathbf{J}_{\hat{\vect{x}}}(\boldsymbol{\mu})$ while preserving a constant reference discretization $\hat{\mat{R}}$. This guarantees vector space compatibility across parameter instances, laying the foundation for snapshot POD collection in Chapter \ref{ch:simulation} and ROM hyper-reduction in Chapter \ref{ch:rom}.
+The diffeomorphic pullback mapping shifts parameter dependencies into the integration Jacobians $\mathbf{J}_{\hat{\vect{x}}}(\boldsymbol{\mu})$ while preserving a constant reference discretization $\hat{\mat{R}}$. This guarantees vector space compatibility across parameter instances, laying the foundation for snapshot POD collection in Chapter \ref{ch:fom} and ROM hyper-reduction in Chapter \ref{ch:rom}.
 \end{tcolorbox}

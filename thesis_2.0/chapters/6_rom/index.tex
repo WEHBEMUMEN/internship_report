@@ -11,13 +11,17 @@
 \end{description}
 \end{tcolorbox}
 
+Evaluating Full Order Models in real time is computationally prohibitive due to large degrees of freedom ($N = 6,564$) and full-mesh element assembly loops ($E = 3,200$). This chapter formulates the Reduced Order Modeling (ROM) and ECSW hyper-reduction pipeline, projecting state variables onto a low-dimensional POD basis ($r = 15$) and restricting integration to a sparse element subset ($E^* = 28$) to achieve sub-millisecond solve times ($<1.5\,\text{ms}$) for interactive WebGL Digital Twins.
+
 % ------------------------------------------------------------------------------
 \section{The Model Reduction Strategy \& 5-Step Recipe}
 % ------------------------------------------------------------------------------
 
+This section presents the overall 5-step offline/online workflow connecting reference pullback mapping, snapshot POD, ECSW NNLS training, and WebGL execution.
+
 To achieve sub-millisecond solves for interactive WebGL Digital Twins without sacrificing physical accuracy ($L_2$ error $<0.1\%$), we implement a 5-step offline/online projection recipe:
 
-\begin{tcolorbox}[colback=lightbg, colframe=primaryblue, title={\textbf{Step 1: Pullback Mapping to Static Reference Domain $\hat{\Omega}$}}, fonttitle=\bfseries]
+\begin{tcolorbox}[colback=lightbg, colframe=primaryblue, title={\textbf{Step 1: Pullback Mapping to Reference Domain $\hat{\Omega}$}}, fonttitle=\bfseries]
 Pull back weak form integrals from $\Omega(\boldsymbol{\mu})$ to $\hat{\Omega}$ to ensure snapshot vectors and bases reside in an invariant vector space $\mathbb{R}^N$.
 \end{tcolorbox}
 
@@ -42,6 +46,8 @@ Execute reduced $r \times r$ integration loops over $E^*$ in JavaScript, maintai
 \label{sec:galerkin_rom}
 % ------------------------------------------------------------------------------
 
+This section formulates spatial state projection onto POD bases extracted via Singular Value Decomposition (SVD) and analyzes singular value energy decay.
+
 The high-fidelity displacement vector $\vect{U}(t) \in \mathbb{R}^N$ is projected onto the Reduced Basis matrix $\boldsymbol{\Phi} \in \mathbb{R}^{N \times r}$ ($r \ll N$):
 \begin{equation}
     \vect{U}(t) \approx \boldsymbol{\Phi} \vect{q}(t)
@@ -52,7 +58,7 @@ Cumulative modal energy fraction $\eta(r)$ and relative $L_2$ projection error $
     \eta(r) = \frac{\sum_{i=1}^{r} \sigma_i^2}{\sum_{j=1}^{d} \sigma_j^2}, \quad \epsilon(r) = \sqrt{1 - \eta(r)}
 \end{equation}
 
-Figure \ref{fig:pod_energy_decay} illustrates the rapid spectral convergence of singular values, confirming that $r = 15$ modes capture $99.999\%$ of total system energy.
+Evaluating singular value energy decay demonstrates rapid spectral convergence, confirming that $r = 15$ modes capture $99.999\%$ of total system energy (Figure \ref{fig:pod_energy_decay}).
 
 \begin{figure}[htbp]
     \centering
@@ -131,6 +137,8 @@ Figure \ref{fig:pod_energy_decay} illustrates the rapid spectral convergence of 
     \label{fig:pod_energy_decay}
 \end{figure}
 
+This rapid singular value energy decay (Figure \ref{fig:pod_energy_decay}) shows that relative projection error drops below $0.11\%$ using only $r=10$ POD modes.
+
 Applying Galerkin projection yields the $r \times r$ reduced dynamic system:
 \begin{equation}
     \mathbf{M}_r \ddot{\vect{q}}(t) + \mathbf{C}_r \dot{\vect{q}}(t) + \mathbf{K}_r(\boldsymbol{\mu}) \vect{q}(t) = \mathbf{F}_r(t)
@@ -145,7 +153,7 @@ For very low-dimensional systems ($r=2$), the linear system $\mat{K}_{\text{eff}
     \Delta q_1 = \frac{R_1 K_{22} - R_2 K_{12}}{\det(\mathbf{K}_{\text{eff}, r})}, \quad \Delta q_2 = \frac{K_{11} R_2 - K_{21} R_1}{\det(\mathbf{K}_{\text{eff}, r})}
 \end{equation}
 
-Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of reference configuration mapping.
+Algorithmic characteristics and computational trade-offs of the reference configuration mapping paradigm are highlighted below:
 
 \begin{table}[htbp]
     \centering
@@ -157,19 +165,21 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
         \textbf{Advantages} & \textbf{Drawbacks} \\
         \midrule
         \textbf{1. Single Mesh Topology}: Reference domain $\hat{\Omega}$ is discretized once without mesh distortion. & \textbf{1. Algebraic Complexity}: Introduces parameter-dependent Jacobians $\mathbf{J}_{\hat{\vect{x}}}^{-T}(\boldsymbol{\mu})$ and $J_{\hat{\vect{x}}, \boldsymbol{\mu}}$. \\
-        \textbf{2. Static Basis Functions}: NURBS basis $\hat{R}_i(\boldsymbol{\xi})$ is parameter-independent, enabling SVD snapshot matrices. & \textbf{2. Push-Forward Visual Field}: Spatial displacement field must be pushed forward to physical space $\Omega(\boldsymbol{\mu})$ for WebGL display. \\
-        \textbf{3. Affine Precomputability}: Static spatial terms pre-evaluated offline. & \\
+        \textbf{2. Invariant Basis Functions}: NURBS basis $\hat{R}_i(\boldsymbol{\xi})$ is parameter-independent, enabling SVD snapshot matrices. & \textbf{2. Push-Forward Visual Field}: Spatial displacement field must be pushed forward to physical space $\Omega(\boldsymbol{\mu})$ for WebGL display. \\
+        \textbf{3. Affine Precomputability}: Reference spatial terms pre-evaluated offline. & \\
         \bottomrule
     \end{tabular}%
     }
 \end{table}
 
+Weighing these algorithmic characteristics (Table \ref{tab:mapping_tradeoffs}) confirms that shifting parameter dependency into Jacobians enables offline affine precomputability at the cost of modest push-forward evaluation.
+
 \begin{figure}[htbp]
     \centering
-    \begin{tikzpicture}[scale=1.1, >=stealth]
-        % LEFT PANEL: Parameterized Physical Domain \Omega(\mu)
-        \begin{scope}[xshift=-4.5cm, yshift=0cm, scale=0.85]
-            \node[above=0.5cm, font=\small\bfseries\sffamily, text=primaryblue] at (2.5, 0.8) {Physical Domain $\Omega(\boldsymbol{\mu})$};
+    \begin{tikzpicture}[scale=0.85, >=stealth]
+        % --- LEFT PANEL: Parameterized Physical Domain \Omega(\mu) ---
+        \begin{scope}[xshift=-5.5cm, yshift=0cm, scale=0.7]
+            \node[above=0.6cm, font=\small\bfseries\sffamily, text=primaryblue] at (2.5, 0.8) {Physical Domain $\Omega(\boldsymbol{\mu})$};
             % Clamped support
             \draw[line width=1.5pt] (0,0.8) -- (0,-0.8);
             \foreach \y in {-0.7,-0.4,...,0.7} {
@@ -188,17 +198,17 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
             }
             \draw[primaryblue!40, thin] (0, 0) -- (5.0, 0);
             \node[font=\small\bfseries, primaryblue] at (2.6, 0) {$\vect{x} \in \Omega(\boldsymbol{\mu})$};
-            \node[font=\small, text=black!70] at (2.5, -1.2) {Notched Geometry $\boldsymbol{\mu} = (x_c, r)$};
+            \node[below=0.5cm, font=\small, text=black!70] at (2.5, -0.8) {Notched Geometry $\boldsymbol{\mu} = (x_c, r)$};
         \end{scope}
 
-        % CENTER ARROW: Bijective Pullback Diffeomorphism (Clean Gap between beams)
-        \draw[<->, ultra thick, primaryblue] (-0.1, 0) -- (0.7, 0) 
-            node[midway, above=3pt, font=\small\bfseries] {$\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$} 
-            node[midway, below=3pt, font=\small, text=black!70] {Bijective Pullback};
+        % --- CENTER ARROW: Bijective Pullback Diffeomorphism (Wide 4.0 unit gap) ---
+        \draw[<->, ultra thick, primaryblue] (-1.2, 0) -- (1.2, 0) 
+            node[midway, above=4pt, font=\small\bfseries] {$\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$} 
+            node[midway, below=4pt, font=\small, text=black!70] {Bijective Pullback};
 
-        % RIGHT PANEL: Static Rectangular Reference Domain \hat{\Omega}
-        \begin{scope}[xshift=0.9cm, yshift=0cm, scale=0.85]
-            \node[above=0.5cm, font=\small\bfseries\sffamily, text=black!85] at (2.5, 0.8) {Static Reference Domain $\hat{\Omega}$};
+        % --- RIGHT PANEL: Rectangular Reference Domain \hat{\Omega} ---
+        \begin{scope}[xshift=2.0cm, yshift=0cm, scale=0.7]
+            \node[above=0.6cm, font=\small\bfseries\sffamily, text=black!85] at (2.5, 0.8) {Reference Domain $\hat{\Omega}$};
             % Clamped support
             \draw[line width=1.5pt] (0,0.8) -- (0,-0.8);
             \foreach \y in {-0.7,-0.4,...,0.7} {
@@ -216,17 +226,21 @@ Table \ref{tab:mapping_tradeoffs} summarizes the algorithmic trade-offs of refer
                 \draw[black!30, thin] (0, \y) -- (5.0, \y);
             }
             \node[font=\small\bfseries, black!85] at (2.5, 0) {$\hat{\vect{x}} \in \hat{\Omega}$};
-            \node[font=\small, text=black!70] at (2.5, -1.2) {Invariant Grid $[0,L] \times [0,H]$};
+            \node[below=0.5cm, font=\small, text=black!70] at (2.5, -0.8) {Invariant Grid $[0,L] \times [0,H]$};
         \end{scope}
     \end{tikzpicture}
-    \caption{Diffeomorphic reference configuration mapping $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$ transforming the static rectangular reference domain $\hat{\Omega}$ into the parameterized physical notched domain $\Omega(\boldsymbol{\mu})$.}
+    \caption{Diffeomorphic reference configuration mapping $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$ transforming the rectangular reference domain $\hat{\Omega}$ into the parameterized physical notched domain $\Omega(\boldsymbol{\mu})$.}
     \label{fig:pullback_mapping_dt}
 \end{figure}
+
+By establishing a smooth diffeomorphic transformation $\boldsymbol{\Psi}(\hat{\vect{x}}; \boldsymbol{\mu})$ between physical and reference domains (Figure \ref{fig:pullback_mapping_dt}), snapshots are evaluated on a fixed vector space.
 
 % ------------------------------------------------------------------------------
 \section{Parameterized ROM \& Transient State Projection}
 \label{sec:state_projection}
 % ------------------------------------------------------------------------------
+
+This section details how transient state vectors are re-projected across parameter updates to prevent non-physical displacement discontinuities during interactive slider adjustments.
 
 When notch parameters ($x_c$ or $r$) are updated mid-simulation, the basis updates from $\boldsymbol{\Phi}_{\text{old}} \to \boldsymbol{\Phi}_{\text{new}}$. To prevent non-physical displacement jumps ($\boldsymbol{\Phi}_{\text{old}} \mathbf{q} \neq \boldsymbol{\Phi}_{\text{new}} \mathbf{q}$), transient states are dynamically projected:
 
@@ -244,6 +258,8 @@ Displacement parameterization shapes the physical coordinates via:
 \label{sec:ecsw}
 % ------------------------------------------------------------------------------
 
+This section formulates Energy-Conserving Sampling and Weighting (ECSW) to bypass full-mesh assembly loops by selecting an optimal sparse element subset $E^*$.
+
 Energy-Conserving Sampling and Weighting (ECSW) replaces full-mesh integrals with a weighted sum over a minimal active element subset $E^* \subset E$:
 
 \begin{equation}
@@ -256,72 +272,69 @@ Weights $w_e$ are obtained by solving a Non-Negative Least Squares (NNLS) proble
     \min_{\vect{w}} \|\mat{A}\vect{w} - \vect{b}\|_2^2 \quad \text{s.t.} \quad \vect{w} \ge \vect{0}
 \end{equation}
 
-Figure \ref{fig:galerkin_vs_ecsw_schematic} illustrates the structural mechanics contrast between unreduced Galerkin projection and ECSW hyper-reduction.
+Unlike unreduced Galerkin projection, reference-mapped ECSW hyper-reduction (Figure \ref{fig:galerkin_vs_ecsw_schematic}) evaluates only 28 active elements to bypass full-mesh assembly.
 
 \begin{figure}[htbp]
     \centering
-    \begin{subfigure}{0.49\textwidth}
+    \begin{subfigure}{0.48\textwidth}
         \centering
-        \begin{tikzpicture}[scale=0.92, >=stealth]
-            % Mesh Title (Placed cleanly ABOVE mesh to avoid arrow overlap)
-            \node[above=2pt, font=\small\bfseries] at (0.9, 1.8) {Full Mesh ($E = 3,200$ elements)};
-
+        \begin{tikzpicture}[scale=0.88, >=stealth]
             % Mesh (All active)
             \foreach \x in {0,...,3} {
                 \foreach \y in {0,...,3} {
                     \draw[fill=primaryblue!20, draw=primaryblue!70] (\x*0.45, \y*0.45) rectangle (\x*0.45+0.38, \y*0.45+0.38);
                 }
             }
-            \node[right, font=\small, align=left] at (1.9, 0.9) {\textbf{Evaluate ALL}\\[1pt]\textbf{3,200 elements}};
+            \node[below=2pt, font=\tiny\bfseries] at (0.85, 0) {Full Mesh ($E = 3,200$ elements)};
+            \node[right, font=\tiny, align=left] at (1.9, 0.9) {\textbf{Evaluate}\\[1pt]\textbf{ALL elements}};
             
-            % Clean vertical arrow down from mesh bottom to matrix top (Zero text overlap)
-            \draw[->, ultra thick, primaryblue] (0.9, -0.05) -- (0.9, -0.75);
+            % Arrow down to N x N
+            \draw[->, thick, primaryblue] (0.85, -0.45) -- (0.85, -0.95);
             
             % Giant Matrix N x N
-            \draw[fill=gray!15, draw=gray!60, thick] (0.2, -1.9) rectangle (1.6, -0.8) node[midway, font=\small] {$\hat{\mat{K}}(\boldsymbol{\mu})$};
-            \node[below=2pt, font=\small] at (0.9, -1.9) {$N \times N$ (Full Matrix)};
+            \draw[fill=gray!15, draw=gray!60, thick] (0.2, -2.0) rectangle (1.5, -1.0) node[midway, font=\tiny\bfseries] {$\hat{\mat{K}}(\boldsymbol{\mu})$};
+            \node[below=2pt, font=\tiny] at (0.85, -2.0) {$N \times N$ (Full)};
             
-            % Horizontal projection arrow
-            \draw[->, ultra thick, primaryblue] (1.8, -1.35) -- (2.3, -1.35);
+            % Arrow right to small matrix
+            \draw[->, thick, primaryblue] (1.65, -1.5) -- (2.2, -1.5);
             
             % Small Matrix r x r
-            \draw[fill=primaryblue!15, draw=primaryblue, thick] (2.5, -1.65) rectangle (3.1, -1.05) node[midway, font=\small] {$\mat{K}_r$};
-            \node[below=2pt, font=\small] at (2.8, -1.65) {$r \times r$};
+            \draw[fill=primaryblue!15, draw=primaryblue, thick] (2.35, -1.8) rectangle (2.95, -1.2) node[midway, font=\tiny\bfseries] {$\mat{K}_r$};
+            \node[below=2pt, font=\tiny] at (2.65, -1.8) {$r \times r$};
         \end{tikzpicture}
-        \caption{Galerkin ROM: Full assembly $\mathcal{O}(E)$ ($0.92\times$ speedup).}
+        \caption{Galerkin ROM: Full assembly $\mathcal{O}(E)$.}
     \end{subfigure}
     \hfill
-    \begin{subfigure}{0.49\textwidth}
+    \begin{subfigure}{0.48\textwidth}
         \centering
-        \begin{tikzpicture}[scale=0.92, >=stealth]
-            % Mesh Title (Placed cleanly ABOVE mesh to avoid arrow overlap)
-            \node[above=2pt, font=\small\bfseries] at (0.9, 1.8) {Active Subset ($E^* = 28$ elements)};
-
+        \begin{tikzpicture}[scale=0.88, >=stealth]
             % Mesh (Sparse active)
             \foreach \x in {0,...,3} {
                 \foreach \y in {0,...,3} {
                     \draw[fill=white, draw=gray!30] (\x*0.45, \y*0.45) rectangle (\x*0.45+0.38, \y*0.45+0.38);
                 }
             }
-            % Highlighted active elements
-            \draw[fill=green!50!black!40, draw=green!60!black] (0*0.45, 2*0.45) rectangle (0*0.45+0.38, 2*0.45+0.38) node[midway, font=\small\bfseries] {$w_1$};
-            \draw[fill=green!50!black!40, draw=green!60!black] (2*0.45, 3*0.45) rectangle (2*0.45+0.38, 3*0.45+0.38) node[midway, font=\small\bfseries] {$w_2$};
-            \draw[fill=green!50!black!40, draw=green!60!black] (3*0.45, 1*0.45) rectangle (3*0.45+0.38, 1*0.45+0.38) node[midway, font=\small\bfseries] {$w_3$};
+            % Highlighted elements with weights
+            \draw[fill=orange!60, draw=orange!90] (0*0.45, 2*0.45) rectangle (0*0.45+0.38, 2*0.45+0.38) node[midway, font=\tiny\bfseries, scale=0.8] {$w_1$};
+            \draw[fill=orange!60, draw=orange!90] (2*0.45, 3*0.45) rectangle (2*0.45+0.38, 3*0.45+0.38) node[midway, font=\tiny\bfseries, scale=0.8] {$w_2$};
+            \draw[fill=orange!60, draw=orange!90] (3*0.45, 1*0.45) rectangle (3*0.45+0.38, 1*0.45+0.38) node[midway, font=\tiny\bfseries, scale=0.8] {$w_3$};
             
-            \node[right, font=\small, align=left] at (1.9, 0.9) {\textbf{Evaluate ONLY}\\[1pt]\textbf{28 active elements}};
+            \node[below=2pt, font=\tiny\bfseries] at (0.85, 0) {Active Subset ($E^* = 28$ elements)};
+            \node[right, font=\tiny, align=left] at (1.9, 0.9) {\textbf{Evaluate}\\[1pt]\textbf{ONLY active}};
             
-            % Clean vertical arrow down directly to reduced matrix (Zero text overlap)
-            \draw[->, ultra thick, green!60!black] (0.9, -0.05) -- (0.9, -1.0) -- (0.9, -1.05);
+            % Direct arrow to small matrix
+            \draw[->, thick, accentcyan] (0.85, -0.45) -- (0.85, -1.2);
+            \node[right=2pt, font=\tiny, text=accentcyan] at (0.85, -0.8) {Sparse $E^*$ Assembly};
             
             % Small Matrix r x r
-            \draw[fill=green!15, draw=green!60!black, thick] (0.6, -1.65) rectangle (1.2, -1.05) node[midway, font=\small] {$\mat{K}_r$};
-            \node[below=2pt, font=\small] at (0.9, -1.65) {$r \times r$};
+            \draw[fill=accentcyan!20, draw=accentcyan, thick] (0.55, -1.8) rectangle (1.15, -1.2) node[midway, font=\tiny\bfseries] {$\mat{K}_r$};
+            \node[below=2pt, font=\tiny] at (0.85, -1.8) {$r \times r$};
             
             % Crossed out giant matrix area (Bypassed)
-            \draw[dashed, gray!40, thick] (1.9, -1.9) rectangle (3.1, -0.8);
-            \node[gray!50, font=\small\bfseries] at (2.5, -1.35) {BYPASSED};
-            \draw[red!60, ultra thick] (2.0, -0.9) -- (3.0, -1.8);
-            \draw[red!60, ultra thick] (2.0, -1.8) -- (3.0, -0.9);
+            \draw[dashed, gray!40, thick] (1.8, -2.0) rectangle (3.1, -1.0);
+            \node[gray!40, font=\tiny\bfseries] at (2.45, -1.5) {BYPASSED};
+            \draw[red!60, thick] (1.9, -1.1) -- (3.0, -1.9);
+            \draw[red!60, thick] (1.9, -1.9) -- (3.0, -1.1);
         \end{tikzpicture}
         \caption{ECSW Hyper-reduction: Bypasses $N \times N$ assembly ($64.5\times$ speedup).}
     \end{subfigure}
@@ -341,7 +354,7 @@ Algorithm \ref{alg:ecsw_training} summarizes offline ECSW training.
 \label{alg:ecsw_training}
 \begin{algorithmic}[1]
 \Procedure{TrainECSW}{$\hat{\Omega}, \vect{F}_{\text{ext}}, x_c, r, \sigma$}
-    \State Generate static snapshots: $\vect{u}_{\text{bend}}$, $\vect{u}_{\text{tension}}$, $\vect{u}_{\text{mid}}$
+    \State Generate representative snapshots: $\vect{u}_{\text{bend}}$, $\vect{u}_{\text{tension}}$, $\vect{u}_{\text{mid}}$
     \State Orthonormalize snapshots via Gram-Schmidt to construct reduced basis $\boldsymbol{\Phi}$
     \State Zero out boundary DOFs in $\boldsymbol{\Phi}$ to prevent penalty numerical pollution
     \State Formulate force snapshot matrix $\mat{A} \in \mathbb{R}^{rM \times E}$ and target $\vect{b} \in \mathbb{R}^{rM}$
@@ -357,7 +370,7 @@ Algorithm \ref{alg:ecsw_training} summarizes offline ECSW training.
 \end{algorithmic}
 \end{algorithm}
 
-Figure \ref{fig:ecsw_flowchart} details the multi-pipeline execution flow across Cases 1 to 4.
+This multi-stage architecture (Figure \ref{fig:ecsw_flowchart}) orchestrates offline snapshot collection, NNLS training, and real-time WebGL execution.
 
 \begin{figure}[htbp]
     \centering
@@ -389,9 +402,9 @@ Figure \ref{fig:ecsw_flowchart} details the multi-pipeline execution flow across
         \draw [arrow] (trigger.south) -- ++(0,-0.2) -| (hdr_mapped.north);
 
         \node [case, below=0.3cm of hdr_naive] (case1) {\textbf{Case 1: Naive FOM} \\ • Full remesh \\ • Full matrix $\mat{K}$ \\ • Slow assembly};
-        \node [case, at={(hdr_mapped.south)}, anchor=north, xshift=-2.8cm, yshift=-0.3cm] (case2) {\textbf{Case 2: Mapped FOM} \\ • Flat static mesh \\ • Full matrix $\mat{K}$ \\ • Slow assembly};
-        \node [case, at={(hdr_mapped.south)}, anchor=north, xshift=0.0cm, yshift=-0.3cm] (case3) {\textbf{Case 3: Mapped ROM} \\ • Flat static mesh \\ • Reduced size $r \times r$ \\ • Loop scales with $E$};
-        \node [case, at={(hdr_mapped.south)}, anchor=north, xshift=2.8cm, yshift=-0.3cm] (case4) {\textbf{Case 4: ECSW ROM} \\ • Flat static mesh \\ • Sparse set $E^*$ only \\ • Scale weights $w_e$ \\ • Fastest solver};
+        \node [case, at={(hdr_mapped.south)}, anchor=north, xshift=-2.8cm, yshift=-0.3cm] (case2) {\textbf{Case 2: Mapped FOM} \\ • Flat reference mesh \\ • Full matrix $\mat{K}$ \\ • Slow assembly};
+        \node [case, at={(hdr_mapped.south)}, anchor=north, xshift=0.0cm, yshift=-0.3cm] (case3) {\textbf{Case 3: Mapped ROM} \\ • Flat reference mesh \\ • Reduced size $r \times r$ \\ • Loop scales with $E$};
+        \node [case, at={(hdr_mapped.south)}, anchor=north, xshift=2.8cm, yshift=-0.3cm] (case4) {\textbf{Case 4: ECSW ROM} \\ • Flat reference mesh \\ • Sparse set $E^*$ only \\ • Scale weights $w_e$ \\ • Fastest solver};
 
         \draw [arrow] (hdr_naive.south) -- (case1.north);
         \draw [arrow] (hdr_mapped.south) -| (case2.north);
@@ -421,7 +434,9 @@ Figure \ref{fig:ecsw_flowchart} details the multi-pipeline execution flow across
 \label{sec:benchmarks}
 % ------------------------------------------------------------------------------
 
-Table \ref{tab:hyper_reduction_metrics} presents the performance metrics comparing FOM, Galerkin ROM, and ECSW hyper-reduction.
+This section presents quantitative benchmarks comparing FOM, Galerkin ROM, and ECSW hyper-reduction in terms of solve speed, $L_2$ accuracy, and WebGL frame rates.
+
+Evaluating Model Order Reduction strategies against the high-fidelity Full Order baseline yields key speedup and accuracy trade-offs:
 
 \begin{table}[htbp]
     \centering
@@ -440,7 +455,9 @@ Table \ref{tab:hyper_reduction_metrics} presents the performance metrics compari
     }
 \end{table}
 
-Table \ref{tab:performance_benchmarks} compares client-side JavaScript execution times for Classical Physical vs. Mapped Pullback approaches.
+These benchmark comparisons (Table \ref{tab:hyper_reduction_metrics}) demonstrate that ECSW hyper-reduction achieves a $64.5\times$ speedup while preserving solution accuracy within $0.054\%$ relative error.
+
+Client-side JavaScript execution times and interactive frame rates comparing Classical Physical vs. Mapped Pullback approaches show significant acceleration:
 
 \begin{table}[htbp]
     \centering
@@ -459,7 +476,7 @@ Table \ref{tab:performance_benchmarks} compares client-side JavaScript execution
     \end{tabular}
 \end{table}
 
-Figure \ref{fig:ecsw_deflection_plot} demonstrates the exact alignment between the Full Pullback FOM and ECSW Mapped ROM tip deflection response curves.
+Measuring real-time WebGL execution rates (Table \ref{tab:performance_benchmarks}) confirms that mapped pullback hyper-reduction elevates solver performance from 5 FPS to interactive rates above 20 FPS.
 
 \begin{figure}[htbp]
     \centering
@@ -492,10 +509,10 @@ Figure \ref{fig:ecsw_deflection_plot} demonstrates the exact alignment between t
     \label{fig:ecsw_deflection_plot}
 \end{figure}
 
+Overlapping the transient response curves (Figure \ref{fig:ecsw_deflection_plot}) verifies that the hyper-reduced solver reproduces full-order tip deflection $U_y(t)$ with high dynamic fidelity ($0.054\%$ error).
+
 % ------------------------------------------------------------------------------
 \section{Chapter Summary}
 % ------------------------------------------------------------------------------
 
-\begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
-By integrating Proper Orthogonal Decomposition ($r=15$) with Reference-Mapped ECSW hyper-reduction ($E^*=28$), we achieve a $64.5\times$ speedup and sub-millisecond assembly times ($1.30\,\text{ms}$ total per step). This enables real-time client-side WebGL Digital Twins running at interactive frame rates ($\ge 20\,\text{FPS}$).
-\end{tcolorbox}
+This section synthesizes the performance achievements of the IGA-ROM-ECSW engine and previews the thesis conclusions in Chapter \ref{ch:conclusion}.

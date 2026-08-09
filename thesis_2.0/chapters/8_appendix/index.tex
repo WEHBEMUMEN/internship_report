@@ -4,7 +4,11 @@
 \markboth{Appendices}{Appendices}
 % ==============================================================================
 
+Supplemental mathematical derivations and complete parameter values are provided to ensure full reproducibility of the IGA-ROM-ECSW engine. This appendix contains explicit analytical basis function derivatives and lists all physical, discretization, and solver parameters used in the numerical experiments.
+
 \section*{Appendix A: Analytical Derivatives of NURBS Basis Functions}
+
+Explicit 1D and 2D analytical derivative expressions used during spatial Jacobian mapping and strain tensor evaluations are stated below.
 
 Analytical spatial derivatives of univariate B-spline basis functions $N_{i,p}(\xi)$ are computed via derivative recurrence:
 
@@ -29,7 +33,9 @@ For 2D bivariate tensor-product NURBS patches, partial derivatives are:
 
 \section*{Appendix B: Simulation Engine Configuration Parameters}
 
-Table \ref{tab:sim_parameters} details physical constants, mesh parameters, and solver configuration values utilized by the IGA-ROM engine.
+All physical constants, grid dimensions, and solver options are tabulated below to enable independent numerical replication.
+
+Complete physical constants, grid dimensions, and solver configuration parameters utilized by the IGA-ROM engine are specified below:
 
 \begin{table}[htbp]
     \centering
@@ -58,3 +64,5 @@ Table \ref{tab:sim_parameters} details physical constants, mesh parameters, and 
     \end{tabular}%
     }
 \end{table}
+
+These exact numerical configurations (Table \ref{tab:sim_parameters}) ensure complete reproducibility of all transient Full Order Model and ECSW Reduced Order Model benchmarks.

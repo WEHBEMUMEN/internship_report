@@ -11,13 +11,19 @@
 \end{description}
 \end{tcolorbox}
 
+Traditional finite element methods introduce geometric approximation errors when tessellating curved boundaries into polygonal meshes. This chapter computes Isogeometric Analysis (IGA), which employs Non-Uniform Rational B-Splines (NURBS) as basis functions for both geometry definition and elastodynamic state approximation, producing exact CAD boundary representation and continuous semi-discrete equations of motion.
+
 % ------------------------------------------------------------------------------
 \section{Geometric Representation via B-Splines \& NURBS}
 % ------------------------------------------------------------------------------
 
+This section introduces univariate B-splines, rational NURBS basis functions, and tensor-product surface patches that form the foundation of IGA.
+
 Isogeometric Analysis (IGA), pioneered by Hughes et al. (2005), eliminates the gap between Computer-Aided Design (CAD) and Finite Element Analysis (FEA) by employing NURBS basis functions directly in the analysis solver.
 
 \subsection{Univariate B-Spline Basis \& Cox-de Boor Recurrence}
+Cox-de Boor recurrence relations and derivative formulas for univariate B-spline basis functions are defined as follows.
+
 Given an open knot vector $\Xi = \{\xi_0, \xi_1, \dots, \xi_m\}$, univariate B-spline basis functions $N_{i,p}(\xi)$ of degree $p$ are defined recursively via the Cox-de Boor formula:
 
 \begin{equation}
@@ -33,6 +39,8 @@ Analytical spatial gradients for strain evaluations are computed using derivativ
 \end{equation}
 
 \subsection{Non-Uniform Rational B-Splines (NURBS)}
+Rational basis functions with projective weights are formulated to represent exact conic and curved geometries.
+
 Projective control weights $w_i$ define the rational basis functions $R_{i,p}(\xi)$:
 \begin{equation}
     R_{i,p}(\xi) = \frac{N_{i,p}(\xi) w_i}{\sum_{j=0}^{n-1} N_{j,p}(\xi) w_j} = \frac{N_{i,p}(\xi) w_i}{W(\xi)}
@@ -47,7 +55,7 @@ where $W(\xi) = \sum_{j=0}^{n-1} N_{j,p}(\xi) w_j$. Physical coordinates of a 1D
     \vect{C}(\xi) = \sum_{i=0}^{n-1} R_{i,p}(\xi) \vect{P}_i
 \end{equation}
 
-Figure \ref{fig:nurbs_curves_eval} illustrates quadratic B-spline basis functions $N_{i,2}(\xi)$ evaluated over an open knot vector.
+Evaluating quadratic B-spline basis functions $N_{i,2}(\xi)$ over an open knot vector yields smooth localized shape functions (Figure \ref{fig:nurbs_curves_eval}).
 
 \begin{figure}[htbp]
     \centering
@@ -105,7 +113,11 @@ Figure \ref{fig:nurbs_curves_eval} illustrates quadratic B-spline basis function
     \label{fig:nurbs_curves_eval}
 \end{figure}
 
+Evaluating these quadratic basis functions over active knot spans (Figure \ref{fig:nurbs_curves_eval}) confirms their local support and partition of unity properties.
+
 \subsection{Bivariate Tensor-Product NURBS Surface Patches}
+Extending 1D NURBS to 2D tensor-product surface patches establishes spatial coordinate Jacobians for area integration.
+
 To model 2D continuum surfaces, univariate basis functions are combined via tensor products across knot vectors $\Xi$ and $\mathcal{H}$. Weight factors $w_{i,j}$ define rational bivariate basis functions $R_{i,j}^{p,q}(\xi, \eta)$:
 
 \begin{equation}
@@ -162,9 +174,13 @@ where $\vect{g}_{\xi} = \partial \vect{S}/\partial \xi$ and $\vect{g}_{\eta} = \
     \label{fig:bspline_surface_concept}
 \end{figure}
 
+By linking parametric coordinates to a 3D control lattice $\vect{P}_{i,j}$ (Figure \ref{fig:bspline_surface_concept}), bivariate NURBS patches construct exact geometric surfaces $\vect{S}(\xi, \eta)$.
+
 % ------------------------------------------------------------------------------
 \section{\texorpdfstring{Refinement Strategies: $h$-, $p$-, and $k$-Refinement}{Refinement Strategies: h-, p-, and k-Refinement}}
 % ------------------------------------------------------------------------------
+
+This section details the three refinement mechanisms of IGA that enable mesh enrichment without altering the exact CAD geometry.
 
 A major advantage of IGA is mesh refinement without modifying CAD geometry definitions:
 
@@ -185,7 +201,11 @@ A major advantage of IGA is mesh refinement without modifying CAD geometry defin
     }
 \end{table}
 
+Comparing these three refinement pathways (Table \ref{tab:refinement_comparison}) shows that IGA enables arbitrary mesh enrichment while maintaining strict $C^{p-1}$ continuity and exact CAD boundary definitions.
+
 \subsection{Boehm Knot Insertion Algorithm ($h$-Refinement)}
+Boehm's algorithm for knot insertion ($h$-refinement) enables local mesh refinement near stress concentrations.
+
 In $h$-refinement, new control points $\vect{P}_i^{\text{new}}$ are computed via Boehm's algorithm:
 \begin{equation}
     \vect{P}_i^{\text{new}} = \alpha_i \vect{P}_i + (1 - \alpha_i) \vect{P}_{i-1}
@@ -206,7 +226,7 @@ For 2D domains with lattice matrix $\mat{P}$, directional transformations $\mat{
 
 Degree elevation ($p$-refinement) operates via $\vect{P}^{\text{new}} = \mat{T}_p \vect{P}$.
 
-Figure \ref{fig:hrefinement_basis} demonstrates $h$-refinement (knot insertion), showing how the control polygon refines while preserving exact curve geometry.
+Demonstrating $h$-refinement (knot insertion) confirms how the control polygon refines while preserving exact curve geometry (Figure \ref{fig:hrefinement_basis}).
 
 \begin{figure}[htbp]
     \centering
@@ -240,9 +260,13 @@ Figure \ref{fig:hrefinement_basis} demonstrates $h$-refinement (knot insertion),
     \label{fig:hrefinement_basis}
 \end{figure}
 
+Inserting knots via Boehm's algorithm (Figure \ref{fig:hrefinement_basis}) enriches the control polygon density while preserving the exact CAD geometry.
+
 % ------------------------------------------------------------------------------
 \section{Isogeometric System Matrix Assembly}
 % ------------------------------------------------------------------------------
+
+This section details the Galerkin projection of elastodynamic fields onto NURBS basis functions to assemble global mass $\mat{M}$, stiffness $\mat{K}$, and force $\vect{F}_{\text{ext}}$ matrices.
 
 Approximating the displacement field using bivariate NURBS basis functions $R_a(\vect{x})$ yields:
 \begin{equation}
@@ -266,6 +290,8 @@ Here, $\mathbf{B}_a$ represents the strain-displacement matrix containing parame
 % ------------------------------------------------------------------------------
 \section{Chapter Summary}
 % ------------------------------------------------------------------------------
+
+This section summarizes the IGA discretization framework and establishes the transition to Chapter \ref{ch:pullback} for reference domain pullback mapping.
 
 \begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
 Isogeometric Analysis discretizes the continuous elastodynamic equations using exact NURBS CAD geometry basis functions, assembling the full-order matrices $\mathbf{M}$, $\mathbf{K}$, and $\mathbf{C}$. In Chapter \ref{ch:pullback}, we pull back these element integrals to a parameter-independent reference configuration $\hat{\Omega}$ to resolve shape parameter compatibility.

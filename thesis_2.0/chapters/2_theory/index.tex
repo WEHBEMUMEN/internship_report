@@ -11,9 +11,13 @@
     \end{description}
 \end{tcolorbox}
 
+Developing reduced order models for parameterized structures requires a firm foundation in continuum elastodynamics and formal shape parameterization. This chapter establishes the strong and weak variational formulations of linear elasticity, defines the parameter space $\boldsymbol{\mu} = (x_c, r)^T$, and computes the mathematical challenges introduced by domain variations.
+
 % ------------------------------------------------------------------------------
 \section{Geometry Configurations \& Shape Parameterization}
 % ------------------------------------------------------------------------------
+
+This section defines the parameterized domain geometry $\Omega(\boldsymbol{\mu})$ and establishes how shape variations affect the physical configuration of the notched beam.
 
 Let $\Omega(\boldsymbol{\mu}) \subset \mathbb{R}^2$ define the parameterized physical configuration of a structural continuum. As illustrated in Figure \ref{fig:notched_beam_geometry}, we consider a 2D cantilever beam featuring symmetric circular notches along its upper and lower boundaries.
 
@@ -57,12 +61,16 @@ The shape variation is controlled by a parameter vector $\boldsymbol{\mu} = (x_c
     \label{fig:notched_beam_geometry}
 \end{figure}
 
+The structural parameterization illustrated above (Figure \ref{fig:notched_beam_geometry}) defines the design space $\mathcal{D}$ via notch position $x_c$ and cutout radius $r$.
+
 \newpage
 % ------------------------------------------------------------------------------
 \section{Governing Elastodynamic Equations \& Kinematics}
 % ------------------------------------------------------------------------------
 
-Figure \ref{fig:continuum_kinematics} illustrates the kinematic deformation from the initial configuration $\Omega(\boldsymbol{\mu})$ to the current state under external body forces $\vect{f}_b$ and boundary tractions $\vect{h}_N$.
+This section presents the strong form balance of linear momentum and Cauchy stress-strain relationships under small-strain elastodynamics.
+
+Kinematic deformation from the initial configuration $\Omega(\boldsymbol{\mu})$ to the current state under external body forces $\vect{f}_b$ and boundary tractions $\vect{h}_N$ is illustrated below (Figure \ref{fig:continuum_kinematics}).
 
 \begin{figure}[htbp]
     \centering
@@ -135,6 +143,8 @@ Figure \ref{fig:continuum_kinematics} illustrates the kinematic deformation from
     \label{fig:continuum_kinematics}
 \end{figure}
 
+Comparing the undeformed reference geometry $\Omega(\boldsymbol{\mu})$ to the deformed state under applied loads $\vect{f}_b$ and $\vect{h}_N$ (Figure \ref{fig:continuum_kinematics}) demonstrates the displacement field vector $\vect{u}(t)$.
+
 \begin{table}[htbp]
     \centering
     \caption{Definition of kinematic notation and continuum domain boundaries.}
@@ -154,6 +164,8 @@ Figure \ref{fig:continuum_kinematics} illustrates the kinematic deformation from
     \end{tabular}
 \end{table}
 
+This formal notation (Table \ref{tab:kinematic_notation}) establishes the continuum framework used throughout the initial configuration and small-strain kinematic relations.
+
 Assuming small strains and linear isotropic elasticity, the strong form governing linear momentum balance on $\Omega(\boldsymbol{\mu}) \times (0, T]$ is:
 \begin{equation}
     \underbrace{\rho \ddot{\vect{u}}}_{\text{Inertial Force}} - \underbrace{\nabla \cdot \boldsymbol{\sigma}(\vect{u})}_{\text{Internal Stress Divergence}} = \underbrace{\vect{f}_b}_{\text{Body Force}}
@@ -163,6 +175,8 @@ subject to boundary conditions $\vect{u} = \vect{0}$ on $\Gamma_D(\boldsymbol{\m
 % ------------------------------------------------------------------------------
 \section{Weak Variational Formulation}
 % ------------------------------------------------------------------------------
+
+This section derives the weak variational form of elastodynamics, establishing the kinetic energy, strain energy, and external work forms required for numerical discretization.
 
 Multiplying by kinematically admissible test functions $\delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu})) = \{ \vect{v} \in [H^1(\Omega(\boldsymbol{\mu}))]^2 \mid \vect{v} = \vect{0} \text{ on } \Gamma_D(\boldsymbol{\mu}) \}$ and applying integration by parts yields the weak form:
 
@@ -180,6 +194,8 @@ where the bilinear forms and load linear form are defined as:
 % ------------------------------------------------------------------------------
 \section{The Shape Parameterization Challenge}
 % ------------------------------------------------------------------------------
+
+This section highlights why physical domain variations break conventional snapshot POD extraction, motivating the transition to reference domain pullback integration.
 
 Evaluating $k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})$ on a varying domain $\Omega(\boldsymbol{\mu})$ introduces two critical computational hurdles:
 
@@ -202,12 +218,16 @@ Evaluating $k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})$ on a varying domain $
     }
 \end{table}
 
-To guarantee mathematical consistency and achieve sub-millisecond solves, this thesis selects the **Diffeomorphic Pullback Mapping** approach, shifting parameter dependencies entirely into integration Jacobians on a fixed reference space $\hat{\Omega}$ (detailed in Chapter \ref{ch:pullback}).
+Evaluating these computational trade-offs (Table \ref{tab:remesh_vs_pullback}) highlights why reference domain pullback mapping is essential for maintaining snapshot SVD consistency.
+
+To guarantee mathematical consistency and achieve sub-millisecond solves, this thesis selects the \textbf{Diffeomorphic Pullback Mapping} approach, shifting parameter dependencies entirely into integration Jacobians on a fixed reference space $\hat{\Omega}$ (detailed in Chapter \ref{ch:pullback}).
 
 % ------------------------------------------------------------------------------
 \section{Chapter Summary}
 % ------------------------------------------------------------------------------
 
+This section synthesizes the continuum elastodynamic foundation established in this chapter and previews the spatial discretization techniques introduced in Chapter \ref{ch:discretization}.
+
 \begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
-    We established the elastodynamic continuum formulation for the notched cantilever beam and demonstrated that direct physical evaluation on $\Omega(\boldsymbol{\mu})$ breaks state vector compatibility across parameters. In Chapter \ref{ch:discretization}, we discretize this formulation using Isogeometric Analysis (IGA) prior to pulling back integration terms to a static reference domain in Chapter \ref{ch:pullback}.
+    We established the elastodynamic continuum formulation for the notched cantilever beam and demonstrated that direct physical evaluation on $\Omega(\boldsymbol{\mu})$ breaks state vector compatibility across parameters. In Chapter \ref{ch:discretization}, we discretize this formulation using Isogeometric Analysis (IGA) prior to pulling back integration terms to a reference domain in Chapter \ref{ch:pullback}.
 \end{tcolorbox}
