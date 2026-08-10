@@ -11,13 +11,13 @@
     \end{description}
 \end{tcolorbox}
 
-High-fidelity Full Order Model (FOM) simulations are required to collect transient snapshot datasets and benchmark reduced order approximations. This chapter computes the implicit dynamic time integration scheme, presents baseline stress and displacement field solutions, and demonstrates the severe computational bottleneck ($\approx 450\,\text{ms}$ per time step) that prevents real-time execution without model reduction.
+Equipped with the reference pullback transformation derived in Chapter \ref{ch:pullback}, high-fidelity Full Order Model (FOM) simulations can now be evaluated consistently on $\hat{\Omega}$ to collect transient snapshot datasets and benchmark reduced order approximations. This chapter formulates the implicit dynamic time integration scheme, presents baseline stress and displacement field solutions, and demonstrates the severe computational bottleneck ($\approx 450\,\text{ms}$ per time step) that prevents real-time execution without model reduction.
 
 % ------------------------------------------------------------------------------
 \section{Governing Dynamic Equations \& Flowchart}
 % ------------------------------------------------------------------------------
 
-This section presents the semi-discrete dynamic equilibrium equations and compares physical-domain remeshing against reference-mapped integration.
+Here, we formulate the semi-discrete dynamic equilibrium equations and compare physical-domain remeshing against reference-mapped integration.
 
 The high-fidelity transient response of the structural continuum is governed by the semi-discrete second-order system:
 
@@ -79,12 +79,13 @@ Comparing the two assembly paths (Figure \ref{fig:remesh_vs_pullback}) highlight
 \section{Boundary Conditions \& Implicit Dynamics Solver}
 % ------------------------------------------------------------------------------
 
-This section details the penalty method for boundary clamping and presents the step-by-step Newmark-$\beta$ / Generalized-$\alpha$ implicit time integration algorithm.
+Next, we detail the penalty method for boundary clamping and present the step-by-step Newmark-$\beta$ / Generalized-$\alpha$ implicit time integration algorithm.
 
 Homogeneous Dirichlet clamping at $x=0$ is enforced via the \textbf{Penalty Method} by adding a large stiffness parameter $k_p = 10^{30}$ to diagonal entries of constrained boundary DOFs:
 \begin{equation}
     \mat{K}_{\text{eff}}[i, i] \gets k_p, \quad \vect{F}_{\text{eff}}[i] \gets 0 \quad \text{for constrained boundary DOFs } i
 \end{equation}
+While selecting $k_p = 10^{30}$ increases the condition number of $\mat{K}_{\text{eff}}$, this is an accepted engineering trade-off that avoids complex master-slave DOF elimination while ensuring exact zero-displacement clamping.
 
 Algorithm \ref{alg:fom_dynamics} summarizes the step-by-step implicit dynamics solver.
 
@@ -112,7 +113,7 @@ Algorithm \ref{alg:fom_dynamics} summarizes the step-by-step implicit dynamics s
 \section{Quantities of Interest (QoI) \& Full Order Responses}
 % ------------------------------------------------------------------------------
 
-This section extracts full-order Von Mises stress distributions and tip displacement time histories to establish physical baseline benchmarks.
+Here, we extract full-order Von Mises stress distributions and tip displacement time histories to establish physical baseline benchmarks.
 
 High-fidelity Full Order Model (FOM) Von Mises stress concentrations $\sigma_{\text{VM}}$ and displacement magnitude contour fields are depicted in Figure \ref{fig:fom_dynamic_response} and Figure \ref{fig:fom_displacement_response}.
 
@@ -186,7 +187,7 @@ Examining the full order von Mises stress distribution (Figure \ref{fig:fom_dyna
             \node[above, font=\tiny, align=center] at (0.12, 2.1) {Displacement $U$};
         \end{scope}
     \end{tikzpicture}
-    \caption{Full Order Model displacement field showing deflection $U_y(t)$ at the tip.}
+    \caption{Full Order Model displacement field showing downward deflection $U_y(t)$ concentrated at the free right tip, illustrating smooth spatial bending without mesh locking.}
     \label{fig:fom_displacement_response}
 \end{figure}
 
@@ -233,7 +234,7 @@ Plotting the high-fidelity transient tip vertical deflection response $U_y(t)$ r
                 };
         \end{axis}
     \end{tikzpicture}
-    \caption{Transient vertical deflection $U_y(t)$ at the free tip of the notched cantilever beam computed using FOM.}
+    \caption{Transient vertical deflection $U_y(t)$ at the free tip computed via high-fidelity FOM, establishing the baseline dynamic oscillation and damping trajectory for model reduction benchmarks.}
     \label{fig:fom_qoi_deflection}
 \end{figure}
 
@@ -243,9 +244,9 @@ The full order time history (Figure \ref{fig:fom_qoi_deflection}) confirms persi
 \section{Computational Bottleneck \& Model Parameters}
 % ------------------------------------------------------------------------------
 
-This section quantifies the online solve times and memory demands of the FOM, highlighting the exact computational bottleneck motivating model reduction.
+The following analysis quantifies the online solve times and memory demands of the FOM, highlighting the exact computational bottleneck motivating model reduction.
 
-High-fidelity Full Order Model (FOM) discretization scales and online computational demands are structured as follows:
+High-fidelity Full Order Model (FOM) discretization scales and online computational demands are structured below (with comprehensive solver constants detailed in Appendix \ref{sec:appendix_sim_params}):
 
 \begin{table}[htbp]
     \centering
@@ -270,7 +271,7 @@ These quantitative demands (Table \ref{tab:fom_parameters}) underscore the onlin
 \section{Chapter Summary}
 % ------------------------------------------------------------------------------
 
-This section summarizes the FOM baseline results and sets up the POD basis extraction and ECSW hyper-reduction presented in Chapter \ref{ch:rom}.
+In conclusion, we summarize the FOM baseline results and set up the POD basis extraction and ECSW hyper-reduction presented in Chapter \ref{ch:rom}.
 
 \begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
     The Full Order Model provides accurate dynamic stress and displacement fields but requires $\approx 450\,\text{ms}$ per time step. In Chapter \ref{ch:rom}, we apply projection-based Reduced Order Modeling (POD) and Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction to slash evaluation time to sub-millisecond rates ($<1.5\,\text{ms}$).

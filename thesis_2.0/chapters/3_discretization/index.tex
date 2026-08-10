@@ -11,15 +11,15 @@
 \end{description}
 \end{tcolorbox}
 
-Traditional finite element methods introduce geometric approximation errors when tessellating curved boundaries into polygonal meshes. This chapter computes Isogeometric Analysis (IGA), which employs Non-Uniform Rational B-Splines (NURBS) as basis functions for both geometry definition and elastodynamic state approximation, producing exact CAD boundary representation and continuous semi-discrete equations of motion.
+Following the continuum elastodynamic formulation established in Chapter \ref{ch:theory}, discretizing the governing equations requires a spatial basis capable of handling complex geometry accurately. Traditional finite element methods introduce geometric approximation errors when tessellating curved boundaries into polygonal meshes. This chapter develops Isogeometric Analysis (IGA), which employs Non-Uniform Rational B-Splines (NURBS) as basis functions for both geometry definition and elastodynamic state approximation, producing exact CAD boundary representation and continuous semi-discrete equations of motion.
 
 % ------------------------------------------------------------------------------
-\section{Geometric Representation via B-Splines \& NURBS}
+\section{B-Splines \& NURBS Geometry Representation}
 % ------------------------------------------------------------------------------
 
-This section introduces univariate B-splines, rational NURBS basis functions, and tensor-product surface patches that form the foundation of IGA.
+Here, we introduce univariate B-splines, rational NURBS basis functions, and tensor-product surface patches that form the foundation of IGA.
 
-Isogeometric Analysis (IGA), pioneered by Hughes et al. (2005), eliminates the gap between Computer-Aided Design (CAD) and Finite Element Analysis (FEA) by employing NURBS basis functions directly in the analysis solver.
+Isogeometric Analysis (IGA), pioneered by Hughes et al. \cite{hughes2005} and expanded by Cottrell et al. \cite{cottrell2009}, eliminates the gap between Computer-Aided Design (CAD) and Finite Element Analysis (FEA) by employing NURBS basis functions directly in the analysis solver.
 
 \subsection{Univariate B-Spline Basis \& Cox-de Boor Recurrence}
 Cox-de Boor recurrence relations and derivative formulas for univariate B-spline basis functions are defined as follows.
@@ -50,10 +50,38 @@ Spatial gradients of rational basis functions are evaluated using the quotient r
 \begin{equation}
     \frac{d}{d\xi} R_{i,p}(\xi) = w_i \frac{\frac{d N_{i,p}(\xi)}{d\xi} W(\xi) - N_{i,p}(\xi) \frac{d W(\xi)}{d\xi}}{[W(\xi)]^2}
 \end{equation}
-where $W(\xi) = \sum_{j=0}^{n-1} N_{j,p}(\xi) w_j$. Physical coordinates of a 1D parametric curve $\vect{C}(\xi)$ are given by:
+Spatial coordinates of a 1D parametric curve $\vect{C}(\xi)$ are constructed as a linear combination of control points $\vect{P}_i$ weighted by rational basis functions $R_{i,p}(\xi)$:
 \begin{equation}
     \vect{C}(\xi) = \sum_{i=0}^{n-1} R_{i,p}(\xi) \vect{P}_i
 \end{equation}
+
+Figure \ref{fig:bspline_1d_curve} illustrates the geometric construction of a 1D B-spline curve $\vect{C}(\xi)$ blending a control polygon formed by control points $\vect{P}_0$ through $\vect{P}_4$.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[scale=1.1, >=stealth]
+        \coordinate (P0) at (0, 0);
+        \coordinate (P1) at (1.5, 2.5);
+        \coordinate (P2) at (3.5, 3.0);
+        \coordinate (P3) at (5.0, 1.0);
+        \coordinate (P4) at (7.0, 2.5);
+
+        % Draw control polygon (dashed)
+        \draw[thick, gray, dashed] (P0) -- (P1) -- (P2) -- (P3) -- (P4);
+
+        % Draw actual B-spline curve
+        \draw[ultra thick, primaryblue] (P0) .. controls (1.0,1.8) and (2.5,2.5) .. (3.5,2.1) .. controls (4.5,1.7) and (5.8,1.2) .. (P4);
+
+        % Draw control points
+        \foreach \p/\l/\pos in {P0/P_0/left, P1/P_1/above, P2/P_2/above, P3/P_3/below, P4/P_4/right} {
+            \fill[red!80!black] (\p) circle (2.5pt);
+            \node[\pos, font=\small] at (\p) {$\vect{\l}$};
+        }
+        \node[primaryblue, above, font=\small\bfseries] at (3.2, 2.2) {$\vect{C}(\xi)$};
+    \end{tikzpicture}
+    \caption{Geometric construction of a 1D B-spline curve $\vect{C}(\xi)$ blended by control points $\vect{P}_i$ and control polygon (dashed lines).}
+    \label{fig:bspline_1d_curve}
+\end{figure}
 
 Evaluating quadratic B-spline basis functions $N_{i,2}(\xi)$ over an open knot vector yields smooth localized shape functions (Figure \ref{fig:nurbs_curves_eval}).
 
@@ -177,10 +205,10 @@ where $\vect{g}_{\xi} = \partial \vect{S}/\partial \xi$ and $\vect{g}_{\eta} = \
 By linking parametric coordinates to a 3D control lattice $\vect{P}_{i,j}$ (Figure \ref{fig:bspline_surface_concept}), bivariate NURBS patches construct exact geometric surfaces $\vect{S}(\xi, \eta)$.
 
 % ------------------------------------------------------------------------------
-\section{\texorpdfstring{Refinement Strategies: $h$-, $p$-, and $k$-Refinement}{Refinement Strategies: h-, p-, and k-Refinement}}
+\section{\texorpdfstring{Refinement Strategies: $h$-, $p$-, \& $k$-Refinement}{Refinement Strategies}}
 % ------------------------------------------------------------------------------
 
-This section details the three refinement mechanisms of IGA that enable mesh enrichment without altering the exact CAD geometry.
+The following discussion details the three refinement mechanisms of IGA that enable mesh enrichment without altering the exact CAD geometry.
 
 A major advantage of IGA is mesh refinement without modifying CAD geometry definitions:
 
@@ -203,7 +231,7 @@ A major advantage of IGA is mesh refinement without modifying CAD geometry defin
 
 Comparing these three refinement pathways (Table \ref{tab:refinement_comparison}) shows that IGA enables arbitrary mesh enrichment while maintaining strict $C^{p-1}$ continuity and exact CAD boundary definitions.
 
-\subsection{Boehm Knot Insertion Algorithm ($h$-Refinement)}
+\subsection{Boehm Knot Insertion Algorithm (\texorpdfstring{$h$-Refinement}{h-Refinement})}
 Boehm's algorithm for knot insertion ($h$-refinement) enables local mesh refinement near stress concentrations.
 
 In $h$-refinement, new control points $\vect{P}_i^{\text{new}}$ are computed via Boehm's algorithm:
@@ -266,13 +294,13 @@ Inserting knots via Boehm's algorithm (Figure \ref{fig:hrefinement_basis}) enric
 \section{Isogeometric System Matrix Assembly}
 % ------------------------------------------------------------------------------
 
-This section details the Galerkin projection of elastodynamic fields onto NURBS basis functions to assemble global mass $\mat{M}$, stiffness $\mat{K}$, and force $\vect{F}_{\text{ext}}$ matrices.
+Here, we detail the Galerkin projection of elastodynamic fields onto NURBS basis functions to assemble global mass $\mat{M}$, stiffness $\mat{K}$, and force $\vect{F}_{\text{ext}}$ matrices.
 
 Approximating the displacement field using bivariate NURBS basis functions $R_a(\vect{x})$ yields:
 \begin{equation}
-    \vect{u}^h(\vect{x}, t) = \sum_{a=1}^{N_{cp}} R_a(\vect{x}) \vect{d}_a(t)
+    \vect{u}_h(\vect{x}, t) = \sum_{a=1}^{n_b} R_a(\vect{x}) \vect{d}_a(t)
 \end{equation}
-where $\vect{d}_a(t) \in \mathbb{R}^2$ represents control variable displacements. Substituting into the weak form leads to the semi-discrete equations of motion:
+where explicit analytical derivatives $\frac{\partial R_a}{\partial \xi}$ and $\frac{\partial R_a}{\partial \eta}$ required for strain matrix assembly are detailed in Appendix \ref{sec:appendix_nurbs_derivatives}, and $\vect{d}_a(t) \in \mathbb{R}^2$ represents control variable displacements. Substituting into the weak form leads to the semi-discrete equations of motion:
 
 \begin{equation}
     \mathbf{M}\ddot{\vect{d}}(t) + \mathbf{C}\dot{\vect{d}}(t) + \mathbf{K}\vect{d}(t) = \vect{F}_{\text{ext}}(t)
@@ -287,11 +315,32 @@ where global matrices are assembled from element integrals over knot spans $\Ome
 
 Here, $\mathbf{B}_a$ represents the strain-displacement matrix containing parametric derivatives of $R_a(\vect{x})$ mapped via the spatial Jacobian $\mathbf{J}(\xi, \eta)$.
 
+To justify selecting the $80 \times 40$ element baseline, Table \ref{tab:mesh_convergence} summarizes the grid convergence study evaluating vertical tip displacement $U_y$ across dyadic $h$-refinements.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Mesh convergence study for the notched cantilever beam under static bending load, evaluating vertical tip displacement $U_y$ and relative convergence error.}
+    \label{tab:mesh_convergence}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Resolution}     & \textbf{Elements} & \textbf{DoFs}  & \textbf{Tip Disp. $U_y$ (mm)} & \textbf{Relative Error (\%)} \\
+        \midrule
+        $10 \times 5$           & $50$              & $168$          & $3.538$                       & $16.51\%$                    \\
+        $20 \times 10$          & $200$             & $528$          & $3.889$                       & $8.24\%$                     \\
+        $40 \times 20$          & $800$             & $1,848$        & $4.083$                       & $3.66\%$                     \\
+        \textbf{80 $\times$ 40} & \textbf{3,200}    & \textbf{6,888} & \textbf{4.185}                & \textbf{1.24\%}              \\
+        $160 \times 80$         & $12,800$          & $26,568$       & $4.238$                       & Reference                    \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Refining from $80 \times 40$ ($3,200$ elements) to $160 \times 80$ ($12,800$ elements) yields only a $1.24\%$ shift in tip displacement while increasing equations by $3.8\times$, confirming $80 \times 40$ as an optimal, convergent baseline.
+
 % ------------------------------------------------------------------------------
 \section{Chapter Summary}
 % ------------------------------------------------------------------------------
 
-This section summarizes the IGA discretization framework and establishes the transition to Chapter \ref{ch:pullback} for reference domain pullback mapping.
+In closing, we summarize the IGA discretization framework and establish the transition to Chapter \ref{ch:pullback} for reference domain pullback mapping.
 
 \begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
 Isogeometric Analysis discretizes the continuous elastodynamic equations using exact NURBS CAD geometry basis functions, assembling the full-order matrices $\mathbf{M}$, $\mathbf{K}$, and $\mathbf{C}$. In Chapter \ref{ch:pullback}, we pull back these element integrals to a parameter-independent reference configuration $\hat{\Omega}$ to resolve shape parameter compatibility.

@@ -11,114 +11,74 @@
     \end{description}
 \end{tcolorbox}
 
-High-fidelity dynamic simulations of parameterized structures are essential for digital twin applications, yet traditional finite element solvers suffer from severe computational latency when geometry boundaries change. This introductory chapter establishes the industrial context, articulates the core computational challenges, compares state-of-the-art numerical paradigms, and outlines the primary research objectives of this thesis.
-
 % ------------------------------------------------------------------------------
-\section{Industrial Context \& The Real-Time Bottleneck}
+\section{Introduction}
 % ------------------------------------------------------------------------------
 
-This section motivates the need for sub-millisecond structural solvers by detailing the real-time bottlenecks of classical Finite Element Analysis in interactive engineering applications.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/digital_twin_hero.png}
+    \caption{Conceptual overview of the real-time Digital Twin framework: linking high-fidelity IGA continuum stress analysis (left) to an interactive, web-based control dashboard and parameter sliders (right).}
+    \label{fig:digital_twin_hero}
+\end{figure}
 
-Modern engineering design, structural health monitoring, and the realization of interactive \textbf{Digital Twins} require high-fidelity numerical models evaluated in real time. In structural dynamics, resolving transient responses under varying physical parameters typically relies on the Finite Element Method (FEM).
+Modern engineering design, structural health monitoring, and the realization of Digital Twins require high-fidelity numerical models that can be evaluated in real time. In structural dynamics, resolving the transient response of complex geometries under varying parameter settings typically relies on the Finite Element Method (FEM). However, high-fidelity FEM simulations of structural components (such as cantilever beams subjected to geometric modifications) demand massive computational resources and time-consuming remeshing, making them unsuitable for interactive design exploration or real-time control loops.
 
-However, high-fidelity FEM simulations of structural components—such as cantilever beams subjected to geometric modifications—demand massive computational resources:
+To address these challenges, this thesis investigates the integration of two powerful numerical paradigms: \textbf{Isogeometric Analysis (IGA)} and projection-based \textbf{Reduced Order Modeling (ROM)}. By using Non-Uniform Rational B-Splines (NURBS) as the basis functions for both geometry representation and field approximation, IGA eliminates geometric approximation errors. Concurrently, ROM projects the full-order systems onto low-dimensional subspaces, drastically reducing the size of the systems to be solved.
+
+% ------------------------------------------------------------------------------
+\section{Conceptual Parallels to Data Compression}
+% ------------------------------------------------------------------------------
+
+Before diving into variational continuum mechanics, the core numerical methods of this framework can be understood through three intuitive data-processing analogies:
 
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Remeshing Overhead}: Modifying geometric boundaries (e.g., notch radius or position) requires re-tessellating the physical mesh, causing projection errors and high latency.
-    \item \textbf{High Dimensionality}: Solving millions of coupled equations per time step prevents interactive evaluation in web applications or real-time control loops.
-    \item \textbf{Vector Space Incompatibility}: Dynamic mesh perturbations alter the number and ordering of degrees of freedom, rendering conventional snapshot-based reduction invalid.
+    \item \textbf{Isogeometric Analysis (Vector Graphics vs. Pixels)}: Traditional Finite Element Analysis breaks curved geometry into straight segments, like pixelating a digital image. Isogeometric Analysis (IGA) retains exact CAD spline curves (NURBS) directly, eliminating discretization error and remeshing overhead.
+    \item \textbf{Reduced Order Modeling (Lossy Compression)}: Full-order simulations calculate thousands of grid points per time step. Proper Orthogonal Decomposition (POD) compresses these high-dimensional fields into a few dominant mode shapes, capturing over $99.9\%$ of system energy.
+    \item \textbf{Hyper-Reduction (Smart Sensor Placement)}: Evaluating force integrals across every element creates an online bottleneck during parameter updates. The ECSW method selects a sparse subset of active elements $E^*$, acting like a smart sensor network to evaluate internal forces without full-mesh loops.
 \end{itemize}
 
-To bypass this bottleneck, this thesis introduces a combined framework leveraging \textbf{Isogeometric Analysis (IGA)}, \textbf{Pullback Coordinate Transformations}, and \textbf{Energy-Conserving Sampling and Weighting (ECSW)} hyper-reduction.
+Combining these three techniques allows real-time evaluation of a notched cantilever beam across varying parameters $(x_c, r)$ by performing all computations on a fixed reference domain $\hat{\Omega}$.
 
 % ------------------------------------------------------------------------------
-\section{Conceptual Analogy to Signal \& Data Compression}
+\section{Research Objectives}
 % ------------------------------------------------------------------------------
 
-This section provides an intuitive, accessible parallel between standard data compression schemes (such as vector graphics, MP3 audio, and sensor sampling) and numerical continuum reduction techniques.
-
-To build intuition before presenting detailed variational formulations, the proposed framework can be understood through direct analogies to standard signal and image compression techniques:
-
-\begin{table}[htbp]
-    \centering
-    \caption{Conceptual parallels between numerical continuum mechanics and data compression.}
-    \label{tab:compression_analogy}
-    \resizebox{\textwidth}{!}{%
-        \begin{tabular}{p{4.2cm} p{5.0cm} p{5.5cm}}
-            \toprule
-            \textbf{Numerical Paradigm}                               & \textbf{Data Compression Analogy}                                     & \textbf{Engineering Advantage}                                                         \\
-            \midrule
-            \textbf{Isogeometric Analysis} \newline (NURBS Basis)     & \textbf{Vector Graphics} \newline vs. Pixel Grids (Raster)            & Exact boundary representation without discretization error or remeshing.               \\
-            \midrule
-            \textbf{Reduced Order Modeling} \newline (POD Projection) & \textbf{Spectral Audio Encoding} \newline (e.g., MP3 / Fourier modes) & Projects millions of state DOFs onto dominant energy-carrying modes ($r \ll N$).       \\
-            \midrule
-            \textbf{Hyper-Reduction} \newline (ECSW Sparse Weights)   & \textbf{Optimal Sensor Placement} \newline in active stress zones     & Evaluates internal forces on a sparse element subset $E^*$, bypassing full-mesh loops. \\
-            \bottomrule
-        \end{tabular}%
-    }
-\end{table}
-
-These conceptual parallels (Table \ref{tab:compression_analogy}) demonstrate how NURBS geometry, POD projection, and ECSW sparse weighting mirror established data compression paradigms to eliminate redundant structural calculations.
-
-% ------------------------------------------------------------------------------
-\section{Research Objectives \& Performance Targets}
-% ------------------------------------------------------------------------------
-
-This section defines the precise methodological targets and quantitative performance milestones governing the remainder of this manuscript.
-
-The primary goal of this research is to establish a mathematically rigorous, computationally efficient framework for real-time parameterized structural dynamics. The specific objectives are:
+The primary objective of this work is to establish a mathematically rigorous, computationally efficient framework for real-time parameterized structural dynamics. The specific goals include:
 
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Exact Geometry Parameterization}: Leverage IGA NURBS basis functions to perturbed shape configurations (such as notched cantilever beams) purely via control point shifts, maintaining an invariant knot vector structure.
-    \item \textbf{Subspace Dimensionality Reduction}: Extract an optimal low-dimensional reduced basis $\boldsymbol{\Phi} \in \mathbb{R}^{N \times r}$ using Proper Orthogonal Decomposition (POD) from transient displacement snapshots.
-    \item \textbf{Reference-Mapped Integration}: Formulate a pullback mapping $\boldsymbol{\Psi}: \hat{\Omega} \to \Omega(\boldsymbol{\mu})$ to evaluate governing equations on a parameter-independent reference configuration $\hat{\Omega}$.
-    \item \textbf{Hyper-Reduction Acceleration}: Implement Energy-Conserving Sampling and Weighting (ECSW) to isolate a minimal active element subset $E^* \subset E$, breaking the online full-mesh assembly bottleneck.
-    \item \textbf{Real-Time Client-Side Deployment}: Deploy the reduced solver in an interactive WebGL application, achieving frame rates $>20\,\text{FPS}$ for dynamic structural visualization.
+    \item \textbf{Exact Geometry Tracking}: Leverage IGA to represent shape parameter variations (such as the notched cantilever beam) exactly using NURBS control point displacements, maintaining a constant topological mesh structure.
+    \item \textbf{Dimension Reduction}: Extract an optimal, low-dimensional reduced basis using Proper Orthogonal Decomposition (POD) from snapshots of the transient response.
+    \item \textbf{Hyper-Reduction}: Bypass full-mesh assembly for parameter-dependent systems using the Energy-Conserving Sampling and Weighting (ECSW) method to resolve the online computation bottleneck.
+    \item \textbf{Real-Time Implementation}: Demonstrate the feasibility of the proposed ROM in a client-side web application, achieving interactive frame rates for real-time visualization of structural responses.
 \end{enumerate}
 
 % ------------------------------------------------------------------------------
-\section{State of the Art \& Methodological Comparison}
+\section{State of the Art}
 % ------------------------------------------------------------------------------
 
-This section compares existing spatial discretization and hyper-reduction methodologies to contextualize the unique advantages of the proposed IGA-ECSW framework.
-
-A comparison of state-of-the-art numerical paradigms demonstrates the advantages of the proposed methodology:
-
-\begin{table}[htbp]
-    \centering
-    \caption{State-of-the-Art comparison across numerical discretization and hyper-reduction schemes.}
-    \label{tab:sota_comparison}
-    \resizebox{\textwidth}{!}{%
-        \begin{tabular}{l l l l l}
-            \toprule
-            \textbf{Methodology}     & \textbf{Geometry Bounds} & \textbf{Continuity}       & \textbf{Matrix Symmetry}    & \textbf{Online Speedup}             \\
-            \midrule
-            Standard FEM             & Tessellated $C^0$        & $C^0$ piecewise           & Preserved (SPD)             & Baseline ($1\times$)                \\
-            \textbf{IGA (Proposed)}  & \textbf{Exact NURBS}     & \textbf{$C^{p-1}$ smooth} & \textbf{Preserved (SPD)}    & High per DOF ($5\text{--}10\times$) \\
-            DEIM / MDEIM             & Interpolated             & N/A                       & Compromised                 & Medium ($20\text{--}40\times$)      \\
-            \textbf{ECSW (Proposed)} & \textbf{Sparse Subsets}  & \textbf{Exact}            & \textbf{Strictly Preserved} & \textbf{Massive ($>100\times$)}     \\
-            \bottomrule
-        \end{tabular}%
-    }
-\end{table}
-
-Synthesizing these methodological trade-offs (Table \ref{tab:sota_comparison}) confirms that pairing Isogeometric Analysis with ECSW hyper-reduction uniquely preserves matrix symmetry while enabling massive online speedups.
-
 \subsection{Isogeometric Analysis (IGA)}
-Isogeometric Analysis (IGA) is selected over standard FEM for exact geometric representation and continuous field approximation without remeshing.
+Introduced by Hughes et al. in 2005 \cite{hughes2005}, Isogeometric Analysis (IGA) bridges the gap between Computer-Aided Design (CAD) and Finite Element Analysis (FEA). By utilizing NURBS basis functions for the analysis, IGA offers several key advantages:
+\begin{itemize}[leftmargin=*]
+    \item Exact geometric representation of curved boundaries without discretization errors.
+    \item Higher-order continuity ($C^{p-1}$ for degree $p$), which leads to superior accuracy per degree of freedom compared to classical $C^0$ Lagrange finite elements.
+    \item Native support for mesh refinement techniques (knot insertion, degree elevation, and $k$-refinement) while preserving the exact CAD geometry.
+\end{itemize}
 
-Introduced by Hughes et al. (2005), IGA bridges Computer-Aided Design (CAD) and Finite Element Analysis. By utilizing NURBS basis functions for both geometry definition and field approximation, IGA provides exact boundary representation, higher-order continuity ($C^{p-1}$), and native support for mesh refinement ($k$-refinement) without CAD communication overhead.
+\subsection{Reduced Order Modeling (ROM) for Parameterized Systems}
+Projection-based Reduced Order Modeling aims to approximate the high-fidelity Full Order Model (FOM) solution in a low-dimensional subspace. Proper Orthogonal Decomposition (POD), combined with Galerkin projection, is a standard approach. In a parameterized context, the reduced basis $\boldsymbol{\Phi}$ must capture the system's behavior across the entire parameter domain $\mathcal{D}$. While POD successfully compresses the state space, the online evaluation of the reduced stiffness matrix remains a bottleneck because the physical domain $\Omega(\boldsymbol{\mu})$ changes, requiring full-mesh reconstruction before projection.
 
-\subsection{Reduced Order Modeling (ROM) \& Hyper-Reduction}
-Projection-based dimensionality reduction is contrasted against hyper-reduction techniques like ECSW, demonstrating how online speedups are achieved without sacrificing matrix symmetry.
+\subsection{Pullback Mappings and Reference Configurations}
+To resolve the vector space incompatibility and avoid rebuilding the mesh, the governing equations are pulled back from the parameterized physical domain $\Omega(\boldsymbol{\mu})$ to a fixed, parameter-independent reference configuration $\hat{\Omega}$. By applying a smooth geometric mapping $\boldsymbol{\Psi}(\cdot; \boldsymbol{\mu})$, the integrals are evaluated on $\hat{\Omega}$. Under IGA, the parent parametric domain $\hat{\Omega}_{\text{param}} = [0, 1]^2$ serves natively as this reference configuration, providing a mathematically elegant and structurally invariant framework for the assembly process.
 
-Projection-based ROM projects the high-fidelity Full Order Model (FOM) onto a reduced coordinate space. While Proper Orthogonal Decomposition (POD) efficiently compresses state dimensions, parameter-dependent operators still require full-mesh integration online. Hyper-reduction resolves this. Unlike Discrete Empirical Interpolation (DEIM), which uses point collocation and can ruin symmetric positive-definite (SPD) matrix properties, ECSW uses sparse non-negative element weighting, strictly preserving energy conservation and dynamic stability.
-\newpage
+\subsection{Hyper-Reduction Methods}
+Even when the equations are defined on the reference configuration, evaluating parameter-dependent integrals at every time step or parameter change requires integration over the entire domain. For parameter-dependent operators, this operation scales with the size of the full-order mesh. To achieve true online efficiency, hyper-reduction methods are employed. 
+
+While point-collocation hyper-reduction techniques such as the Discrete Empirical Interpolation Method (DEIM / MDEIM) \cite{Chaturantabut2010, Bonomi2017} construct interpolation points to approximate vector fields, they can violate the symmetric positive-definite (SPD) structure of elastic stiffness matrices and introduce artificial numerical dissipation. In contrast, the Energy-Conserving Sampling and Weighting (ECSW) method, proposed by Farhat et al. \cite{Farhat2014, farhat2015}, replaces global domain integration with a sparse, non-negatively weighted sum over a minimal active element subset $\Omega_{\text{ECSW}} \subset \hat{\Omega}$. ECSW is chosen for this work because it strictly preserves the symmetry, coercivity, and energy conservation properties of the governing continuum equations.
+
 % ------------------------------------------------------------------------------
 \section{Thesis Roadmap \& Chapter Structure}
 % ------------------------------------------------------------------------------
-
-This section outlines the structural progression of the manuscript, providing a clear map of how each chapter contributes to the complete WebGL Digital Twin framework.
 
 The manuscript is structured into the logical progression illustrated in Figure \ref{fig:thesis_roadmap}:
 

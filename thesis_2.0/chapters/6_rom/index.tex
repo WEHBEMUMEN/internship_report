@@ -11,13 +11,13 @@
 \end{description}
 \end{tcolorbox}
 
-Evaluating Full Order Models in real time is computationally prohibitive due to large degrees of freedom ($N = 6,564$) and full-mesh element assembly loops ($E = 3,200$). This chapter formulates the Reduced Order Modeling (ROM) and ECSW hyper-reduction pipeline, projecting state variables onto a low-dimensional POD basis ($r = 15$) and restricting integration to a sparse element subset ($E^* = 28$) to achieve sub-millisecond solve times ($<1.5\,\text{ms}$) for interactive WebGL Digital Twins.
+Building upon the high-fidelity FOM baseline results and computational bottleneck identified in Chapter \ref{ch:fom}, evaluating Full Order Models in real time remains computationally prohibitive due to large degrees of freedom ($N = 6,564$) and full-mesh element assembly loops ($E = 3,200$). This chapter formulates the Reduced Order Modeling (ROM) and ECSW hyper-reduction pipeline, projecting state variables onto a low-dimensional POD basis ($r = 15$) and restricting integration to a sparse element subset ($E^* = 28$) to achieve sub-millisecond solve times ($<1.5\,\text{ms}$) for interactive WebGL Digital Twins.
 
 % ------------------------------------------------------------------------------
 \section{The Model Reduction Strategy \& 5-Step Recipe}
 % ------------------------------------------------------------------------------
 
-This section presents the overall 5-step offline/online workflow connecting reference pullback mapping, snapshot POD, ECSW NNLS training, and WebGL execution.
+The following discussion details the overall 5-step offline/online workflow connecting reference pullback mapping, snapshot POD, ECSW NNLS training, and WebGL execution.
 
 To achieve sub-millisecond solves for interactive WebGL Digital Twins without sacrificing physical accuracy ($L_2$ error $<0.1\%$), we implement a 5-step offline/online projection recipe:
 
@@ -46,7 +46,7 @@ Execute reduced $r \times r$ integration loops over $E^*$ in JavaScript, maintai
 \label{sec:galerkin_rom}
 % ------------------------------------------------------------------------------
 
-This section formulates spatial state projection onto POD bases extracted via Singular Value Decomposition (SVD) and analyzes singular value energy decay.
+We first formulate spatial state projection onto POD bases extracted via Singular Value Decomposition (SVD) and analyze singular value energy decay.
 
 The high-fidelity displacement vector $\vect{U}(t) \in \mathbb{R}^N$ is projected onto the Reduced Basis matrix $\boldsymbol{\Phi} \in \mathbb{R}^{N \times r}$ ($r \ll N$):
 \begin{equation}
@@ -240,7 +240,7 @@ By establishing a smooth diffeomorphic transformation $\boldsymbol{\Psi}(\hat{\v
 \label{sec:state_projection}
 % ------------------------------------------------------------------------------
 
-This section details how transient state vectors are re-projected across parameter updates to prevent non-physical displacement discontinuities during interactive slider adjustments.
+Here, we detail how transient state vectors are re-projected across parameter updates to prevent non-physical displacement discontinuities during interactive slider adjustments.
 
 When notch parameters ($x_c$ or $r$) are updated mid-simulation, the basis updates from $\boldsymbol{\Phi}_{\text{old}} \to \boldsymbol{\Phi}_{\text{new}}$. To prevent non-physical displacement jumps ($\boldsymbol{\Phi}_{\text{old}} \mathbf{q} \neq \boldsymbol{\Phi}_{\text{new}} \mathbf{q}$), transient states are dynamically projected:
 
@@ -258,9 +258,9 @@ Displacement parameterization shapes the physical coordinates via:
 \label{sec:ecsw}
 % ------------------------------------------------------------------------------
 
-This section formulates Energy-Conserving Sampling and Weighting (ECSW) to bypass full-mesh assembly loops by selecting an optimal sparse element subset $E^*$.
+Next, we formulate Energy-Conserving Sampling and Weighting (ECSW) to bypass full-mesh assembly loops by selecting an optimal sparse element subset $E^*$.
 
-Energy-Conserving Sampling and Weighting (ECSW) replaces full-mesh integrals with a weighted sum over a minimal active element subset $E^* \subset E$:
+Energy-Conserving Sampling and Weighting (ECSW), originally introduced by Farhat et al. \cite{Farhat2014, farhat2015}, replaces full-mesh integrals with a weighted sum over a minimal active element subset $E^* \subset E$:
 
 \begin{equation}
     \mathbf{K}_{r, \text{ECSW}}(\boldsymbol{\mu}) = \sum_{e \in E^*} w_e \boldsymbol{\Phi}_e^T \mathbf{K}_e(\boldsymbol{\mu}) \boldsymbol{\Phi}_e
@@ -271,6 +271,8 @@ Weights $w_e$ are obtained by solving a Non-Negative Least Squares (NNLS) proble
 \begin{equation}
     \min_{\vect{w}} \|\mat{A}\vect{w} - \vect{b}\|_2^2 \quad \text{s.t.} \quad \vect{w} \ge \vect{0}
 \end{equation}
+
+Choosing a residual tolerance $\epsilon_{\text{tol}} = 1 \times 10^{-4}$ provides an optimal balance between element sparsity ($E^* = 28$ out of $3,200$) and force approximation accuracy. Tighter tolerances ($\epsilon_{\text{tol}} = 10^{-6}$) select over $65$ elements for marginal precision gains. Training snapshots are collected over a structured $5 \times 4$ tensor grid across $\boldsymbol{\mu} = (x_c, r)^T \in [0.5, 4.5]\,\text{m} \times [0.1, 0.45]\,\text{m}$.
 
 Unlike unreduced Galerkin projection, reference-mapped ECSW hyper-reduction (Figure \ref{fig:galerkin_vs_ecsw_schematic}) evaluates only 28 active elements to bypass full-mesh assembly.
 
@@ -434,7 +436,7 @@ This multi-stage architecture (Figure \ref{fig:ecsw_flowchart}) orchestrates off
 \label{sec:benchmarks}
 % ------------------------------------------------------------------------------
 
-This section presents quantitative benchmarks comparing FOM, Galerkin ROM, and ECSW hyper-reduction in terms of solve speed, $L_2$ accuracy, and WebGL frame rates.
+The following discussion presents quantitative benchmarks comparing FOM, Galerkin ROM, and ECSW hyper-reduction in terms of solve speed, $L_2$ accuracy, and WebGL frame rates.
 
 Evaluating Model Order Reduction strategies against the high-fidelity Full Order baseline yields key speedup and accuracy trade-offs:
 
@@ -443,9 +445,9 @@ Evaluating Model Order Reduction strategies against the high-fidelity Full Order
     \caption{Comparative performance metrics of model reduction strategies against the FOM baseline.}
     \label{tab:hyper_reduction_metrics}
     \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lcccc}
+    \begin{tabular}{p{4.8cm} p{4.2cm} p{2.8cm} p{2.6cm} p{2.2cm}}
         \toprule
-        \textbf{Solver Strategy} & \textbf{Active DOFs / Elements} & \textbf{Relative $L_2$ Error (\%)} & \textbf{Assembly Time (ms)} & \textbf{Online Speedup} \\
+        \textbf{Solver Strategy} & \textbf{Active DOFs / Elements} & \textbf{Relative $L_2$ Error} & \textbf{Assembly Time} & \textbf{Online Speedup} \\
         \midrule
         Full Order (FOM) & $6,564$ DOFs / $3,200$ Elements & Baseline & $142.1\,\text{ms}$ & $1.0\times$ \\
         Galerkin ROM (Unreduced) & $15$ DOFs / $3,200$ Elements & $0.012\%$ & $154.5\,\text{ms}$ & $0.92\times$ \\
@@ -475,6 +477,34 @@ Client-side JavaScript execution times and interactive frame rates comparing Cla
         \bottomrule
     \end{tabular}
 \end{table}
+
+The client-side WebGL Digital Twin architecture operates entirely in the user's browser, as illustrated in Figure \ref{fig:digital_twin_architecture}.
+
+\begin{figure}[htbp]
+    \centering
+    \makebox[\textwidth][c]{%
+    \begin{tikzpicture}[
+        box/.style={rectangle, draw=primaryblue, fill=lightbg, thick, rounded corners=4pt, minimum width=3.6cm, minimum height=1.3cm, align=center, font=\sffamily\small},
+        panel/.style={rectangle, draw=accentcyan, fill=accentcyan!5, thick, rounded corners=6pt, minimum width=3.6cm, minimum height=1.3cm, align=center, font=\sffamily\small},
+        webgl/.style={rectangle, draw=orange!80!black, fill=orange!5, thick, rounded corners=6pt, minimum width=3.6cm, minimum height=1.3cm, align=center, font=\sffamily\small},
+        arrow/.style={thick,->,>=stealth, primaryblue},
+        loop/.style={thick,->,>=stealth, orange!85!black, dashed}
+    ]
+        % Client Browser Box
+        \node [panel] (ui) at (0,0) {\textbf{User Interface (UI)} \\ Parameter Sliders \\ $(x_c, r) \in \mathcal{D}$};
+        \node [box] (engine) at (5.2,0) {\textbf{ECSW Mapped ROM} \\ JS Numerical Solver \\ $E^* = 28$ Active Elements};
+        \node [webgl] (render) at (10.4,0) {\textbf{WebGL Renderer} \\ GPU Shader Pipeline \\ Stress Contours ($>60\,\text{FPS}$)};
+
+        % Connections
+        \draw [arrow] (ui.east) -- (engine.west) node[midway, above=2pt, font=\scriptsize\bfseries] {Slider Update};
+        \draw [arrow] (engine.east) -- (render.west) node[midway, above=2pt, font=\scriptsize\bfseries] {Field $\vect{u}_h(\hat{\vect{x}})$};
+        \draw [loop] (render.south) -- ++(0,-0.8) -| (ui.south) node[pos=0.25, below=3pt, font=\scriptsize\bfseries, text=orange!85!black] {Interactive Real-Time Feedback Loop ($1.30\,\text{ms}$ step)};
+
+    \end{tikzpicture}%
+    }
+    \caption{Client-side WebGL Digital Twin system architecture and interactive real-time feedback loop.}
+    \label{fig:digital_twin_architecture}
+\end{figure}
 
 Measuring real-time WebGL execution rates (Table \ref{tab:performance_benchmarks}) confirms that mapped pullback hyper-reduction elevates solver performance from 5 FPS to interactive rates above 20 FPS.
 
@@ -515,4 +545,4 @@ Overlapping the transient response curves (Figure \ref{fig:ecsw_deflection_plot}
 \section{Chapter Summary}
 % ------------------------------------------------------------------------------
 
-This section synthesizes the performance achievements of the IGA-ROM-ECSW engine and previews the thesis conclusions in Chapter \ref{ch:conclusion}.
+In summary, we synthesize the performance achievements of the IGA-ROM-ECSW engine and preview the thesis conclusions in Chapter \ref{ch:conclusion}.

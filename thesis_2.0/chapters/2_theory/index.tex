@@ -11,13 +11,13 @@
     \end{description}
 \end{tcolorbox}
 
-Developing reduced order models for parameterized structures requires a firm foundation in continuum elastodynamics and formal shape parameterization. This chapter establishes the strong and weak variational formulations of linear elasticity, defines the parameter space $\boldsymbol{\mu} = (x_c, r)^T$, and computes the mathematical challenges introduced by domain variations.
+Building upon the real-time Digital Twin motivations established in Chapter \ref{ch:intro}, developing reduced order models for parameterized structures requires a firm foundation in continuum elastodynamics and formal shape parameterization. This chapter establishes the strong and weak variational formulations of linear elasticity, defines the parameter space $\boldsymbol{\mu} = (x_c, r)^T$, and details the mathematical challenges introduced by domain variations.
 
 % ------------------------------------------------------------------------------
 \section{Geometry Configurations \& Shape Parameterization}
 % ------------------------------------------------------------------------------
 
-This section defines the parameterized domain geometry $\Omega(\boldsymbol{\mu})$ and establishes how shape variations affect the physical configuration of the notched beam.
+We begin by defining the parameterized domain geometry $\Omega(\boldsymbol{\mu})$ and establishing how shape variations alter the physical configuration of the structural beam.
 
 Let $\Omega(\boldsymbol{\mu}) \subset \mathbb{R}^2$ define the parameterized physical configuration of a structural continuum. As illustrated in Figure \ref{fig:notched_beam_geometry}, we consider a 2D cantilever beam featuring symmetric circular notches along its upper and lower boundaries.
 
@@ -68,7 +68,7 @@ The structural parameterization illustrated above (Figure \ref{fig:notched_beam_
 \section{Governing Elastodynamic Equations \& Kinematics}
 % ------------------------------------------------------------------------------
 
-This section presents the strong form balance of linear momentum and Cauchy stress-strain relationships under small-strain elastodynamics.
+Next, we formulate the strong form balance of linear momentum and Cauchy stress-strain relationships under small-strain elastodynamics.
 
 Kinematic deformation from the initial configuration $\Omega(\boldsymbol{\mu})$ to the current state under external body forces $\vect{f}_b$ and boundary tractions $\vect{h}_N$ is illustrated below (Figure \ref{fig:continuum_kinematics}).
 
@@ -176,7 +176,7 @@ subject to boundary conditions $\vect{u} = \vect{0}$ on $\Gamma_D(\boldsymbol{\m
 \section{Weak Variational Formulation}
 % ------------------------------------------------------------------------------
 
-This section derives the weak variational form of elastodynamics, establishing the kinetic energy, strain energy, and external work forms required for numerical discretization.
+We now derive the weak variational form of elastodynamics, establishing the kinetic energy, strain energy, and external work forms required for numerical discretization.
 
 Multiplying by kinematically admissible test functions $\delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu})) = \{ \vect{v} \in [H^1(\Omega(\boldsymbol{\mu}))]^2 \mid \vect{v} = \vect{0} \text{ on } \Gamma_D(\boldsymbol{\mu}) \}$ and applying integration by parts yields the weak form:
 
@@ -195,30 +195,17 @@ where the bilinear forms and load linear form are defined as:
 \section{The Shape Parameterization Challenge}
 % ------------------------------------------------------------------------------
 
-This section highlights why physical domain variations break conventional snapshot POD extraction, motivating the transition to reference domain pullback integration.
+The following analysis highlights why physical domain variations break conventional snapshot POD extraction, motivating the transition to reference domain pullback integration.
 
-Evaluating $k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})$ on a varying domain $\Omega(\boldsymbol{\mu})$ introduces two critical computational hurdles:
+Evaluating $k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})$ on a varying domain $\Omega(\boldsymbol{\mu})$ introduces two critical computational hurdles: physical remeshing destroys snapshot SVD consistency, and online assembly over the full physical mesh causes severe latency.
 
-\begin{table}[htbp]
-    \centering
-    \caption{Trade-offs between physical remeshing and reference domain pullback mapping.}
-    \label{tab:remesh_vs_pullback}
-    \resizebox{\textwidth}{!}{%
-        \begin{tabular}{p{3.5cm} p{5.5cm} p{5.5cm}}
-            \toprule
-            \textbf{Criteria}        & \textbf{Naive Physical Remeshing}                           & \textbf{Reference Pullback Mapping}                                \\
-            \midrule
-            \textbf{Vector Space}    & Inconsistent grid nodes across parameters (Destroys SVD).   & Invariant reference space $\hat{\Omega}$ (Preserves snapshot SVD). \\
-            \midrule
-            \textbf{Online Assembly} & Full physical remesh \& assembly $\mathcal{O}(E)$ per step. & Precomputed reference integration; scales with active set $E^*$.   \\
-            \midrule
-            \textbf{Geometry Error}  & Tessellation approximation error.                           & Exact CAD NURBS representation.                                    \\
-            \bottomrule
-        \end{tabular}%
-    }
-\end{table}
+To address these hurdles, we compare naive physical remeshing against reference pullback mapping across three key criteria:
 
-Evaluating these computational trade-offs (Table \ref{tab:remesh_vs_pullback}) highlights why reference domain pullback mapping is essential for maintaining snapshot SVD consistency.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Vector Space Invariance}: Physical remeshing alters node counts and ordering across parameters, ruining SVD basis extraction. In contrast, reference pullback mapping evaluates all snapshots on an invariant domain $\hat{\Omega}$, guaranteeing SVD vector consistency.
+    \item \textbf{Online Assembly Speed}: Physical remeshing requires rebuilding and re-integrating the entire mesh ($\mathcal{O}(E)$ complexity) at every parameter update. Pullback mapping allows precomputing reference terms, reducing online assembly to a minimal active element subset $E^*$.
+    \item \textbf{Geometric Precision}: Classical physical remeshing introduces linear boundary tessellation errors, whereas reference pullback mapping preserves the exact mathematical CAD NURBS geometry throughout.
+\end{itemize}
 
 To guarantee mathematical consistency and achieve sub-millisecond solves, this thesis selects the \textbf{Diffeomorphic Pullback Mapping} approach, shifting parameter dependencies entirely into integration Jacobians on a fixed reference space $\hat{\Omega}$ (detailed in Chapter \ref{ch:pullback}).
 
@@ -226,7 +213,7 @@ To guarantee mathematical consistency and achieve sub-millisecond solves, this t
 \section{Chapter Summary}
 % ------------------------------------------------------------------------------
 
-This section synthesizes the continuum elastodynamic foundation established in this chapter and previews the spatial discretization techniques introduced in Chapter \ref{ch:discretization}.
+In summary, we synthesize the continuum elastodynamic foundation established in this chapter and preview the spatial discretization techniques introduced in Chapter \ref{ch:discretization}.
 
 \begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
     We established the elastodynamic continuum formulation for the notched cantilever beam and demonstrated that direct physical evaluation on $\Omega(\boldsymbol{\mu})$ breaks state vector compatibility across parameters. In Chapter \ref{ch:discretization}, we discretize this formulation using Isogeometric Analysis (IGA) prior to pulling back integration terms to a reference domain in Chapter \ref{ch:pullback}.
