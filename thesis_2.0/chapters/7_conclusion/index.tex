@@ -4,11 +4,11 @@
 % ==============================================================================
 
 \begin{tcolorbox}[colback=lightbg, colframe=primaryblue, title=\textbf{Chapter at a Glance: Achievements \& Research Impact}, fonttitle=\bfseries]
-\begin{description}[leftmargin=!, labelwidth=3.4cm]
-    \item[\textbf{Core Result}] Successfully built a real-time, client-side WebGL Digital Twin bridging Isogeometric Analysis (IGA) and Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction.
-    \item[\textbf{Speedup \& Accuracy}] Achieved a $64.5\times$ assembly speedup ($1.30\,\text{ms}$ solve per step) with $<0.054\%$ relative $L_2$ error on a $r=15$ POD basis.
-    \item[\textbf{Future Horizons}] Extensions to geometrically nonlinear kinematics, 3D trivariate NURBS solids, multi-patch topologies, and adaptive online sampling.
-\end{description}
+    \begin{description}[leftmargin=!, labelwidth=3.4cm]
+        \item[\textbf{Core Result}] Successfully built a real-time, client-side WebGL Digital Twin bridging Isogeometric Analysis (IGA) and Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction.
+        \item[\textbf{Speedup \& Accuracy}] Achieved a $64.5\times$ assembly speedup ($1.30\,\text{ms}$ solve per step) with $<0.054\%$ relative $L_2$ error on a $r=15$ POD basis.
+        \item[\textbf{Future Horizons}] Extensions to geometrically nonlinear kinematics, 3D trivariate NURBS solids, multi-patch topologies, and adaptive online sampling.
+    \end{description}
 \end{tcolorbox}
 
 Having demonstrated the performance achievements and client-side WebGL deployment of the IGA-ROM-ECSW framework in Chapter \ref{ch:rom}, a comprehensive synthesis is now provided. This final chapter summarizes the primary research contributions, verifies the fulfillment of all initial objectives, and outlines strategic directions for future research in real-time structural Digital Twins.
@@ -57,7 +57,7 @@ Promising research vectors for extending the framework to nonlinear kinematics, 
     \item \textbf{Adaptive Online Sampling}: On-the-fly basis enrichment to handle extreme parameter excursions beyond initial offline training sets.
     \item \textbf{WebGL Floating-Point Precision Mitigation}: Addressing single-precision (`float32`) WebGL GPU limitations for large-scale structural models via localized origin shifting to prevent loss of precision.
 \end{itemize}
-
+\newpage
 % ------------------------------------------------------------------------------
 \section{Chapter Summary}
 % ------------------------------------------------------------------------------
@@ -65,5 +65,5 @@ Promising research vectors for extending the framework to nonlinear kinematics, 
 In closing, we present the final summary of the impact of client-side WebGL Digital Twins for real-time structural dynamics.
 
 \begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
-By uniting Isogeometric Analysis, Reference Configuration Pullback, and ECSW Hyper-Reduction, this project demonstrates that real-time structural Digital Twins can operate efficiently in client-side web browsers without server backend dependencies.
+    By uniting Isogeometric Analysis, Reference Configuration Pullback, and ECSW Hyper-Reduction, this project demonstrates that real-time structural Digital Twins can operate efficiently in client-side web browsers without server backend dependencies.
 \end{tcolorbox}

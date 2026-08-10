@@ -478,33 +478,7 @@ Client-side JavaScript execution times and interactive frame rates comparing Cla
     \end{tabular}
 \end{table}
 
-The client-side WebGL Digital Twin architecture operates entirely in the user's browser, as illustrated in Figure \ref{fig:digital_twin_architecture}.
-
-\begin{figure}[htbp]
-    \centering
-    \makebox[\textwidth][c]{%
-    \begin{tikzpicture}[
-        box/.style={rectangle, draw=primaryblue, fill=lightbg, thick, rounded corners=4pt, minimum width=3.6cm, minimum height=1.3cm, align=center, font=\sffamily\small},
-        panel/.style={rectangle, draw=accentcyan, fill=accentcyan!5, thick, rounded corners=6pt, minimum width=3.6cm, minimum height=1.3cm, align=center, font=\sffamily\small},
-        webgl/.style={rectangle, draw=orange!80!black, fill=orange!5, thick, rounded corners=6pt, minimum width=3.6cm, minimum height=1.3cm, align=center, font=\sffamily\small},
-        arrow/.style={thick,->,>=stealth, primaryblue},
-        loop/.style={thick,->,>=stealth, orange!85!black, dashed}
-    ]
-        % Client Browser Box
-        \node [panel] (ui) at (0,0) {\textbf{User Interface (UI)} \\ Parameter Sliders \\ $(x_c, r) \in \mathcal{D}$};
-        \node [box] (engine) at (5.2,0) {\textbf{ECSW Mapped ROM} \\ JS Numerical Solver \\ $E^* = 28$ Active Elements};
-        \node [webgl] (render) at (10.4,0) {\textbf{WebGL Renderer} \\ GPU Shader Pipeline \\ Stress Contours ($>60\,\text{FPS}$)};
-
-        % Connections
-        \draw [arrow] (ui.east) -- (engine.west) node[midway, above=2pt, font=\scriptsize\bfseries] {Slider Update};
-        \draw [arrow] (engine.east) -- (render.west) node[midway, above=2pt, font=\scriptsize\bfseries] {Field $\vect{u}_h(\hat{\vect{x}})$};
-        \draw [loop] (render.south) -- ++(0,-0.8) -| (ui.south) node[pos=0.25, below=3pt, font=\scriptsize\bfseries, text=orange!85!black] {Interactive Real-Time Feedback Loop ($1.30\,\text{ms}$ step)};
-
-    \end{tikzpicture}%
-    }
-    \caption{Client-side WebGL Digital Twin system architecture and interactive real-time feedback loop.}
-    \label{fig:digital_twin_architecture}
-\end{figure}
+The client-side WebGL Digital Twin architecture operates entirely in the user's browser.
 
 Measuring real-time WebGL execution rates (Table \ref{tab:performance_benchmarks}) confirms that mapped pullback hyper-reduction elevates solver performance from 5 FPS to interactive rates above 20 FPS.
 
