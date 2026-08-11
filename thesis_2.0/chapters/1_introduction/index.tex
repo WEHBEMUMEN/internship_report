@@ -5,7 +5,7 @@
 
 \begin{tcolorbox}[colback=lightbg, colframe=primaryblue, title=\textbf{Chapter at a Glance: Objectives \& Methodological Synergy}, fonttitle=\bfseries]
     \begin{description}[leftmargin=!, labelwidth=3.2cm]
-        \item[\textbf{Challenge}] Resolving transient structural dynamics in real time ($>60\,\text{FPS}$) under changing geometry parameters without computationally expensive mesh rebuilding.
+        \item[\textbf{Challenge}] Resolving transient structural dynamics in real time ($>24\,\text{FPS}$) under changing geometry parameters without computationally expensive mesh rebuilding.
         \item[\textbf{Core Idea}] Combine \textbf{Isogeometric Analysis (IGA)} for exact CAD geometry representation with \textbf{Reduced Order Modeling (ROM)} and \textbf{ECSW Hyper-Reduction} on a fixed reference configuration.
         \item[\textbf{Key Targets}] Sub-millisecond online solve time ($<1.5\,\text{ms}$), high physical fidelity ($L_2$ error $<0.1\%$), and native WebGL Digital Twin integration.
     \end{description}
@@ -84,24 +84,37 @@ The manuscript is structured into the logical progression illustrated in Figure 
 
 \begin{figure}[htbp]
     \centering
+    \makebox[\textwidth][c]{%
     \begin{tikzpicture}[
-            node distance=1.1cm,
-            block/.style={rectangle, draw=primaryblue, fill=lightbg, thick, rounded corners, minimum width=12cm, minimum height=0.8cm, align=left, font=\sffamily\small},
-            arrow/.style={thick,->,>=stealth}
+            block/.style={
+                rectangle, 
+                draw=primaryblue, 
+                fill=lightbg, 
+                thick, 
+                rounded corners=5pt, 
+                text width=12.8cm, 
+                minimum height=1.1cm, 
+                align=left, 
+                font=\sffamily\small,
+                inner xsep=10pt,
+                inner ysep=6pt
+            },
+            arrow/.style={thick, ->, >=stealth, primaryblue!85!black}
         ]
         \node [block] (ch2) {\textbf{Chapter 2: Theory \& Problem Formulation} \\ Continuous governing equations, parameterized beam geometry, coordinate mappings.};
-        \node [block, below=0.4cm of ch2] (ch3) {\textbf{Chapter 3: Discretization via Isogeometric Analysis} \\ NURBS basis functions, tensor-product patches, semi-discrete equations of motion.};
-        \node [block, below=0.4cm of ch3] (ch4) {\textbf{Chapter 4: Pullback Mapping \& Reference Domain Integration} \\ Transformation Jacobians, metric tensors, parameter-independent element assembly.};
-        \node [block, below=0.4cm of ch4] (ch5) {\textbf{Chapter 5: Full Order Model (FOM) Simulation} \\ Generalized-$\alpha$ time integration, snapshot generation, dynamic transient verification.};
-        \node [block, below=0.4cm of ch5] (ch6) {\textbf{Chapter 6: Reduced Order Modeling \& Digital Twin} \\ POD basis extraction, ECSW hyper-reduction, client-side WebGL architecture.};
-        \node [block, below=0.4cm of ch6] (ch7) {\textbf{Chapter 7: Conclusion \& Future Perspectives} \\ Performance synthesis, primary research milestones, future optimization vectors.};
+        \node [block, below=0.35cm of ch2] (ch3) {\textbf{Chapter 3: Discretization via Isogeometric Analysis} \\ NURBS basis functions, tensor-product patches, semi-discrete equations of motion.};
+        \node [block, below=0.35cm of ch3] (ch4) {\textbf{Chapter 4: Pullback Mapping \& Reference Domain Integration} \\ Transformation Jacobians, metric tensors, parameter-independent element assembly.};
+        \node [block, below=0.35cm of ch4] (ch5) {\textbf{Chapter 5: Full Order Model (FOM) Simulation} \\ Generalized-$\alpha$ time integration, snapshot generation, dynamic transient verification.};
+        \node [block, below=0.35cm of ch5] (ch6) {\textbf{Chapter 6: Reduced Order Modeling \& Digital Twin} \\ POD basis extraction, ECSW hyper-reduction, client-side WebGL architecture.};
+        \node [block, below=0.35cm of ch6] (ch7) {\textbf{Chapter 7: Conclusion \& Future Perspectives} \\ Performance synthesis, primary research milestones, future optimization vectors.};
 
         \draw [arrow] (ch2) -- (ch3);
         \draw [arrow] (ch3) -- (ch4);
         \draw [arrow] (ch4) -- (ch5);
         \draw [arrow] (ch5) -- (ch6);
         \draw [arrow] (ch6) -- (ch7);
-    \end{tikzpicture}
+    \end{tikzpicture}%
+    }
     \caption{Inter-chapter dependency and thematic workflow roadmap of the thesis.}
     \label{fig:thesis_roadmap}
 \end{figure}

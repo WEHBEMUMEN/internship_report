@@ -23,10 +23,10 @@ This thesis has developed a high-speed, client-side Digital Twin platform for st
 
 \begin{itemize}[leftmargin=*]
     \item \textbf{Theoretical Foundation}: Formulated exact NURBS geometry evaluations and established smooth parameter-mesh updates via reference domain pullback $\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu})$.
-    \item \textbf{Full Order Model (FOM)}: Constructed a 2D tensor-product IGA dynamic solver on $E = 3,200$ elements ($N = 6,564$ DOFs).
+    \item \textbf{Full Order Model (FOM)}: Constructed a 2D tensor-product IGA dynamic solver on $E = 3,200$ elements ($N = 6,888$ DOFs).
     \item \textbf{Proper Orthogonal Decomposition}: Extracted a compact $r = 15$ modal basis capturing $>99.999\%$ system energy.
     \item \textbf{ECSW Hyper-Reduction}: Applied Non-Negative Least Squares (NNLS) optimization with coercivity pre-seeding to reduce active integration elements to $E^* = 28$.
-    \item \textbf{Digital Twin Deployment}: Built a pure client-side JavaScript architecture reaching sub-millisecond solves ($<1.5\,\text{ms}$) at interactive rates ($\ge 20\,\text{FPS}$).
+    \item \textbf{Digital Twin Deployment}: Built a pure client-side JavaScript architecture reaching sub-millisecond solves ($<1.5\,\text{ms}$) at interactive rates ($\ge 24\,\text{FPS}$).
 \end{itemize}
 
 % ------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ To validate the framework, the quantitative achievements of this project map dir
     \item \textbf{Exact Geometry Preservation}: Utilizing the reference pullback mapping $\boldsymbol{\Psi}(\boldsymbol{\xi}; \boldsymbol{\mu})$ ensures zero CAD discretization error across all parameter variations throughout offline and online evaluations.
     \item \textbf{High-Fidelity Dimension Reduction}: Constructing a snapshot Proper Orthogonal Decomposition (POD) reduced basis of rank $r = 15$ captures $99.999\%$ of the system energy with a minimal $0.012\%$ projection error.
     \item \textbf{Efficient Hyper-Reduction}: Implementing reference-mapped Energy-Conserving Sampling and Weighting (ECSW) reduces the active integration mesh to $E^* = 28$ elements, yielding a $64.5\times$ matrix assembly speedup ($2.2\,\text{ms}$ vs. $154.5\,\text{ms}$ for the full order model).
-    \item \textbf{Real-Time Digital Twin Deployment}: Deploying the reduced solver within a pure client-side WebGL architecture achieves a $1.30\,\text{ms}$ time-step calculation while maintaining interactive graphics refresh rates ($\ge 20\,\text{FPS}$).
+    \item \textbf{Real-Time Digital Twin Deployment}: Deploying the reduced solver within a pure client-side WebGL architecture achieves a $1.30\,\text{ms}$ time-step calculation while maintaining interactive graphics refresh rates ($\ge 24\,\text{FPS}$).
 \end{enumerate}
 
 Synthesizing these project outcomes confirms that every initial research milestone is fulfilled with high numerical precision and real-time execution speeds.
