@@ -395,20 +395,22 @@ Unlike classical finite element $p$-refinement, IGA degree elevation retains hig
             % Row 1: Basis functions before/after
             \begin{scope}[yshift=3.6cm]
                 \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
-                \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,1}$};
-                \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
-                \draw[blue, line width=1.2pt] (0,2) -- (4,0);
-                \draw[green!60!black, line width=1.2pt] (0,0) -- (4,2);
-                \node[font=\tiny, below] at (2, -0.1) {$p=1$, $\Xi = \{0,0,1,1\}$};
-            \end{scope}
-            \begin{scope}[xshift=5.0cm, yshift=3.6cm]
-                \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
                 \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
                 \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
                 \draw[blue, line width=1.2pt, domain=0:4] plot (\x, {2*(1 - \x/4)^2});
                 \draw[green!60!black, line width=1.2pt, domain=0:4] plot (\x, {2*2*(\x/4)*(1 - \x/4)});
                 \draw[orange, line width=1.2pt, domain=0:4] plot (\x, {2*(\x/4)^2});
                 \node[font=\tiny, below] at (2, -0.1) {$p=2$, $\Xi = \{0,0,0,1,1,1\}$};
+            \end{scope}
+            \begin{scope}[xshift=5.0cm, yshift=3.6cm]
+                \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
+                \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,3}$};
+                \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
+                \draw[blue, line width=1.2pt, domain=0:4] plot (\x, {2*(1 - \x/4)^3});
+                \draw[green!60!black, line width=1.2pt, domain=0:4] plot (\x, {2*3*(\x/4)*(1 - \x/4)^2});
+                \draw[orange, line width=1.2pt, domain=0:4] plot (\x, {2*3*(\x/4)^2*(1 - \x/4)});
+                \draw[red, line width=1.2pt, domain=0:4] plot (\x, {2*(\x/4)^3});
+                \node[font=\tiny, below] at (2, -0.1) {$p=3$, $\Xi = \{0,0,0,0,1,1,1,1\}$};
             \end{scope}
 
             % Row 2: Curves and control polygons before/after
@@ -435,7 +437,7 @@ Unlike classical finite element $p$-refinement, IGA degree elevation retains hig
             \end{scope}
         \end{tikzpicture}%
     }
-    \caption{$p$-refinement (degree elevation) schema showing basis functions (top) and B-spline curves (bottom) before/after elevating polynomial degree from $p=1$ to $p=2$.}
+    \caption{$p$-refinement (degree elevation) schema showing basis functions (top) and B-spline curves (bottom) before/after elevating polynomial degree from $p=2$ to $p=3$.}
     \label{fig:prefinement_basis}
 \end{figure}
 
