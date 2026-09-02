@@ -51,7 +51,7 @@ yarn-debug.log*
 yarn-error.log*
 .env
 
-# Executables & large binary distributions
-*.exe
+# Executables & caches
+presentation/*.exe
 __pycache__/
 *.pyc
