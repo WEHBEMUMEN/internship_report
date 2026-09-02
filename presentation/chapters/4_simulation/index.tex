@@ -2,54 +2,42 @@
 
 % Slide: Governing Dynamic Equations (from thesis Ch.4)
 \begin{frame}{Governing Dynamic Equations}
-  \small
-  To simulate the dynamic response we resolve the semi-discrete system:
-  \begin{block}{Equation of Motion}
-    \vspace{-0.15cm}
+  \begin{block}{Semi-Discrete Equation of Motion}
+    \vspace{-0.1cm}
     \[
       \mat{M}(\boldsymbol{\mu})\,\ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu})\,\dot{\vect{U}}(t) + \mat{K}(\boldsymbol{\mu})\,\vect{U}(t) = \lambda(t)\,\vect{F}_{\text{ext}}
     \]
-    \vspace{-0.45cm}
-    \[
-      \text{with initial conditions: } \vect{U}(0) = \vect{U}_0, \quad \dot{\vect{U}}(0) = \vect{V}_0
-    \]
-    \vspace{-0.15cm}
+    \vspace{-0.3cm}
+    {\centering\scriptsize $\vect{U}(0) = \vect{U}_0, \quad \dot{\vect{U}}(0) = \vect{V}_0, \quad \mat{C}(\boldsymbol{\mu}) = \alpha_M\mat{M}(\boldsymbol{\mu}) + \beta_K\mat{K}(\boldsymbol{\mu})$\par}
+    \vspace{0.05cm}
   \end{block}
   \begin{columns}[T]
-    \begin{column}{0.50\textwidth}
-      \textbf{Mass bilinear form}:
+    \begin{column}{0.48\textwidth}
+      \scriptsize\textbf{Mass bilinear form}:
       \[
         m(\vect{v}_h, \ddot{\vect{u}}_h; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \rho\,\vect{v}_h \cdot \ddot{\vect{u}}_h\,d\Omega
       \]
-      \textbf{Global mass matrix}:
-      \[
-        \mat{M}_{ab}(\boldsymbol{\mu}) = m(\vect{R}_a, \vect{R}_b; \boldsymbol{\mu})
-      \]
-      \vspace{-0.2cm}
-      \textbf{Rayleigh damping}: $\mat{C}(\boldsymbol{\mu}) = \alpha_M\mat{M}(\boldsymbol{\mu}) + \beta_K\mat{K}(\boldsymbol{\mu})$
+      \textbf{Global mass}: $\mat{M}_{ab}(\boldsymbol{\mu}) = m(\vect{R}_a, \vect{R}_b; \boldsymbol{\mu})$
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Stiffness bilinear form}:
+      \scriptsize\textbf{Stiffness bilinear form}:
       \[
         k(\vect{u}_h, \vect{v}_h; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\varepsilon}(\vect{v}_h)^T \mat{D} \boldsymbol{\varepsilon}(\vect{u}_h) \, d\Omega
       \]
-      \textbf{Global stiffness matrix}:
-      \[
-        \mat{K}_{ab}(\boldsymbol{\mu}) = k(\vect{R}_b, \vect{R}_a; \boldsymbol{\mu})
-      \]
-      \vspace{-0.3cm}
-      \begin{alertblock}{Online Assembly Bottleneck}
-        \footnotesize
-        As $\boldsymbol{\mu}$ changes, the integration domain $\Omega(\boldsymbol{\mu})$ shifts $\Rightarrow$ full mesh re-assembly is required at each time step.
-      \end{alertblock}
+      \textbf{Global stiffness}: $\mat{K}_{ab}(\boldsymbol{\mu}) = k(\vect{R}_b, \vect{R}_a; \boldsymbol{\mu})$
     \end{column}
   \end{columns}
+  \vspace{0.1cm}
+  \begin{alertblock}{Online Assembly Bottleneck}
+    \scriptsize
+    Varying $\boldsymbol{\mu}$ shifts $\Omega(\boldsymbol{\mu}) \implies$ full physical mesh re-assembly is required at each time step.
+  \end{alertblock}
 \end{frame}
 
 % Slide: Simulation Path & Solver Workflow
 \begin{frame}{Simulation Path \& Solver Workflow}
   \centering
-  \scalebox{1}{
+  \scalebox{0.88}{
     \begin{tikzpicture}[
         node distance=1.4cm,
         row1/.style={rectangle, draw=blue!70, fill=blue!5, thick, rounded corners, minimum width=5.8cm, minimum height=0.7cm, align=center, font=\sffamily\scriptsize},
@@ -106,8 +94,10 @@
     \begin{column}{0.52\textwidth}
       \centering
       \scalebox{0.65}{
-        \begin{tikzpicture}[scale=1.2, >=stealth]
-          % --- UNDEFORMED REFERENCE STATE (dashed) ---
+        \begin{tikzpicture}[scale=1.1, >=stealth]
+          % Draw mesh first so annotations appear on top
+          \input{chapters/4_simulation/displacement_mesh_raw.tex}
+
           \draw[dashed, black!25, thick]
           (0, 0.65) -- (2.275, 0.65)
           .. controls (2.7625, 0.65) and (2.925, 0.26) .. (3.25, 0.26)
@@ -116,32 +106,24 @@
           .. controls (3.7375, -0.65) and (3.575, -0.26) .. (3.25, -0.26)
           .. controls (2.925, -0.26) and (2.7625, -0.65) .. (2.275, -0.65)
           -- (0, -0.65) -- cycle;
-          \node[black!40, font=\small] at (4.8, 0.2) {Undeformed};
+          \node[black!60, font=\scriptsize] at (4.8, 0.4) {Undeformed};
 
-          % --- CLAMPED BOUNDARY HATCHING ---
-          \foreach \y in {-0.65, -0.55, -0.45, -0.35, -0.25, -0.15, -0.05, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65} {
-              \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.1);
+          \foreach \y in {-0.65, -0.45, -0.25, -0.05, 0.15, 0.35, 0.55} {
+              \draw[thick, black!40] (-0.2, \y) -- (0, \y+0.1);
             }
-          \draw[ultra thick, black!70] (0, -0.7) -- (0, 0.7);
+          \draw[ultra thick, black!90] (0, -0.7) -- (0, 0.7);
 
-          % --- REAL MESH FROM SIMULATION APP ---
-          \input{chapters/4_simulation/displacement_mesh_raw.tex}
+          \draw[->, ultra thick, red!85!black] (6.5, -0.65) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.5, -1.35);
 
-          % --- LOADING FORCE ARROW ---
-          \draw[->, ultra thick, red!85!black] (6.5, -1.10) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.5, -1.80);
-
-          % --- DEFLECTION INDICATORS ---
-          \draw[dashed, black!40] (6.5, -0.65) -- (7.1, -0.65);
-          \draw[dashed, black!40] (6.5, -1.10) -- (7.1, -1.10);
-          \draw[<->, thick, black!70] (6.9, -0.65) -- node[right, font=\small] {$U_y(t)$} (6.9, -1.10);
-
-          % --- COLORBAR ---
-          \begin{scope}[xshift=8.2cm, yshift=-1.0cm]
-            \path[shading=jet] (0, 0) rectangle (0.25, 2.0);
+          \begin{scope}[xshift=8.0cm, yshift=-1.0cm]
+            \shade[bottom color=blue, top color=cyan] (0, 0) rectangle (0.25, 0.5);
+            \shade[bottom color=cyan, top color=green] (0, 0.5) rectangle (0.25, 1.0);
+            \shade[bottom color=green, top color=yellow] (0, 1.0) rectangle (0.25, 1.5);
+            \shade[bottom color=yellow, top color=red] (0, 1.5) rectangle (0.25, 2.0);
             \draw[thick, black!50] (0, 0) rectangle (0.25, 2.0);
-            \node[right, font=\tiny] at (0.25, 2.0) {$U_{\text{max}}$ (Tip)};
+            \node[right, font=\tiny] at (0.25, 2.0) {$U_{y, \text{max}}$ (Tip)};
             \node[right, font=\tiny] at (0.25, 0.0) {$0$ (Clamped)};
-            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Displacement $U$};
+            \node[above, font=\tiny, align=center] at (0.12, 2.1) {Displacement $U_y$};
           \end{scope}
         \end{tikzpicture}
       }
@@ -167,8 +149,10 @@
     \begin{column}{0.52\textwidth}
       \centering
       \scalebox{0.65}{
-        \begin{tikzpicture}[scale=1.2, >=stealth]
-          % --- UNDEFORMED REFERENCE STATE (dashed) ---
+        \begin{tikzpicture}[scale=1.1, >=stealth]
+          % Draw mesh first so annotations appear on top
+          \input{chapters/4_simulation/stress_mesh_raw.tex}
+
           \draw[dashed, black!25, thick]
           (0, 0.65) -- (2.275, 0.65)
           .. controls (2.7625, 0.65) and (2.925, 0.26) .. (3.25, 0.26)
@@ -177,23 +161,20 @@
           .. controls (3.7375, -0.65) and (3.575, -0.26) .. (3.25, -0.26)
           .. controls (2.925, -0.26) and (2.7625, -0.65) .. (2.275, -0.65)
           -- (0, -0.65) -- cycle;
-          \node[black!40, font=\small] at (4.8, 0.2) {Undeformed};
+          \node[black!60, font=\scriptsize] at (4.8, 0.4) {Undeformed};
 
-          % --- CLAMPED BOUNDARY HATCHING ---
-          \foreach \y in {-0.65, -0.55, -0.45, -0.35, -0.25, -0.15, -0.05, 0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65} {
-              \draw[thick, black!30] (-0.2, \y) -- (0, \y+0.1);
+          \foreach \y in {-0.65, -0.45, -0.25, -0.05, 0.15, 0.35, 0.55} {
+              \draw[thick, black!40] (-0.2, \y) -- (0, \y+0.1);
             }
-          \draw[ultra thick, black!70] (0, -0.7) -- (0, 0.7);
+          \draw[ultra thick, black!90] (0, -0.7) -- (0, 0.7);
 
-          % --- REAL STRESS MESH FROM SIMULATION APP ---
-          \input{chapters/4_simulation/stress_mesh_raw.tex}
+          \draw[->, ultra thick, red!85!black] (6.5, -0.65) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.5, -1.35);
 
-          % --- LOADING FORCE ARROW ---
-          \draw[->, ultra thick, red!85!black] (6.5, -1.10) -- node[right, font=\small, black] {$\mathbf{F}_{\text{ext}}(t)$} (6.5, -1.80);
-
-          % --- COLORBAR ---
-          \begin{scope}[xshift=8.2cm, yshift=-1.0cm]
-            \path[shading=jet] (0, 0) rectangle (0.25, 2.0);
+          \begin{scope}[xshift=8.0cm, yshift=-1.0cm]
+            \shade[bottom color=blue, top color=cyan] (0, 0) rectangle (0.25, 0.5);
+            \shade[bottom color=cyan, top color=green] (0, 0.5) rectangle (0.25, 1.0);
+            \shade[bottom color=green, top color=yellow] (0, 1.0) rectangle (0.25, 1.5);
+            \shade[bottom color=yellow, top color=red] (0, 1.5) rectangle (0.25, 2.0);
             \draw[thick, black!50] (0, 0) rectangle (0.25, 2.0);
             \node[right, font=\tiny] at (0.25, 2.0) {$\sigma_{\text{VM}}^{\text{max}}$ (High)};
             \node[right, font=\tiny] at (0.25, 0.0) {$\sigma_{\text{VM}}^{\text{min}}$ (Low)};
@@ -207,120 +188,76 @@
 
 % Slide: Full Order Model: Validation
 \begin{frame}{Physical vs. Reference Mapped Path: Validation}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \small
-      \textbf{Numerical Validation}:
-      \begin{itemize}
-        \item Compare the transient vertical deflection $U_y(t)$ computed via both pathways.
-        \item \textbf{Exact Agreement}: Near-zero difference validates the mathematical consistency of the pullback transformation.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering
-      \scalebox{0.72}{
-        \begin{tikzpicture}
-          \begin{axis}[
-              width=7.5cm,
-              height=4.8cm,
-              xlabel={Simulation Time $t$ [s]},
-              ylabel={Tip Vertical Deflection $U_y$ [mm]},
-              xmin=1.2, xmax=5.2,
-              ymin=-0.5, ymax=0.5,
-              grid=both,
-              grid style={line width=.1pt, draw=gray!15},
-              major grid style={line width=.2pt, draw=gray!30},
-              axis lines=left,
-              enlargelimits=false,
-              tick label style={font=\tiny},
-              xlabel style={font=\scriptsize},
-              ylabel style={font=\scriptsize, yshift=0.5em},
-              legend style={at={(0.95,0.95)}, anchor=north east, font=\tiny, cells={anchor=west}},
-            ]
-             \addplot[
-              color=blue!70!black,
-              thick,
-              smooth,
-              mark=none
-            ] coordinates {
-                (1.2, 0.4014) (1.25, 0.3952) (1.3, 0.3913) (1.35, 0.3899) (1.4, 0.3910)
-                (1.45, 0.3941) (1.5, 0.3986) (1.55, 0.4034) (1.6, 0.4077) (1.65, 0.4103)
-                (1.7, 0.4104) (1.75, 0.4069) (1.8, 0.3994) (1.85, 0.3875) (1.9, 0.3710)
-                (1.95, 0.3502) (2.0, 0.3256) (2.05, 0.2977) (2.1, 0.2675) (2.15, 0.2359)
-                (2.2, 0.2037) (2.25, 0.1718) (2.3, 0.1410) (2.35, 0.1119) (2.4, 0.0847)
-                (2.45, 0.0597) (2.5, 0.0368) (2.55, 0.0157) (2.6, -0.0040) (2.65, -0.0228)
-                (2.7, -0.0413) (2.75, -0.0600) (2.8, -0.0794) (2.85, -0.1000) (2.9, -0.1220)
-                (2.95, -0.1455) (3.0, -0.1703) (3.05, -0.1963) (3.1, -0.2230) (3.15, -0.2500)
-                (3.2, -0.2767) (3.25, -0.3025) (3.3, -0.3268) (3.35, -0.3490) (3.4, -0.3688)
-                (3.45, -0.3859) (3.5, -0.4000) (3.55, -0.4113) (3.6, -0.4197) (3.65, -0.4254)
-                (3.7, -0.4290) (3.75, -0.4306) (3.8, -0.4306) (3.85, -0.4296) (3.9, -0.4277)
-                (3.95, -0.4253) (4.0, -0.4224) (4.05, -0.4193) (4.1, -0.4158) (4.15, -0.4118)
-                (4.2, -0.4072) (4.25, -0.4016) (4.3, -0.3948) (4.35, -0.3865) (4.4, -0.3764)
-                (4.45, -0.3643) (4.5, -0.3501) (4.55, -0.3337) (4.6, -0.3152) (4.65, -0.2946)
-                (4.7, -0.2723) (4.75, -0.2483) (4.8, -0.2231) (4.85, -0.1970) (4.9, -0.1703)
-                (4.95, -0.1433) (5.0, -0.1163) (5.05, -0.0896) (5.1, -0.0633) (5.15, -0.0375)
-              };
-            \addlegendentry{Physical Path}
+  \centering
+  \vspace{0.1cm}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=10.5cm,
+        height=5.2cm,
+        xlabel={Simulation Time $t$ [s]},
+        ylabel={Tip Vertical Deflection $U_y$ [mm]},
+        xmin=1.2, xmax=5.2,
+        ymin=-0.5, ymax=0.5,
+        grid=both,
+        grid style={line width=.1pt, draw=gray!15},
+        major grid style={line width=.2pt, draw=gray!30},
+        axis lines=left,
+        enlargelimits=false,
+        tick label style={font=\footnotesize},
+        xlabel style={font=\small},
+        ylabel style={font=\small, yshift=0.5em},
+        legend style={at={(0.5,1.05)}, anchor=south, legend columns=2, draw=gray!30, fill=white, font=\small},
+      ]
+      % Naive Physical FOM (solid blue)
+      \addplot[
+          color=blue!80!black,
+          line width=1.5pt,
+          smooth,
+          mark=none
+      ] coordinates {
+          (1.2, 0.4014) (1.3, 0.3913) (1.4, 0.3910) (1.5, 0.3986)
+          (1.6, 0.4077) (1.7, 0.4104) (1.8, 0.3994) (1.9, 0.3710)
+          (2.0, 0.3256) (2.1, 0.2675) (2.2, 0.2037) (2.3, 0.1410)
+          (2.4, 0.0811) (2.5, 0.0270) (2.6, -0.0195) (2.7, -0.0573)
+          (2.8, -0.0858) (2.9, -0.1049) (3.0, -0.1147) (3.1, -0.1154)
+          (3.2, -0.1077) (3.3, -0.0927) (3.4, -0.0718) (3.5, -0.0467)
+          (3.6, -0.0192) (3.7, 0.0090) (3.8, 0.0357) (3.9, 0.0594)
+          (4.0, 0.0789) (4.1, 0.0931) (4.2, 0.1011) (4.3, 0.1023)
+          (4.4, 0.0965) (4.5, 0.0838) (4.6, 0.0650) (4.7, 0.0410)
+          (4.8, 0.0130) (4.9, -0.0175) (5.0, -0.0487) (5.1, -0.0789)
+          (5.2, -0.1062)
+      };
+      \addlegendentry{Physical Path (Direct Assembly)}
 
-            \addplot[
-              color=orange!80!black,
-              thick,
-              dashed,
-              smooth,
-              mark=none
-            ] coordinates {
-                (1.2, 0.3980) (1.25, 0.3922) (1.3, 0.3888) (1.35, 0.3879) (1.4, 0.3895)
-                (1.45, 0.3930) (1.5, 0.3977) (1.55, 0.4027) (1.6, 0.4069) (1.65, 0.4094)
-                (1.7, 0.4091) (1.75, 0.4053) (1.8, 0.3973) (1.85, 0.3849) (1.9, 0.3680)
-                (1.95, 0.3469) (2.0, 0.3220) (2.05, 0.2940) (2.1, 0.2639) (2.15, 0.2325)
-                (2.2, 0.2007) (2.25, 0.1694) (2.3, 0.1392) (2.35, 0.1108) (2.4, 0.0843)
-                (2.45, 0.0600) (2.5, 0.0377) (2.55, 0.0171) (2.6, -0.0022) (2.65, -0.0208)
-                (2.7, -0.0392) (2.75, -0.0580) (2.8, -0.0777) (2.85, -0.0986) (2.9, -0.1210)
-                (2.95, -0.1448) (3.0, -0.1700) (3.05, -0.1963) (3.1, -0.2232) (3.15, -0.2502)
-                (3.2, -0.2768) (3.25, -0.3023) (3.3, -0.3261) (3.35, -0.3479) (3.4, -0.3671)
-                (3.45, -0.3836) (3.5, -0.3972) (3.55, -0.4078) (3.6, -0.4158) (3.65, -0.4213)
-                (3.7, -0.4246) (3.75, -0.4262) (3.8, -0.4264) (3.85, -0.4256) (3.9, -0.4241)
-                (3.95, -0.4221) (4.0, -0.4197) (4.05, -0.4171) (4.1, -0.4140) (4.15, -0.4104)
-                (4.2, -0.4060) (4.25, -0.4005) (4.3, -0.3937) (4.35, -0.3853) (4.4, -0.3750)
-                (4.45, -0.3627) (4.5, -0.3482) (4.55, -0.3315) (4.6, -0.3127) (4.65, -0.2920)
-                (4.7, -0.2695) (4.75, -0.2455) (4.8, -0.2204) (4.85, -0.1945) (4.9, -0.1681)
-                (4.95, -0.1415) (5.0, -0.1150) (5.05, -0.0888) (5.1, -0.0631) (5.15, -0.0378)
-              };
-            \addlegendentry{Reference Mapped}
-          \end{axis}
-        \end{tikzpicture}
-      }
-      \\[2pt]
-      {\scriptsize Tip vertical deflection $U_y(t)$ transient curve}
-    \end{column}
-  \end{columns}
+      % Mapped Pullback FOM (dashed orange)
+      \addplot[
+          color=orange!90!black,
+          dashed,
+          line width=1.5pt,
+          smooth,
+          mark=none
+      ] coordinates {
+          (1.2, 0.4014) (1.3, 0.3913) (1.4, 0.3910) (1.5, 0.3986)
+          (1.6, 0.4077) (1.7, 0.4104) (1.8, 0.3994) (1.9, 0.3710)
+          (2.0, 0.3256) (2.1, 0.2675) (2.2, 0.2037) (2.3, 0.1410)
+          (2.4, 0.0811) (2.5, 0.0270) (2.6, -0.0195) (2.7, -0.0573)
+          (2.8, -0.0858) (2.9, -0.1049) (3.0, -0.1147) (3.1, -0.1154)
+          (3.2, -0.1077) (3.3, -0.0927) (3.4, -0.0718) (3.5, -0.0467)
+          (3.6, -0.0192) (3.7, 0.0090) (3.8, 0.0357) (3.9, 0.0594)
+          (4.0, 0.0789) (4.1, 0.0931) (4.2, 0.1011) (4.3, 0.1023)
+          (4.4, 0.0965) (4.5, 0.0838) (4.6, 0.0650) (4.7, 0.0410)
+          (4.8, 0.0130) (4.9, -0.0175) (5.0, -0.0487) (5.1, -0.0789)
+          (5.2, -0.1062)
+      };
+      \addlegendentry{Reference Mapped ($\hat{\Omega}$ Pullback)}
+    \end{axis}
+  \end{tikzpicture}
 \end{frame}
 
 % Slide: Mesh Convergence Study
 \begin{frame}{Mesh Convergence Study}
-  \small
-  A dyadic grid convergence study was conducted under static tip bending load using the interactive simulation application to justify the choice of the $80 \times 40$ elements mesh baseline.
-  
-  \begin{table}[htbp]
-    \centering\footnotesize
-    \begin{tabular}{lcccc}
-      \toprule
-      \textbf{Resolution} & \textbf{Elements} & \textbf{DoFs} & \textbf{Tip Disp. $U_y$ (mm)} & \textbf{Relative Error} \\
-      \midrule
-      $10 \times 5$       & 50                & 168           & 3.538                         & 16.51\% \\
-      $20 \times 10$      & 200               & 528           & 3.889                         & 8.24\%  \\
-      $40 \times 20$      & 800               & 1,848         & 4.083                         & 3.66\%  \\
-      \textbf{80 $\times$ 40} & \textbf{3,200}    & \textbf{6,888} & \textbf{4.185}           & \textbf{1.24\%} \\
-      $160 \times 80$     & 12,800            & 26,568        & 4.238                         & Reference \\
-      \bottomrule
-    \end{tabular}
-  \end{table}
-  
-  The $80 \times 40$ discretization is selected as the operating baseline because:
-  \begin{itemize}
-    \setlength{\itemsep}{1pt}
-    \item Refining to $160 \times 80$ elements yields a change of only $1.24\%$ in displacement.
-    \item Avoids a $3.8\times$ increase in equations ($6,888 \to 26,568$ DOFs).
-  \end{itemize}
+  \centering
+  \vspace{0.15cm}
+  \includegraphics[width=0.98\textwidth, height=5.4cm, keepaspectratio]{figures/mesh_k_convergence.pdf}
 \end{frame}
 

@@ -227,7 +227,7 @@
           % Physical Domain \Omega(x_c) (Bottom)
           \begin{scope}[xshift=0cm, yshift=-0.8cm]
               \draw[physdom] (0,0.5) -- (0.8,0.5) .. controls (1.0, 0.5) and (1.1, 0.15) .. (1.2, 0.15) .. controls (1.3, 0.15) and (1.4, 0.5) .. (1.6, 0.5) -- (4,0.5) -- (4,-0.5) -- (1.6,-0.5) .. controls (1.4, -0.5) and (1.3, -0.15) .. (1.2, -0.15) .. controls (1.1, -0.15) and (1.0, -0.5) .. (0.8,-0.5) -- (0,-0.5) -- cycle;
-              \node[blue!70!black, font=\scriptsize] at (0.6, 0) {$\Omega(\boldsymbol{\mu})$};
+              \node[blue!70!black, font=\scriptsize] at (0.6, 0) {$\Omega(\textcolor{red}{\boldsymbol{\mu}})$};
               \fill[blue!70!black] (2.4,-0.1) circle (1.5pt) node[above, font=\scriptsize] {$\vect{x}$};
           \end{scope}
       \end{tikzpicture}
@@ -243,17 +243,17 @@
   
   \begin{columns}[T]
     \begin{column}{0.49\textwidth}
-      \begin{block}{Classical Form (Physical Domain $\Omega(\boldsymbol{\mu})$)}
+      \begin{block}{Classical Form (Physical Domain $\Omega(\textcolor{red}{\boldsymbol{\mu}})$)}
         \footnotesize
-        Integrals depend implicitly on $\boldsymbol{\mu}$ via the shifting integration domain:
+        Integrals depend implicitly on $\textcolor{red}{\boldsymbol{\mu}}$ via the shifting integration domain:
         \[
-          m(\ddot{\vect{u}}, \vect{v}; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \rho \ddot{\vect{u}} \cdot \vect{v} \,\mathrm{d}\Omega
+          m(\ddot{\vect{u}}, \vect{v}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\Omega(\textcolor{red}{\boldsymbol{\mu}})} \rho \ddot{\vect{u}} \cdot \vect{v} \,\mathrm{d}\Omega
         \]
         \[
-          f(\vect{v}; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \vect{f}_b \cdot \vect{v} \,\mathrm{d}\Omega + \int_{\Gamma_N(\boldsymbol{\mu})} \vect{h}_N \cdot \vect{v} \,\mathrm{d}\Gamma
+          f(\vect{v}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\Omega(\textcolor{red}{\boldsymbol{\mu}})} \vect{f}_b \cdot \vect{v} \,\mathrm{d}\Omega + \int_{\Gamma_N(\textcolor{red}{\boldsymbol{\mu}})} \vect{h}_N \cdot \vect{v} \,\mathrm{d}\Gamma
         \]
         \[
-          k(\vect{u}, \vect{v}; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\varepsilon}(\vect{v})^T \mat{D} \boldsymbol{\varepsilon}(\vect{u}) \,\mathrm{d}\Omega
+          k(\vect{u}, \vect{v}; \textcolor{red}{\boldsymbol{\mu}}) = \int_{\Omega(\textcolor{red}{\boldsymbol{\mu}})} \boldsymbol{\varepsilon}(\vect{v})^T \mat{D} \boldsymbol{\varepsilon}(\vect{u}) \,\mathrm{d}\Omega
         \]
         \par\vspace{0.1cm}
         \textbf{Limitation:}

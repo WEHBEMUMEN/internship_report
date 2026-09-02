@@ -6,11 +6,11 @@
       \begin{block}{Explicit}
         \centering
         \scalebox{0.8}{
-        \begin{tikzpicture}[scale=0.85, >=stealth]
-          \draw[->, gray, thin] (-1.1,0) -- (1.1,0) node[right, font=\tiny] {$x$};
-          \draw[->, gray, thin] (0,-0.2) -- (0,1.1) node[above, font=\tiny] {$y$};
-          \draw[thick, red!70!black, domain=-0.9:0.9, samples=20] plot (\x, {\x*\x});
-        \end{tikzpicture}
+          \begin{tikzpicture}[scale=0.85, >=stealth]
+            \draw[->, gray, thin] (-1.1,0) -- (1.1,0) node[right, font=\tiny] {$x$};
+            \draw[->, gray, thin] (0,-0.2) -- (0,1.1) node[above, font=\tiny] {$y$};
+            \draw[thick, red!70!black, domain=-0.9:0.9, samples=20] plot (\x, {\x*\x});
+          \end{tikzpicture}
         }
         \par\vspace{0.1cm}
         \centering\small \textcolor{red!70!black}{$y = x^2$}
@@ -23,11 +23,11 @@
       \begin{block}{Implicit}
         \centering
         \scalebox{0.8}{
-        \begin{tikzpicture}[scale=0.85, >=stealth]
-          \draw[->, gray, thin] (-1.1,0) -- (1.1,0) node[right, font=\tiny] {$x$};
-          \draw[->, gray, thin] (0,-1.1) -- (0,1.1) node[above, font=\tiny] {$y$};
-          \draw[thick, blue!70!black] (0,0) circle (0.7);
-        \end{tikzpicture}
+          \begin{tikzpicture}[scale=0.85, >=stealth]
+            \draw[->, gray, thin] (-1.1,0) -- (1.1,0) node[right, font=\tiny] {$x$};
+            \draw[->, gray, thin] (0,-1.1) -- (0,1.1) node[above, font=\tiny] {$y$};
+            \draw[thick, blue!70!black] (0,0) circle (0.7);
+          \end{tikzpicture}
         }
         \par\vspace{0.1cm}
         \centering\small \textcolor{blue!70!black}{$x^2 + y^2 - R^2 = 0$}
@@ -40,12 +40,12 @@
       \begin{alertblock}{Parametric}
         \centering
         \scalebox{0.8}{
-        \begin{tikzpicture}[scale=0.85, >=stealth]
-          \draw[->, gray, thin] (-1.1,0) -- (1.1,0) node[right, font=\tiny] {$x$};
-          \draw[->, gray, thin] (0,-1.1) -- (0,1.1) node[above, font=\tiny] {$y$};
-          \draw[thick, green!60!black] (0,0) circle (0.7);
-          \draw[green!60!black, ->, >=latex, line width=1pt] (0.7,0) arc (0:45:0.7) node[right, font=\tiny, yshift=2pt] {$s$};
-        \end{tikzpicture}
+          \begin{tikzpicture}[scale=0.85, >=stealth]
+            \draw[->, gray, thin] (-1.1,0) -- (1.1,0) node[right, font=\tiny] {$x$};
+            \draw[->, gray, thin] (0,-1.1) -- (0,1.1) node[above, font=\tiny] {$y$};
+            \draw[thick, green!60!black] (0,0) circle (0.7);
+            \draw[green!60!black, ->, >=latex, line width=1pt] (0.7,0) arc (0:45:0.7) node[right, font=\tiny, yshift=2pt] {$s$};
+          \end{tikzpicture}
         }
         \par\vspace{0.1cm}
         \centering\small \textcolor{green!60!black}{$\begin{cases} x(s) = R\cos(s) \\ y(s) = R\sin(s) \end{cases}$}
@@ -60,8 +60,8 @@
 % Slide: Why IGA?
 \begin{frame}{Why IGA?}
   \small
-  IGA bridges the gap between CAD and FEA by using CAD basis functions for analysis:
-  
+  IGA closes the gap between CAD and FEA by using CAD basis functions for analysis:
+
   \begin{itemize}
     \setlength{\itemsep}{0.4cm}
     \item \textbf{Direct CAD Integration:} Runs simulations directly on NURBS geometry, bypassing time-consuming mesh generation.
@@ -72,52 +72,44 @@
 
 % Slide: Core Ingredients of IGA
 \begin{frame}{The Core Ingredients of IGA}
-  \begin{columns}[t]
+  \begin{columns}[T]
     \begin{column}{0.48\textwidth}
       \begin{block}{1. Knot Vector}
-        \begin{minipage}[t][3.0cm]{\textwidth}
         \scriptsize
         Ordered set of parametric coordinates:
         \[
           \Xi = \{\xi_0, \xi_1, \dots, \xi_m\}
         \]
-        Non-zero knot spans partition the parametric domain into elements.
-        \end{minipage}
+        Non-zero knot spans partition the domain into elements.
       \end{block}
       \vspace{0.1cm}
       \begin{block}{3. Weights (NURBS)}
-        \begin{minipage}[t][3.0cm]{\textwidth}
         \scriptsize
-        Weights $w_i$ rationalise the basis functions to construct NURBS:
+        Weights $w_i$ rationalise the basis functions:
         \[
           R_{i,p}(\xi) = \frac{N_{i,p}(\xi)w_i}{\sum_j N_{j,p}(\xi)w_j}
         \]
-        Allows exact representation of conic shapes (circles, cylinders).
-        \end{minipage}
+        Allows exact representation of conic shapes.
       \end{block}
     \end{column}
-    
+
     \begin{column}{0.48\textwidth}
       \begin{block}{2. B-Spline Basis}
-        \begin{minipage}[t][3.0cm]{\textwidth}
         \scriptsize
-        Polynomial basis functions constructed recursively over $\Xi$ via Cox-de Boor:
+        Polynomial basis constructed via Cox-de Boor:
         \[
           N_{i,0}(\xi) = \begin{cases} 1 & \xi_i \le \xi < \xi_{i+1} \\ 0 & \text{otherwise} \end{cases}
         \]
-        Yields $C^{p-1}$ continuity across internal element boundaries.
-        \end{minipage}
+        Yields $C^{p-1}$ continuity across internal elements.
       \end{block}
       \vspace{0.1cm}
       \begin{block}{4. Control Points}
-        \begin{minipage}[t][3.0cm]{\textwidth}
         \scriptsize
-        Physical coordinates $\vect{P}_i$ that parameterize the geometry:
+        Physical coordinates $\vect{P}_i$ that parameterize geometry:
         \[
           \vect{C}(\xi) = \sum_i R_{i,p}(\xi)\,\vect{P}_i
         \]
-        Read directly from CAD formats (\textbf{`.stp`}, \textbf{`.igs`}), avoiding standard FE mesh generation.
-        \end{minipage}
+        Read directly from CAD formats (\textbf{`.stp`}, \textbf{`.igs`}).
       \end{block}
     \end{column}
   \end{columns}
@@ -154,17 +146,17 @@
         \definecolor{n4color}{RGB}{124,58,237}
         \definecolor{n5color}{RGB}{219,39,119}
         \begin{axis}[
-          width=5.8cm, height=4.0cm,
-          xmin=0, xmax=1, ymin=0, ymax=1.05,
-          xlabel={$\xi$}, ylabel={$N_{i,2}(\xi)$},
-          tick label style={font=\tiny},
-          xlabel style={font=\scriptsize},
-          ylabel style={font=\scriptsize},
-          xtick={0,0.25,0.5,0.75,1.0},
-          xticklabels={0, 0.25, 0.5, 0.75, 1.0},
-          grid=both, grid style={gray!15},
-          axis lines=left
-        ]
+            width=5.8cm, height=4.0cm,
+            xmin=0, xmax=1, ymin=0, ymax=1.05,
+            xlabel={$\xi$}, ylabel={$N_{i,2}(\xi)$},
+            tick label style={font=\tiny},
+            xlabel style={font=\scriptsize},
+            ylabel style={font=\scriptsize},
+            xtick={0,0.25,0.5,0.75,1.0},
+            xticklabels={0, 0.25, 0.5, 0.75, 1.0},
+            grid=both, grid style={gray!15},
+            axis lines=left
+          ]
           % N_{0,2}
           \addplot[n0color, thick, domain=0:0.25, samples=50] {(1-4*x)^2};
           % N_{1,2}
@@ -211,26 +203,26 @@
     \begin{column}{0.48\textwidth}
       \centering
       \scalebox{0.9}{
-      \begin{tikzpicture}[scale=1.0, >=stealth]
-        \coordinate (P0) at (0, 0);
-        \coordinate (P1) at (1.5, 2.5);
-        \coordinate (P2) at (3.5, 3.0);
-        \coordinate (P3) at (5.0, 1.0);
-        \coordinate (P4) at (7.0, 2.5);
+        \begin{tikzpicture}[scale=1.0, >=stealth]
+          \coordinate (P0) at (0, 0);
+          \coordinate (P1) at (1.5, 2.5);
+          \coordinate (P2) at (3.5, 3.0);
+          \coordinate (P3) at (5.0, 1.0);
+          \coordinate (P4) at (7.0, 2.5);
 
-        % Draw control polygon (dashed)
-        \draw[thick, gray, dashed] (P0) -- (P1) -- (P2) -- (P3) -- (P4);
+          % Draw control polygon (dashed)
+          \draw[thick, gray, dashed] (P0) -- (P1) -- (P2) -- (P3) -- (P4);
 
-        % Draw actual B-spline curve
-        \draw[ultra thick, blue!70!black] (P0) .. controls (1.0,1.8) and (2.5,2.5) .. (3.5,2.1) .. controls (4.5,1.7) and (5.8,1.2) .. (P4);
+          % Draw actual B-spline curve
+          \draw[ultra thick, blue!70!black] (P0) .. controls (1.0,1.8) and (2.5,2.5) .. (3.5,2.1) .. controls (4.5,1.7) and (5.8,1.2) .. (P4);
 
-        % Draw control points
-        \foreach \p/\l/\pos in {P0/P_0/left, P1/P_1/above, P2/P_2/above, P3/P_3/below, P4/P_4/right} {
-            \fill[red!80!black] (\p) circle (2.5pt);
-            \node[\pos, font=\scriptsize] at (\p) {$\vect{\l}$};
-        }
-        \node[blue!70!black, above, font=\small] at (3, 1.2) {$\vect{C}(\xi)$};
-      \end{tikzpicture}
+          % Draw control points
+          \foreach \p/\l/\pos in {P0/P_0/left, P1/P_1/above, P2/P_2/above, P3/P_3/below, P4/P_4/right} {
+              \fill[red!80!black] (\p) circle (2.5pt);
+              \node[\pos, font=\scriptsize] at (\p) {$\vect{\l}$};
+            }
+          \node[blue!70!black, above, font=\small] at (3, 1.2) {$\vect{C}(\xi)$};
+        \end{tikzpicture}
       }
     \end{column}
   \end{columns}
@@ -251,60 +243,60 @@
     \begin{column}{0.55\textwidth}
       \centering
       \scalebox{0.55}{
-      \begin{tikzpicture}[
-              declare function={
-                      n0(\t) = (\t < 0.25) * ((1-4*\t)^2);
-                      n2(\t) = (\t < 0.25) * (8*\t^2) +
-                      (\t >= 0.25) * (\t < 0.5) * (12*\t - 16*\t^2 - 1.5) +
-                      (\t >= 0.5) * (\t < 0.75) * (8*(0.75-\t)^2);
-                  }
+        \begin{tikzpicture}[
+            declare function={
+                n0(\t) = (\t < 0.25) * ((1-4*\t)^2);
+                n2(\t) = (\t < 0.25) * (8*\t^2) +
+                (\t >= 0.25) * (\t < 0.5) * (12*\t - 16*\t^2 - 1.5) +
+                (\t >= 0.5) * (\t < 0.75) * (8*(0.75-\t)^2);
+              }
           ]
           % Panel (a) Axis
           \begin{axis}[
-                  at={(0,0)},
-                  width=5.8cm,
-                  height=4.8cm,
-                  grid=major,
-                  xlabel={$\xi$},
-                  ylabel={$\eta$},
-                  zlabel={$R_{0,2}$},
-                  colormap/viridis,
-                  view={60}{30},
-                  zmin=0, zmax=0.8,
-                  title={\scriptsize (a) Boundary basis function $R_{0,2}$}
-              ]
-              \addplot3[
-                  surf,
-                  domain=0:0.8,
-                  domain y=0:0.8,
-                  samples=15,
-                  shader=faceted
-              ] {n0(x)*n2(y)};
+              at={(0,0)},
+              width=5.8cm,
+              height=4.8cm,
+              grid=major,
+              xlabel={$\xi$},
+              ylabel={$\eta$},
+              zlabel={$R_{0,2}$},
+              colormap/viridis,
+              view={60}{30},
+              zmin=0, zmax=0.8,
+              title={\scriptsize (a) Boundary basis function $R_{0,2}$}
+            ]
+            \addplot3[
+              surf,
+              domain=0:0.8,
+              domain y=0:0.8,
+              samples=15,
+              shader=faceted
+            ] {n0(x)*n2(y)};
           \end{axis}
 
           % Panel (b) Axis
           \begin{axis}[
-                  at={(6.5cm,0)},
-                  width=5.8cm,
-                  height=4.8cm,
-                  grid=major,
-                  xlabel={$\xi$},
-                  ylabel={$\eta$},
-                  zlabel={$R_{2,2}$},
-                  colormap/viridis,
-                  view={60}{30},
-                  zmin=0, zmax=0.8,
-                  title={\scriptsize (b) Internal basis function $R_{2,2}$}
-              ]
-              \addplot3[
-                  surf,
-                  domain=0:0.8,
-                  domain y=0:0.8,
-                  samples=15,
-                  shader=faceted
-              ] {n2(x)*n2(y)};
+              at={(6.5cm,0)},
+              width=5.8cm,
+              height=4.8cm,
+              grid=major,
+              xlabel={$\xi$},
+              ylabel={$\eta$},
+              zlabel={$R_{2,2}$},
+              colormap/viridis,
+              view={60}{30},
+              zmin=0, zmax=0.8,
+              title={\scriptsize (b) Internal basis function $R_{2,2}$}
+            ]
+            \addplot3[
+              surf,
+              domain=0:0.8,
+              domain y=0:0.8,
+              samples=15,
+              shader=faceted
+            ] {n2(x)*n2(y)};
           \end{axis}
-      \end{tikzpicture}
+        \end{tikzpicture}
       }
       \\[2pt]
       {\scriptsize 3D surface plot of boundary vs. internal bivariate B-spline functions}
@@ -321,13 +313,13 @@
       \textbf{Tensor-Product NURBS}:
       \begin{itemize}
         \item Bivariate rational basis functions $R_{i,j}^{p,q}(\xi, \eta)$ extend 1D B-splines to 2D surfaces:
-        \[
-          R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k} \sum_{l} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
-        \]
+              \[
+                R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k} \sum_{l} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
+              \]
         \item Geometric mapping $\vect{S}(\xi, \eta)$ maps the parametric square $[0,1]^2$ to the physical 2D domain:
-        \[
-          \vect{S}(\xi, \eta) = \sum_{i} \sum_{j} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
-        \]
+              \[
+                \vect{S}(\xi, \eta) = \sum_{i} \sum_{j} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
+              \]
         \item $\vect{P}_{i,j}$ forms a bidimensional control net lattice.
       \end{itemize}
       \par\vspace{0.2cm}
@@ -337,48 +329,48 @@
     \begin{column}{0.48\textwidth}
       \centering
       \scalebox{0.85}{
-      \begin{tikzpicture}[scale=1.0, >=stealth]
-        % Row 0 (bottom)
-        \coordinate (P00) at (0, 0);
-        \coordinate (P10) at (2, 0.2);
-        \coordinate (P20) at (4, 0);
-        % Row 1 (middle)
-        \coordinate (P01) at (0.5, 1.0);
-        \coordinate (P11) at (2.5, 1.7); % raised in the middle
-        \coordinate (P21) at (4.5, 1.0);
-        % Row 2 (top)
-        \coordinate (P02) at (1.0, 2.0);
-        \coordinate (P12) at (3.0, 2.2);
-        \coordinate (P22) at (5.0, 2.0);
+        \begin{tikzpicture}[scale=1.0, >=stealth]
+          % Row 0 (bottom)
+          \coordinate (P00) at (0, 0);
+          \coordinate (P10) at (2, 0.2);
+          \coordinate (P20) at (4, 0);
+          % Row 1 (middle)
+          \coordinate (P01) at (0.5, 1.0);
+          \coordinate (P11) at (2.5, 1.7); % raised in the middle
+          \coordinate (P21) at (4.5, 1.0);
+          % Row 2 (top)
+          \coordinate (P02) at (1.0, 2.0);
+          \coordinate (P12) at (3.0, 2.2);
+          \coordinate (P22) at (5.0, 2.0);
 
-        % Draw control net (dashed grid)
-        \draw[thick, gray!60, dashed] (P00) -- (P10) -- (P20);
-        \draw[thick, gray!60, dashed] (P01) -- (P11) -- (P21);
-        \draw[thick, gray!60, dashed] (P02) -- (P12) -- (P22);
-        \draw[thick, gray!60, dashed] (P00) -- (P01) -- (P02);
-        \draw[thick, gray!60, dashed] (P10) -- (P11) -- (P12);
-        \draw[thick, gray!60, dashed] (P20) -- (P21) -- (P22);
+          % Draw control net (dashed grid)
+          \draw[thick, gray!60, dashed] (P00) -- (P10) -- (P20);
+          \draw[thick, gray!60, dashed] (P01) -- (P11) -- (P21);
+          \draw[thick, gray!60, dashed] (P02) -- (P12) -- (P22);
+          \draw[thick, gray!60, dashed] (P00) -- (P01) -- (P02);
+          \draw[thick, gray!60, dashed] (P10) -- (P11) -- (P12);
+          \draw[thick, gray!60, dashed] (P20) -- (P21) -- (P22);
 
-        % Draw the smooth surface patch (colored patch)
-        \fill[blue!10, opacity=0.7, draw=blue!70!black, thick]
-        (P00) .. controls (1.0, 0.1) and (3.0, 0.1) .. (P20)
-        .. controls (4.3, 0.6) and (4.7, 1.4) .. (P22)
-        .. controls (4.0, 2.1) and (2.0, 2.1) .. (P02)
-        .. controls (0.7, 1.4) and (0.3, 0.6) .. (P00);
+          % Draw the smooth surface patch (colored patch)
+          \fill[blue!10, opacity=0.7, draw=blue!70!black, thick]
+          (P00) .. controls (1.0, 0.1) and (3.0, 0.1) .. (P20)
+          .. controls (4.3, 0.6) and (4.7, 1.4) .. (P22)
+          .. controls (4.0, 2.1) and (2.0, 2.1) .. (P02)
+          .. controls (0.7, 1.4) and (0.3, 0.6) .. (P00);
 
-        % Draw grid lines on the surface patch to show parameter lines
-        \draw[blue!40, thin] (1.0, 0.1) .. controls (1.5, 1.0) and (2.0, 1.7) .. (2.0, 2.1);
-        \draw[blue!40, thin] (3.0, 0.1) .. controls (3.2, 1.0) and (3.5, 1.7) .. (4.0, 2.1);
-        \draw[blue!40, thin] (0.5, 1.0) .. controls (1.5, 1.3) and (3.5, 1.3) .. (4.5, 1.0);
+          % Draw grid lines on the surface patch to show parameter lines
+          \draw[blue!40, thin] (1.0, 0.1) .. controls (1.5, 1.0) and (2.0, 1.7) .. (2.0, 2.1);
+          \draw[blue!40, thin] (3.0, 0.1) .. controls (3.2, 1.0) and (3.5, 1.7) .. (4.0, 2.1);
+          \draw[blue!40, thin] (0.5, 1.0) .. controls (1.5, 1.3) and (3.5, 1.3) .. (4.5, 1.0);
 
-        % Draw control points
-        \foreach \p in {P00, P01, P02, P10, P11, P12, P20, P21, P22} {
-            \fill[red!80!black] (\p) circle (2.5pt);
-        }
+          % Draw control points
+          \foreach \p in {P00, P01, P02, P10, P11, P12, P20, P21, P22} {
+              \fill[red!80!black] (\p) circle (2.5pt);
+            }
 
-        \node[red!80!black, above, fill=white, inner sep=1pt] at (P11) {$\vect{P}_{i,j}$};
-        \node[blue!70!black] at (2.5, 1.0) {$\vect{S}(\xi,\eta)$};
-      \end{tikzpicture}
+          \node[red!80!black, above, fill=white, inner sep=1pt] at (P11) {$\vect{P}_{i,j}$};
+          \node[blue!70!black] at (2.5, 1.0) {$\vect{S}(\xi,\eta)$};
+        \end{tikzpicture}
       }
       \\[6pt]
       {\scriptsize 2D B-spline surface patch mapping concept}
@@ -406,53 +398,53 @@
     \begin{column}{0.50\textwidth}
       \centering
       \scalebox{0.72}{
-      \begin{tikzpicture}[scale=0.85, >=stealth]
-        % Row 1: Basis functions before/after
-        \begin{scope}[yshift=3.6cm]
-          \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
-          \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
-          \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
-          \draw[blue, line width=1.2pt, domain=0:4] plot (\x, {2*(1 - \x/4)^2});
-          \draw[green!60!black, line width=1.2pt, domain=0:4] plot (\x, {2*2*(\x/4)*(1 - \x/4)});
-          \draw[orange, line width=1.2pt, domain=0:4] plot (\x, {2*(\x/4)^2});
-          \node[font=\tiny, below] at (2, -0.1) {$\Xi = \{0,0,0,1,1,1\}$};
-        \end{scope}
-        \begin{scope}[xshift=4.6cm, yshift=3.6cm]
-          \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
-          \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
-          \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
-          \draw[blue, line width=1.2pt, domain=0:2] plot (\x, {2*(1 - \x/2)^2});
-          \draw[green!60!black, line width=1.2pt, domain=0:2] plot (\x, {2*(4*(\x/4) - 6*(\x/4)^2)});
-          \draw[green!60!black, line width=1.2pt, domain=2:4] plot (\x, {2*(2*(1-\x/4)^2)});
-          \draw[orange, line width=1.2pt, domain=0:2] plot (\x, {2*(2*(\x/4)^2)});
-          \draw[orange, line width=1.2pt, domain=2:4] plot (\x, {2*(4*(1-\x/4) - 6*(1-\x/4)^2)});
-          \draw[red, line width=1.2pt, domain=2:4] plot (\x, {2*((\x-2)/2)^2});
-          \node[font=\tiny, below] at (2, -0.1) {$\Xi = \{0,0,0,0.5,1,1,1\}$};
-        \end{scope}
-        
-        % Row 2: Curves and control polygons before/after
-        \begin{scope}[xshift=0cm, yshift=0cm]
-          \draw[gray!20, thin] (0,0) grid (3.6,2.5);
-          \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (1.8,2.2) -- (3.6,0);
-          \fill[red] (0,0) circle (2pt);
-          \fill[red] (1.8,2.2) circle (2pt);
-          \fill[red] (3.6,0) circle (2pt);
-          \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
-          \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
-          \node[font=\tiny, below] at (1.8, -0.1) {Original polygon \& curve};
-        \end{scope}
-        \begin{scope}[xshift=4.6cm, yshift=0cm]
-          \draw[gray!20, thin] (0,0) grid (3.6,2.5);
-          \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (0.9,1.1) -- (2.7,1.1) -- (3.6,0);
-          \fill[red] (0,0) circle (2pt);
-          \fill[red] (0.9,1.1) circle (2pt);
-          \fill[red] (2.7,1.1) circle (2pt);
-          \fill[red] (3.6,0) circle (2pt);
-          \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
-          \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
-          \node[font=\tiny, below] at (1.8, -0.1) {Refined polygon (knot inserted)};
-        \end{scope}
-      \end{tikzpicture}
+        \begin{tikzpicture}[scale=0.85, >=stealth]
+          % Row 1: Basis functions before/after
+          \begin{scope}[yshift=3.6cm]
+            \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
+            \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
+            \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
+            \draw[blue, line width=1.2pt, domain=0:4] plot (\x, {2*(1 - \x/4)^2});
+            \draw[green!60!black, line width=1.2pt, domain=0:4] plot (\x, {2*2*(\x/4)*(1 - \x/4)});
+            \draw[orange, line width=1.2pt, domain=0:4] plot (\x, {2*(\x/4)^2});
+            \node[font=\tiny, below] at (2, -0.1) {$\Xi = \{0,0,0,1,1,1\}$};
+          \end{scope}
+          \begin{scope}[xshift=4.6cm, yshift=3.6cm]
+            \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
+            \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
+            \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
+            \draw[blue, line width=1.2pt, domain=0:2] plot (\x, {2*(1 - \x/2)^2});
+            \draw[green!60!black, line width=1.2pt, domain=0:2] plot (\x, {2*(4*(\x/4) - 6*(\x/4)^2)});
+            \draw[green!60!black, line width=1.2pt, domain=2:4] plot (\x, {2*(2*(1-\x/4)^2)});
+            \draw[orange, line width=1.2pt, domain=0:2] plot (\x, {2*(2*(\x/4)^2)});
+            \draw[orange, line width=1.2pt, domain=2:4] plot (\x, {2*(4*(1-\x/4) - 6*(1-\x/4)^2)});
+            \draw[red, line width=1.2pt, domain=2:4] plot (\x, {2*((\x-2)/2)^2});
+            \node[font=\tiny, below] at (2, -0.1) {$\Xi = \{0,0,0,0.5,1,1,1\}$};
+          \end{scope}
+
+          % Row 2: Curves and control polygons before/after
+          \begin{scope}[xshift=0cm, yshift=0cm]
+            \draw[gray!20, thin] (0,0) grid (3.6,2.5);
+            \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (1.8,2.2) -- (3.6,0);
+            \fill[red] (0,0) circle (2pt);
+            \fill[red] (1.8,2.2) circle (2pt);
+            \fill[red] (3.6,0) circle (2pt);
+            \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+            \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
+            \node[font=\tiny, below] at (1.8, -0.1) {Original polygon \& curve};
+          \end{scope}
+          \begin{scope}[xshift=4.6cm, yshift=0cm]
+            \draw[gray!20, thin] (0,0) grid (3.6,2.5);
+            \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (0.9,1.1) -- (2.7,1.1) -- (3.6,0);
+            \fill[red] (0,0) circle (2pt);
+            \fill[red] (0.9,1.1) circle (2pt);
+            \fill[red] (2.7,1.1) circle (2pt);
+            \fill[red] (3.6,0) circle (2pt);
+            \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+            \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
+            \node[font=\tiny, below] at (1.8, -0.1) {Refined polygon (knot inserted)};
+          \end{scope}
+        \end{tikzpicture}
       }
     \end{column}
   \end{columns}
@@ -478,49 +470,51 @@
     \begin{column}{0.50\textwidth}
       \centering
       \scalebox{0.72}{
-      \begin{tikzpicture}[scale=0.85, >=stealth]
-        % Row 1: Basis functions before/after
-        \begin{scope}[yshift=3.6cm]
-          \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
-          \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,1}$};
-          \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
-          \draw[blue, line width=1.2pt] (0,2) -- (4,0);
-          \draw[green!60!black, line width=1.2pt] (0,0) -- (4,2);
-          \node[font=\tiny, below] at (2, -0.1) {$p=1$, $\Xi = \{0,0,1,1\}$};
-        \end{scope}
-        \begin{scope}[xshift=4.6cm, yshift=3.6cm]
-          \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
-          \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
-          \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
-          \draw[blue, line width=1.2pt, domain=0:4] plot (\x, {2*(1 - \x/4)^2});
-          \draw[green!60!black, line width=1.2pt, domain=0:4] plot (\x, {2*2*(\x/4)*(1 - \x/4)});
-          \draw[orange, line width=1.2pt, domain=0:4] plot (\x, {2*(\x/4)^2});
-          \node[font=\tiny, below] at (2, -0.1) {$p=2$, $\Xi = \{0,0,0,1,1,1\}$};
-        \end{scope}
-        
-        % Row 2: Curves and control polygons before/after
-        \begin{scope}[xshift=0cm, yshift=0cm]
-          \draw[gray!20, thin] (0,0) grid (3.6,2.5);
-          \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (1.8,2.2) -- (3.6,0);
-          \fill[red] (0,0) circle (2pt);
-          \fill[red] (1.8,2.2) circle (2pt);
-          \fill[red] (3.6,0) circle (2pt);
-          \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
-          \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
-          \node[font=\tiny, below] at (1.8, -0.1) {Original curve ($p=2$)};
-        \end{scope}
-        \begin{scope}[xshift=4.6cm, yshift=0cm]
-          \draw[gray!20, thin] (0,0) grid (3.6,2.5);
-          \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (1.2,1.5) -- (2.4,1.5) -- (3.6,0);
-          \fill[red] (0,0) circle (2pt);
-          \fill[red] (1.2,1.5) circle (2pt);
-          \fill[red] (2.4,1.5) circle (2pt);
-          \fill[red] (3.6,0) circle (2pt);
-          \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
-          \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
-          \node[font=\tiny, below] at (1.8, -0.1) {Degree elevated ($p=3$)};
-        \end{scope}
-      \end{tikzpicture}
+        \begin{tikzpicture}[scale=0.85, >=stealth]
+          % Row 1: Basis functions before/after (p=2 to p=3)
+          \begin{scope}[yshift=3.6cm]
+            \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
+            \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,2}$};
+            \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
+            \draw[blue, line width=1.2pt, domain=0:4, samples=40] plot (\x, {2*(1 - \x/4)^2});
+            \draw[green!60!black, line width=1.2pt, domain=0:4, samples=40] plot (\x, {4*(\x/4)*(1 - \x/4)});
+            \draw[orange, line width=1.2pt, domain=0:4, samples=40] plot (\x, {2*(\x/4)^2});
+            \node[font=\tiny, below] at (2, -0.1) {$p=2$, $\Xi = \{0,0,0,1,1,1\}$};
+          \end{scope}
+          \begin{scope}[xshift=4.6cm, yshift=3.6cm]
+            \draw[->, thick, black!70] (0,0) -- (4.2,0) node[right] {$\xi$};
+            \draw[->, thick, black!70] (0,0) -- (0,2.2) node[above] {$N_{i,3}$};
+            \draw[gray!30, thin] (0,0) grid[ystep=0.5, xstep=1.0] (4,2);
+            \draw[blue, line width=1.2pt, domain=0:4, samples=40] plot (\x, {2*(1 - \x/4)^3});
+            \draw[green!60!black, line width=1.2pt, domain=0:4, samples=40] plot (\x, {6*(\x/4)*(1 - \x/4)^2});
+            \draw[orange, line width=1.2pt, domain=0:4, samples=40] plot (\x, {6*(\x/4)^2*(1 - \x/4)});
+            \draw[red!80!black, line width=1.2pt, domain=0:4, samples=40] plot (\x, {2*(\x/4)^3});
+            \node[font=\tiny, below] at (2, -0.1) {$p=3$, $\Xi = \{0,0,0,0,1,1,1,1\}$};
+          \end{scope}
+
+          % Row 2: Curves and control polygons before/after
+          \begin{scope}[xshift=0cm, yshift=0cm]
+            \draw[gray!20, thin] (0,0) grid (3.6,2.5);
+            \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (1.8,2.2) -- (3.6,0);
+            \fill[red] (0,0) circle (2pt);
+            \fill[red] (1.8,2.2) circle (2pt);
+            \fill[red] (3.6,0) circle (2pt);
+            \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+            \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
+            \node[font=\tiny, below] at (1.8, -0.1) {Original curve ($p=2$)};
+          \end{scope}
+          \begin{scope}[xshift=4.6cm, yshift=0cm]
+            \draw[gray!20, thin] (0,0) grid (3.6,2.5);
+            \draw[gray!70, dashed, line width=0.8pt] (0,0) -- (1.2,1.5) -- (2.4,1.5) -- (3.6,0);
+            \fill[red] (0,0) circle (2pt);
+            \fill[red] (1.2,1.5) circle (2pt);
+            \fill[red] (2.4,1.5) circle (2pt);
+            \fill[red] (3.6,0) circle (2pt);
+            \draw[blue, line width=1.5pt, domain=0:1] plot ({3.6*\x}, {4.4*\x*(1-\x)});
+            \node[blue, above, font=\scriptsize] at (1.8, 1.2) {$\vect{C}(\xi)$};
+            \node[font=\tiny, below] at (1.8, -0.1) {Degree elevated ($p=3$)};
+          \end{scope}
+        \end{tikzpicture}
       }
     \end{column}
   \end{columns}
@@ -548,9 +542,9 @@
         \centering\scriptsize
         \begin{tabular}{lcc}
           \toprule
-          \textbf{Method} & \textbf{Sequence} & \textbf{Continuity} \\
+          \textbf{Method}  & \textbf{Sequence}      & \textbf{Continuity}           \\
           \midrule
-          $p \to h$ & Insert first & $C^0$ (FEA-like) \\
+          $p \to h$        & Insert first           & $C^0$ (FEA-like)              \\
           \textbf{$k$-ref} & \textbf{Elevate first} & \textbf{$C^{p+\Delta p - 1}$} \\
           \bottomrule
         \end{tabular}
@@ -558,37 +552,37 @@
       \vspace{0.05cm}
       \centering
       \scalebox{0.68}{
-      \begin{tikzpicture}[scale=1.2, >=stealth]
-        % --- PANEL (a) BEFORE ---
-        \begin{scope}[xshift=0cm]
-          \draw[gray!15, thin, step=0.5] (-1.4, -1.4) grid (1.4, 1.4);
-          \draw[->, black!40, line width=0.5pt] (-1.5, 0) -- (1.5, 0);
-          \draw[->, black!40, line width=0.5pt] (0, -1.5) -- (0, 1.5);
-          \draw[blue!70!black, thick] (0,0) circle (1.0);
-          \draw[gray!70, dashed, thick] (1,0) -- (1,1) -- (0,1) -- (-1,1) -- (-1,0) -- (-1,-1) -- (0,-1) -- (1,-1) -- cycle;
-          \foreach \x/\y in {1/0, 0/1, -1/0, 0/-1, 1/1, -1/1, -1/-1, 1/-1} {
-              \fill[orange] (\x, \y) circle (2.2pt);
-          }
-          \node[font=\tiny, fill=white, inner sep=1pt, draw=gray!20] at (1.2, 0.4) {$w_{\text{diag}}\approx 0.707$};
-          \node[below=1.5cm, font=\scriptsize\bfseries] at (0,0) {Before (8 CP)};
-        \end{scope}
+        \begin{tikzpicture}[scale=1.2, >=stealth]
+          % --- PANEL (a) BEFORE ---
+          \begin{scope}[xshift=0cm]
+            \draw[gray!15, thin, step=0.5] (-1.4, -1.4) grid (1.4, 1.4);
+            \draw[->, black!40, line width=0.5pt] (-1.5, 0) -- (1.5, 0);
+            \draw[->, black!40, line width=0.5pt] (0, -1.5) -- (0, 1.5);
+            \draw[blue!70!black, thick] (0,0) circle (1.0);
+            \draw[gray!70, dashed, thick] (1,0) -- (1,1) -- (0,1) -- (-1,1) -- (-1,0) -- (-1,-1) -- (0,-1) -- (1,-1) -- cycle;
+            \foreach \x/\y in {1/0, 0/1, -1/0, 0/-1, 1/1, -1/1, -1/-1, 1/-1} {
+                \fill[orange] (\x, \y) circle (2.2pt);
+              }
+            \node[font=\tiny, fill=white, inner sep=1pt, draw=gray!20] at (1.2, 0.4) {$w_{\text{diag}}\approx 0.707$};
+            \node[below=1.5cm, font=\scriptsize\bfseries] at (0,0) {Before (8 CP)};
+          \end{scope}
 
-        % --- PANEL (b) AFTER ---
-        \begin{scope}[xshift=3.6cm]
-          \draw[gray!15, thin, step=0.5] (-1.4, -1.4) grid (1.4, 1.4);
-          \draw[->, black!40, line width=0.5pt] (-1.5, 0) -- (1.5, 0);
-          \draw[->, black!40, line width=0.5pt] (0, -1.5) -- (0, 1.5);
-          \draw[blue!70!black, thick] (0,0) circle (1.0);
-          \draw[gray!70, dashed, thick] (0:1.025)
-          \foreach \angle in {22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5, 360} {
-              -- (\angle:1.025)
-          };
-          \foreach \angle in {0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5} {
-              \fill[orange] (\angle:1.025) circle (2.2pt);
-          }
-          \node[below=1.5cm, font=\scriptsize\bfseries] at (0,0) {After Refinement};
-        \end{scope}
-      \end{tikzpicture}
+          % --- PANEL (b) AFTER ---
+          \begin{scope}[xshift=3.6cm]
+            \draw[gray!15, thin, step=0.5] (-1.4, -1.4) grid (1.4, 1.4);
+            \draw[->, black!40, line width=0.5pt] (-1.5, 0) -- (1.5, 0);
+            \draw[->, black!40, line width=0.5pt] (0, -1.5) -- (0, 1.5);
+            \draw[blue!70!black, thick] (0,0) circle (1.0);
+            \draw[gray!70, dashed, thick] (0:1.025)
+            \foreach \angle in {22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5, 360} {
+                -- (\angle:1.025)
+              };
+            \foreach \angle in {0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5} {
+                \fill[orange] (\angle:1.025) circle (2.2pt);
+              }
+            \node[below=1.5cm, font=\scriptsize\bfseries] at (0,0) {After Refinement};
+          \end{scope}
+        \end{tikzpicture}
       }
       \par\vspace{0.05cm}
       {\tiny Exact circle: diagonal weights $w_i = \frac{\sqrt{2}}{2}$. Knot insertion converges net to curve.}

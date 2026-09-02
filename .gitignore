@@ -29,9 +29,15 @@
 *.vrb
 *.run.xml
 *.bcf
+*.acn
+*.acr
+*.alg
+*.spl
 
-# PDF output (optional - but usually we don't want compiled PDFs in git)
+# PDF output (compiled main PDFs ignored, vector figure PDFs kept)
 *.pdf
+!**/figures/*.pdf
+!thesis/CNAM_Logo.pdf
 
 # OS generated files
 .DS_Store
@@ -45,8 +51,7 @@ yarn-debug.log*
 yarn-error.log*
 .env
 
-# More LaTeX temporary files
-*.acn
-*.acr
-*.alg
-*.spl
+# Executables & large binary distributions
+*.exe
+__pycache__/
+*.pyc

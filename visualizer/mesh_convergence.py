@@ -103,13 +103,13 @@ def get_gauss_quadrature(n_points):
         w2 = (18.0 - np.sqrt(30.0)) / 36.0
         return np.array([-p2, -p1, p1, p2]), np.array([w2, w1, w1, w2])
 
-def solve_iga_cantilever(n_el_x, n_el_y):
+def solve_iga_cantilever(n_el_x, n_el_y, p):
     L = 10.0
     H = 2.0
     E = 200000.0  # MPa
     nu = 0.3
     t_h = 1.0
-    p, q = 2, 2
+    q = p
     
     # 1. Knot vectors
     U = [0.0]*(p+1)
@@ -314,19 +314,25 @@ def solve_iga_cantilever(n_el_x, n_el_y):
     return disp
 
 if __name__ == "__main__":
-    # Run convergence study
-    resolutions = [
-        (10, 5),
-        (20, 10),
-        (40, 20),
-        (80, 40),
-        (160, 80)
-    ]
-    
-    print(f"{'Resolution':<12} | {'Elements':<8} | {'Tip Displacement (mm)':<22}")
-    print("-" * 50)
-    for nx, ny in resolutions:
-        disp = solve_iga_cantilever(nx, ny)
-        # Convert to mm (1 m = 1000 mm)
-        disp_mm = abs(disp) * 1000.0
-        print(f"{f'{nx}x{ny}':<12} | {nx*ny:<8} | {disp_mm:<22.6f}")
+    for p_val in [1, 2, 3]:
+        print(f"\n==================================================")
+        print(f"Mesh Convergence Study for Degree p = {p_val}")
+        print(f"==================================================")
+        print(f"{'Resolution':<12} | {'Elements':<8} | {'DoFs':<8} | {'Tip Displacement (mm)':<22}")
+        print("-" * 60)
+        
+        # Limit the maximum resolution for p=3 to avoid long solve times
+        resolutions = [(10, 5), (20, 10), (40, 20), (80, 40)]
+        if p_val < 3:
+            resolutions.append((160, 80))
+            
+        for nx, ny in resolutions:
+            # Degrees of Freedom
+            n_U = nx + p_val
+            n_V = ny + p_val
+            dofs = n_U * n_V * 2
+            
+            disp = solve_iga_cantilever(nx, ny, p_val)
+            # Convert to mm
+            disp_mm = abs(disp) * 1000.0
+            print(f"{f'{nx}x{ny}':<12} | {nx*ny:<8} | {dofs:<8} | {disp_mm:<22.6f}")

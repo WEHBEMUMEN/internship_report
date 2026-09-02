@@ -144,43 +144,41 @@
 % Frame 3: Step 1: Reference Pullback Mapping
 % ==========================================
 \begin{frame}{Step 1: Reference Pullback Mapping}
-  \small
   \begin{block}{Diffeomorphic Pullback to Static $\hat{\Omega}$ (Thesis Section 3.4)}
-    \footnotesize
-    Coordinate transformation maps varying physical coordinates $\vect{x} \in \Omega(\boldsymbol{\mu})$ to static reference coordinates $\hat{\vect{x}} \in \hat{\Omega}$:
+    \scriptsize
+    Maps varying physical coordinates $\vect{x} \in \Omega(\boldsymbol{\mu})$ to static reference coordinates $\hat{\vect{x}} \in \hat{\Omega}$:
     \[
       \nabla_{\vect{x}} \vect{u} = \mat{J}_{\boldsymbol{\xi}}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu}) \nabla_{\boldsymbol{\xi}} \hat{\vect{u}}, \quad d\Omega = \color{cnamred}{J_{\boldsymbol{\xi}, \boldsymbol{\mu}}(\boldsymbol{\xi})} \, d\hat{\Omega}
     \]
-    where $\mat{J}_{\boldsymbol{\xi}}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \frac{\partial \vect{x}}{\partial \boldsymbol{\xi}}$ is the coordinate Jacobian, and \color{cnamred}{$J_{\boldsymbol{\xi}, \boldsymbol{\mu}}(\boldsymbol{\xi}) = \det\mat{J}_{\boldsymbol{\xi}}$} is the mapping weight.
+    where $\mat{J}_{\boldsymbol{\xi}}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \frac{\partial \vect{x}}{\partial \boldsymbol{\xi}}$ is the Jacobian, and \color{cnamred}{$J_{\boldsymbol{\xi}, \boldsymbol{\mu}}(\boldsymbol{\xi}) = \det\mat{J}_{\boldsymbol{\xi}}$} is the mapping weight.
   \end{block}
 
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
       \begin{exampleblock}{State Projection on Static Basis ($\boldsymbol{\Phi}$)}
         \scriptsize
-        The discrete state vector $\vect{U}(\boldsymbol{\mu})$ is parameter-dependent, but projected onto static POD modes:
+        $\vect{U}(\boldsymbol{\mu})$ is projected onto static POD modes:
         \[
           \vect{U}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \vect{q}(\boldsymbol{\mu})
         \]
-        \textbf{Why this matters}:
         \begin{itemize}
-          \item \textbf{Static Modes}: The SVD projection matrix $\boldsymbol{\Phi}$ is constant and computed offline.
-          \item \textbf{Online Efficiency}: Only the low-dimensional state vector $\vect{q}(\boldsymbol{\mu}) \in \mathbb{R}^r$ needs to be resolved online.
+          \setlength{\itemsep}{1pt}
+          \item \textbf{Static Modes}: $\boldsymbol{\Phi}$ is constant and computed offline.
+          \item \textbf{Online Speed}: Only $\vect{q}(\boldsymbol{\mu}) \in \mathbb{R}^r$ is solved.
         \end{itemize}
       \end{exampleblock}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{alertblock}{The Parameter Dependency ($\mat{K}(\boldsymbol{\mu})$)}
+      \begin{alertblock}{Parameter Dependency ($\mat{K}(\boldsymbol{\mu})$)}
         \scriptsize
-        Stiffness bilinear form maps parameter $\boldsymbol{\mu}$ into the spatial integral:
+        Stiffness bilinear form traps $\boldsymbol{\mu}$ inside the integral:
         \[
-          \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \int_{\hat{\Omega}} \left(\mat{J}_{\boldsymbol{\xi}}^{-T} \nabla_{\boldsymbol{\xi}}\vect{u}\right) : \mat{D} : \left(\mat{J}_{\boldsymbol{\xi}}^{-T} \nabla_{\boldsymbol{\xi}}\delta\vect{u}\right) \color{cnamred}{J_{\boldsymbol{\xi}, \boldsymbol{\mu}}} \, d\hat{\Omega}
+          \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \int_{\hat{\Omega}} \left(\mat{J}^{-T} \nabla\vect{u}\right) : \mat{D} : \left(\mat{J}^{-T} \nabla\delta\vect{u}\right) \color{cnamred}{J_{\boldsymbol{\mu}}} \, d\hat{\Omega}
         \]
-        \textbf{Why it matters}:
         \begin{itemize}
-          \item Traps $\boldsymbol{\mu}$ inside the integral.
-          \item Standard ROM cannot precompute $\mat{\Phi}^T \mat{K}(\boldsymbol{\mu})\mat{\Phi}$.
-          \item Requires $O(N)$ full online assembly.
+          \setlength{\itemsep}{1pt}
+          \item Cannot precompute $\mat{\Phi}^T \mat{K}(\boldsymbol{\mu})\mat{\Phi}$.
+          \item Requires full online assembly bottleneck.
         \end{itemize}
       \end{alertblock}
     \end{column}

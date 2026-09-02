@@ -107,22 +107,31 @@
 \setbeamertemplate{mini frame in other section}[custom]
 
 % Increase dot size
-\setbeamersize{mini frame size=0.18cm, mini frame offset=0.06cm}
+\setbeamersize{mini frame size=0.13cm, mini frame offset=0.03cm}
 % Headline: let miniframes render the bar — it natively uses the short section
 % title from \section[short]{long}. We only need to style the color boxes.
 \usepackage{etoolbox}
 \makeatletter
 \patchcmd{\slideentry}
   {\advance\beamer@tempdim by -.05cm}
-  {\advance\beamer@tempdim by -0.10cm}
+  {\advance\beamer@tempdim by -0.08cm}
   {\message{^^JPATCH SUCCEEDED^^J}}
   {\message{^^JPATCH FAILED^^J}}
+
 \setbeamertemplate{headline}{%
   \begin{beamercolorbox}[wd=\paperwidth,center]{headline}%
     \usebeamerfont{section in head/foot}%
-    \vskip1.5ex%
+    \vskip0.4ex%
     \insertnavigation{\paperwidth}%
-    \vskip1.5ex%
+    \vskip0.4ex%
+  \end{beamercolorbox}%
+}
+
+% Sleek, compact frametitle that seamlessly integrates with the miniframes headline
+\setbeamertemplate{frametitle}{%
+  \nointerlineskip%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=3.2ex,dp=1.2ex,leftskip=0.6cm,rightskip=0.6cm]{frametitle}%
+    \usebeamerfont{frametitle}\textbf{\insertframetitle}%
   \end{beamercolorbox}%
 }
 \makeatother
@@ -142,21 +151,25 @@
 \setbeamercolor{date}{fg=white}
 \setbeamercolor{institute}{fg=white}
 
-% ─── Geometry Scaling (Make pages slightly bigger) ───────────────────────────
-\geometry{paperwidth=18cm, paperheight=10.125cm}
-
 \AtBeginDocument{
-\setbeamercolor{footline}{fg=gray!80, bg=white}
+\setbeamercolor{footline}{fg=black!60, bg=white}
 
 % ─── Footline (Author Name, Title, and Slide Number) ─────────────────────────
 \setbeamertemplate{footline}{%
   \ifnum\insertframenumber>0
     \leavevmode%
-    \begin{beamercolorbox}[wd=\paperwidth,ht=3ex,dp=1.2ex,leftskip=1cm,rightskip=1.8cm]{footline}%
-      \usebeamerfont{author in head/foot}%
-      Mumen Wehbe \hfill Real-Time Physics on the Web \hfill \insertframenumber%
-    \end{beamercolorbox}%
-    \vskip2ex%
+    \begin{tikzpicture}[remember picture, overlay]
+      % Light divider rule
+      \draw[black!15, line width=0.4pt] ($(current page.south west)+(0.8cm, 0.65cm)$) -- ($(current page.south east)+(-0.8cm, 0.65cm)$);
+      % Footer labels
+      \node[anchor=south west, inner sep=0pt] at ($(current page.south west)+(0.8cm, 0.25cm)$) {%
+        \parbox{\dimexpr\paperwidth-1.6cm\relax}{%
+          \usebeamerfont{author in head/foot}\color{black!60}\scriptsize%
+          Mumen Wehbe \hfill Real-Time Physics on the Web \hfill \insertframenumber%
+        }%
+      };
+    \end{tikzpicture}%
+    \vspace{0.65cm}%
   \fi
 }
 }
@@ -182,8 +195,8 @@
 }
 
 % ─── Title Page Info ─────────────────────────────────────────────────────────
-\title{Real-Time Physics on the Web:\\Bringing CAD Models to Life with Smart Math Compression}
-\subtitle{M2 Thesis Defense --- IGA \& ROM for Parameterized Structural Dynamics}
+\title{Real-Time Physics on the Web:\\Geometrical Parameters in IGA \& ROM for Structural Dynamics}
+\subtitle{M2 Thesis Defense --- Parameterized Structural Dynamics}
 \author[M.~Wehbe]{Mumen Wehbe}
 \institute[Cnam Paris]{Conservatoire National des Arts et Métiers}
 \date{July 2026}
@@ -198,62 +211,78 @@
 \setbeamertemplate{frame footer}{}
 \begin{frame}[plain, noframenumbering]
   \centering
-  \vfill
-  \tikz{\node[fill=white, rounded corners=3pt, inner sep=5pt]{\includegraphics[height=1.0cm]{../thesis/CNAM_Logo.pdf}};}\\[0.6cm]
-  {\color{white}\huge\bfseries\sffamily Real-Time Physics on the Web}\\[0.2cm]
-  {\color{white}\large\sffamily Bringing CAD Models to Life with Smart Math Compression}\\[0.5cm]
-  {\color{white!80}\normalsize M2 Thesis Defense (IGA \& ROM for Parameterized Dynamics)}\\[0.5cm]
-  {\color{white!60}\rule{0.8\textwidth}{0.5pt}}\\[0.5cm]
-  {\color{white}\large Mumen Wehbe}\\[0.15cm]
-  {\color{white!80}\small Supervisor: Christophe Hoareau}\\[0.05cm]
-  {\color{white!80}\small Conservatoire National des Arts et Métiers}\\[0.05cm]
-  {\color{white!70}\footnotesize July 2026}
-  \vfill
+  \vspace*{0.2cm}
+  \begin{tikzpicture}
+    \node[inner sep=0pt, rounded corners=5pt, clip] (banner) {
+      \includegraphics[width=13.2cm, height=2.3cm]{cnam_facade.png}
+    };
+    \node[anchor=north east, fill=white, rounded corners=3pt, inner sep=3pt, xshift=-0.25cm, yshift=-0.25cm] at (banner.north east) {
+      \includegraphics[height=0.55cm]{../thesis/CNAM_Logo.pdf}
+    };
+  \end{tikzpicture}\\[0.35cm]
+  {\color{white}\LARGE\bfseries\sffamily Real-Time Physics on the Web}\\[0.15cm]
+  {\color{white}\normalsize\sffamily Geometrical Parameters in Isogeometric Analysis \& Reduced Order Modeling}\\[0.25cm]
+  {\color{white!85}\footnotesize M2 Thesis Defense --- Parameterized Structural Dynamics}\\[0.25cm]
+  {\color{white!60}\rule{0.8\textwidth}{0.4pt}}\\[0.25cm]
+  {\color{white}\normalsize Mumen Wehbe} \quad {\color{white!85}\footnotesize\textbar\quad Supervisor: Christophe Hoareau}\\[0.12cm]
+  {\color{white!80}\scriptsize Conservatoire National des Arts et Métiers \quad $\bullet$ \quad July 2026}
+  \vspace*{0.2cm}
 \end{frame}
 }
 
 
 
-% ── Academic Context Slide ──────────────────────────────────────────────────
-\begin{frame}{Academic Context \& Pedagogical Team}
+% ── Project & Team Slide ───────────────────────────────────────────────────
+\begin{frame}{Research Project \& Team}
+  \begin{block}{Project Title}
+    \centering
+    \vspace{0.02cm}
+    {\footnotesize\bfseries\color{cnamdark} Geometrical Parameters in Isogeometric Analysis \& Reduced Order Modeling for Structural Dynamics}\\[0.04cm]
+    {\tiny\color{black!75} Conducted at \textbf{Conservatoire National des Arts et Métiers (Cnam Paris)}}
+    \vspace{0.02cm}
+  \end{block}
+  
+  \vspace{0.05cm}
+  
   \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{The Institution}
-        \small
-        \textbf{Conservatoire National des Arts et Métiers (Cnam)}
-        \begin{itemize}
-          \item Located in Paris, France.
-          \item Dedicated to higher education, professional training, and scientific research.
-          \item Specialized computational and research facilities.
-        \end{itemize}
-      \end{block}
-      
-      \vspace{0.1cm}
-      \begin{block}{Academic Framework}
-        \small
-        \begin{itemize}
-          \item \textbf{Program}: Master 2 (M2) Thesis.
-          \item \textbf{Subject}: IGA \& ROM for Parameterized Structural Dynamics.
-        \end{itemize}
-      \end{block}
+    \begin{column}{0.45\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \begin{scope}
+          \clip[rounded corners=3pt] (0,0) rectangle (1.4, 1.4);
+          \node[anchor=south west, inner sep=0pt] at (0,0) {%
+            \includegraphics[width=1.4cm, height=1.4cm, keepaspectratio]{mumen_square.jpg}%
+          };
+        \end{scope}
+        \draw[rounded corners=3pt, cnamred!60, line width=0.8pt] (0,0) rectangle (1.4, 1.4);
+      \end{tikzpicture}\\[0.04cm]
+      {\bfseries\footnotesize\color{cnamred} Mumen Wehbe}\\[0.01cm]
+      {\tiny\color{black!75} Intern}
     \end{column}
     
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Pedagogical \& Research Team}
-        \small
-        \begin{itemize}
-          \item \textbf{Candidate}: \\
-                Mumen Wehbe
-                \vspace{0.2cm}
-          \item \textbf{Academic Supervisor}: \\
-                Christophe Hoareau
-                \vspace{0.2cm}
-          \item \textbf{Cnam Pedagogical Team}: \\
-                Academic coordinators, supervisors, and M2 thesis jury members.
-        \end{itemize}
-      \end{block}
+    \begin{column}{0.45\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \begin{scope}
+          \clip[rounded corners=3pt] (0,0) rectangle (1.4, 1.4);
+          \node[anchor=south west, inner sep=0pt] at (0,0) {%
+            \includegraphics[width=1.4cm, height=1.4cm, keepaspectratio]{christophe_square.png}%
+          };
+        \end{scope}
+        \draw[rounded corners=3pt, cnamred!60, line width=0.8pt] (0,0) rectangle (1.4, 1.4);
+      \end{tikzpicture}\\[0.04cm]
+      {\bfseries\footnotesize\color{cnamred} Christophe Hoareau}\\[0.01cm]
+      {\tiny\color{black!75} Supervisor}
     \end{column}
   \end{columns}
+  
+  \vspace{0.05cm}
+  
+  \begin{block}{Acknowledgements \& Cnam Staff}
+    \centering\scriptsize
+    \textbf{Academic \& Research Support}: Jean-François Deü, Xavier Amandolese, Pr.~Rouleau, Pr.~Aucejo, Pr.~Laurent \\
+    \textbf{Administrative Support}: Mireille Gillet, Cécile
+  \end{block}
 \end{frame}
 
 % ── Table of Contents ─────────────────────────────────────────────────────────

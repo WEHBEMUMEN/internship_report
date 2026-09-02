@@ -3,15 +3,9 @@
 \label{ch:theory}
 % ==============================================================================
 
-\begin{tcolorbox}[colback=lightbg, colframe=primaryblue, title=\textbf{Chapter at a Glance: Continuum Mechanics \& Shape Parameterization}, fonttitle=\bfseries]
-    \begin{description}[leftmargin=!, labelwidth=3.4cm]
-        \item[\textbf{Physical Domain}] Parameterized configuration $\Omega(\boldsymbol{\mu}) \subset \mathbb{R}^2$ with design parameters $\boldsymbol{\mu} = (x_c, r)^T$ (notch location, radius).
-        \item[\textbf{Governing Law}] Linear elastodynamics balance of momentum $\rho \ddot{\vect{u}} - \nabla \cdot \boldsymbol{\sigma} = \vect{f}_b$ subject to Dirichlet clamping and Neumann tractions.
-        \item[\textbf{Core Bottleneck}] Domain variation $\Omega(\boldsymbol{\mu})$ destroys vector space compatibility across parameter instances, preventing direct snapshot POD extraction.
-    \end{description}
-\end{tcolorbox}
 
-Building upon the real-time Digital Twin motivations established in Chapter \ref{ch:intro}, developing reduced order models for parameterized structures requires a firm foundation in continuum elastodynamics and formal shape parameterization. This chapter establishes the strong and weak variational formulations of linear elasticity, defines the parameter space $\boldsymbol{\mu} = (x_c, r)^T$, and details the mathematical challenges introduced by domain variations.
+
+Developing reduced order models for parameterized structures requires a firm foundation in continuum elastodynamics and formal shape parameterization. This chapter establishes the strong and weak variational formulations of linear elasticity, introduces the parameter space $\boldsymbol{\mu} = (x_c, r)^T$ on an illustrative cantilever beam example with a geometrical defect used throughout the thesis (with straightforward extension to general parameterizations), and details the mathematical challenges introduced by domain variations.
 
 % ------------------------------------------------------------------------------
 \section{Geometry Configurations \& Shape Parameterization}
@@ -19,12 +13,12 @@ Building upon the real-time Digital Twin motivations established in Chapter \ref
 
 We begin by defining the parameterized domain geometry $\Omega(\boldsymbol{\mu})$ and establishing how shape variations alter the physical configuration of the structural beam.
 
-Let $\Omega(\boldsymbol{\mu}) \subset \mathbb{R}^2$ define the parameterized physical configuration of a structural continuum. As illustrated in Figure \ref{fig:notched_beam_geometry}, we consider a 2D cantilever beam featuring symmetric circular notches along its upper and lower boundaries.
+Let $\Omega(\boldsymbol{\mu}) \subset \mathbb{R}^2$ define the parameterized physical configuration of a structural continuum. As illustrated in Figure \ref{fig:notched_beam_geometry}, we consider a 2D plane stress problem referred to as the notched cantilever beam, featuring symmetric Gaussian notches along its upper and lower boundaries. This serves as an application example written throughout the thesis using two parameters (of course, an extension to a general case is straightforward).
 
 The shape variation is controlled by a parameter vector $\boldsymbol{\mu} = (x_c, r)^T \in \mathcal{D} \subset \mathbb{R}^2$:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Notch Position ($x_c$)}: The longitudinal starting distance of the notch center from the clamped left support ($0.5\,\text{m} \le x_c \le 4.5\,\text{m}$).
-    \item \textbf{Notch Radius ($r$)}: The curvature radius of the symmetric boundary cutouts ($0.1\,\text{m} \le r \le 0.45\,\text{m}$).
+    \item \textbf{Notch Position ($x_c$)}: The longitudinal position of the notch center from the clamped left support ($2.5\,\text{m} \le x_c \le 7.5\,\text{m}$ for beam length $L = 8.0\,\text{m}$).
+    \item \textbf{Notch Depth ($r$)}: The depth parameter controlling the symmetric Gaussian boundary cutouts ($0.0\,\text{m} \le r \le 0.75\,\text{m}$, where $r = 0$ corresponds to the pristine straight beam).
 \end{itemize}
 
 \begin{figure}[htbp]
@@ -70,7 +64,7 @@ The structural parameterization illustrated above (Figure \ref{fig:notched_beam_
 
 Next, we formulate the strong form balance of linear momentum and Cauchy stress-strain relationships under small-strain elastodynamics.
 
-Kinematic deformation from the initial configuration $\Omega(\boldsymbol{\mu})$ to the current state under external body forces $\vect{f}_b$ and boundary tractions $\vect{h}_N$ is illustrated below (Figure \ref{fig:continuum_kinematics}).
+Kinematic deformation from the initial physical configuration $\Omega(\boldsymbol{\mu})$ to the deformed state under external body forces $\vect{f}_b$ and boundary tractions $\vect{h}_N$ is illustrated below (Figure \ref{fig:continuum_kinematics}). It is crucial to note that because the problem is linear, the "deformed geometry" is confounded with the "initial state". Furthermore, to avoid any misunderstanding with nonlinear mechanics terminology (where one distinguishes between a "reference configuration" and a "current configuration"), we explicitly differentiate between the \textit{reference parameter configuration} $\hat{\Omega}$ (introduced in Chapter \ref{ch:pullback}) and the \textit{parameterized physical configuration} $\Omega(\boldsymbol{\mu})$, deliberately avoiding the term "current" throughout the text.
 
 \begin{figure}[htbp]
     \centering
@@ -164,9 +158,9 @@ Comparing the undeformed reference geometry $\Omega(\boldsymbol{\mu})$ to the de
     \end{tabular}
 \end{table}
 
-This formal notation (Table \ref{tab:kinematic_notation}) establishes the continuum framework used throughout the initial configuration and small-strain kinematic relations.
+This formal notation (Table \ref{tab:kinematic_notation}) establishes the continuum framework used throughout the initial configuration and small-strain kinematic relations. For the sake of readability, the parametric and temporal dependency of the displacement field $\vect{u}(\vect{x}, t; \boldsymbol{\mu})$ will often be abbreviated simply as $\vect{u}$.
 
-Assuming small strains and linear isotropic elasticity, the strong form governing linear momentum balance on $\Omega(\boldsymbol{\mu}) \times (0, T]$ is:
+Assuming small strains and linear isotropic elasticity, the problem considered consists in finding the displacement field $\vect{u}$ such that the strong form governing linear momentum balance on $\Omega(\boldsymbol{\mu}) \times (0, T]$ is given as:
 \begin{equation}
     \underbrace{\rho \ddot{\vect{u}}}_{\text{Inertial Force}} - \underbrace{\nabla \cdot \boldsymbol{\sigma}(\vect{u})}_{\text{Internal Stress Divergence}} = \underbrace{\vect{f}_b}_{\text{Body Force}}
 \end{equation}
@@ -178,18 +172,19 @@ subject to boundary conditions $\vect{u} = \vect{0}$ on $\Gamma_D(\boldsymbol{\m
 
 We now derive the weak variational form of elastodynamics, establishing the kinetic energy, strain energy, and external work forms required for numerical discretization.
 
-Multiplying by kinematically admissible test functions $\delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu})) = \{ \vect{v} \in [H^1(\Omega(\boldsymbol{\mu}))]^2 \mid \vect{v} = \vect{0} \text{ on } \Gamma_D(\boldsymbol{\mu}) \}$ and applying integration by parts yields the weak form:
+Multiplying by kinematically admissible test functions $\delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu})) = \{ \vect{v} \in [H^1(\Omega(\boldsymbol{\mu}))]^2 \mid \vect{v} = \vect{0} \text{ on } \Gamma_D(\boldsymbol{\mu}) \}$ and applying integration by parts and Green's formulas yields the weak form:
 
 \begin{equation}
-    \underbrace{m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu})}_{\text{Kinetic Energy Variation}} + \underbrace{k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})}_{\text{Internal Strain Energy}} = \underbrace{f(\delta\vect{u})}_{\text{External Load Work}} \quad \forall \delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu}))
+    \underbrace{m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu})}_{\text{Virtual Kinetic Energy}} + \underbrace{k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})}_{\text{Virtual Internal Energy}} = \underbrace{f(\delta\vect{u})}_{\text{Virtual External Energy}} \quad \forall \delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu}))
 \end{equation}
 
-where the bilinear forms and load linear form are defined as:
+where the bilinear forms and load linear form are given as:
 \begin{align}
     m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) & = \int_{\Omega(\boldsymbol{\mu})} \rho \ddot{\vect{u}} \cdot \delta\vect{u} \, d\Omega                                                                      \\
     k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})        & = \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\varepsilon}(\delta\vect{u})^T \mat{D} \boldsymbol{\varepsilon}(\vect{u}) \, d\Omega                          \\
     f(\delta\vect{u})                                    & = \int_{\Omega(\boldsymbol{\mu})} \vect{f}_b \cdot \delta\vect{u} \, d\Omega + \int_{\Gamma_N(\boldsymbol{\mu})} \vect{h}_N \cdot \delta\vect{u} \, d\Gamma
 \end{align}
+Note that the geometric parameter $\boldsymbol{\mu}$ explicitly appears in the domain of integration $\Omega(\boldsymbol{\mu})$ for each of these virtual energy terms.
 
 % ------------------------------------------------------------------------------
 \section{The Shape Parameterization Challenge}
@@ -197,14 +192,13 @@ where the bilinear forms and load linear form are defined as:
 
 The following analysis highlights why physical domain variations break conventional snapshot POD extraction, motivating the transition to reference domain pullback integration.
 
-Evaluating $k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})$ on a varying domain $\Omega(\boldsymbol{\mu})$ introduces two critical computational hurdles: physical remeshing destroys snapshot SVD consistency, and online assembly over the full physical mesh causes severe latency.
+Evaluating $k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu})$ on a varying domain $\Omega(\boldsymbol{\mu})$ introduces two critical computational hurdles at the discrete level: physical remeshing destroys mathematical consistency for the ROM using POD basis, and online assembly over the full physical mesh causes severe latency.
 
 To address these hurdles, we compare naive physical remeshing against reference pullback mapping across three key criteria:
 
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Vector Space Invariance}: Physical remeshing alters node counts and ordering across parameters, ruining SVD basis extraction. In contrast, reference pullback mapping evaluates all snapshots on an invariant domain $\hat{\Omega}$, guaranteeing SVD vector consistency.
-    \item \textbf{Online Assembly Speed}: Physical remeshing requires rebuilding and re-integrating the entire mesh ($\mathcal{O}(E)$ complexity) at every parameter update. Pullback mapping allows precomputing reference terms, reducing online assembly to a minimal active element subset $E^*$.
-    \item \textbf{Geometric Precision}: Classical physical remeshing introduces linear boundary tessellation errors, whereas reference pullback mapping preserves the exact mathematical CAD NURBS geometry throughout.
+    \item \textbf{Mathematical Consistency}: Physical remeshing alters node counts and ordering across parameters, ruining mathematical consistency for the ROM using POD basis because vectors of different dimensions cannot be combined into a single snapshot matrix. In contrast, reference pullback mapping evaluates all snapshots on an invariant domain $\hat{\Omega}$, guaranteeing SVD vector consistency.
+    \item \textbf{Online Assembly Speed}: Physical remeshing requires rebuilding and re-integrating the entire mesh at every parameter update. Pullback mapping allows precomputing reference terms, reducing online assembly to a minimal active element subset $E^*$.
 \end{itemize}
 
 To guarantee mathematical consistency and achieve sub-millisecond solves, this thesis selects the \textbf{Diffeomorphic Pullback Mapping} approach, shifting parameter dependencies entirely into integration Jacobians on a fixed reference space $\hat{\Omega}$ (detailed in Chapter \ref{ch:pullback}).
@@ -215,6 +209,13 @@ To guarantee mathematical consistency and achieve sub-millisecond solves, this t
 
 In summary, we synthesize the continuum elastodynamic foundation established in this chapter and preview the spatial discretization techniques introduced in Chapter \ref{ch:discretization}.
 
-\begin{tcolorbox}[colback=lightbg, colframe=accentcyan, title=\textbf{Key Takeaway}, fonttitle=\bfseries]
-    We established the elastodynamic continuum formulation for the notched cantilever beam and demonstrated that direct physical evaluation on $\Omega(\boldsymbol{\mu})$ breaks state vector compatibility across parameters. In Chapter \ref{ch:discretization}, we discretize this formulation using Isogeometric Analysis (IGA) prior to pulling back integration terms to a reference domain in Chapter \ref{ch:pullback}.
+\begin{tcolorbox}[colback=lightbg, colframe=primaryblue, title=\textbf{Chapter Summary: Continuum Mechanics \& Shape Parameterization}, fonttitle=\bfseries]
+    \begin{description}[leftmargin=!, labelwidth=3.4cm]
+        \item[\textbf{Physical Domain}] A 2D plane stress problem referred to as the notched cantilever beam, with parameterized configuration $\Omega(\boldsymbol{\mu}) \subset \mathbb{R}^2$ and design parameters $\boldsymbol{\mu} = (x_c, r)^T$ (notch location, standard deviation).
+        \item[\textbf{Governing Law}] Linear elastodynamics balance of momentum $\rho \ddot{\vect{u}} - \nabla \cdot \boldsymbol{\sigma} = \vect{f}_b$ subject to Dirichlet clamping and Neumann tractions.
+        \item[\textbf{Core Bottleneck}] Domain variation $\Omega(\boldsymbol{\mu})$ destroys vector space compatibility across parameter instances, preventing direct snapshot POD extraction.
+    \end{description}
+    
+    \vspace{0.2cm}
+    \textbf{Key Takeaway}: We established the elastodynamic continuum formulation for the notched cantilever beam and demonstrated that direct physical evaluation on $\Omega(\boldsymbol{\mu})$ breaks state vector compatibility across parameters. In Chapter \ref{ch:discretization}, we discretize this formulation using Isogeometric Analysis (IGA) prior to pulling back integration terms to a reference domain in Chapter \ref{ch:pullback}.
 \end{tcolorbox}

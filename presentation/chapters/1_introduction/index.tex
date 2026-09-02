@@ -2,61 +2,110 @@
 
 \begin{frame}{Introduction \& Motivation}
   \begin{columns}[T]
-    \begin{column}{0.55\textwidth}
+    \begin{column}{0.48\textwidth}
       \begin{block}{Pedagogical Origin to Research Level}
-        \small
-        This project began as a \textbf{pedagogical application} to demonstrate structural dynamics. However, to meet industry demands for interactive simulations, it has been elevated to a rigorous \textbf{research-level} implementation.
-      \end{block}
-      \vspace{0.15cm}
-      \begin{block}{Objective \& The Problem}
-        \small
-        How to achieve real-time, interactive parameter updates for complex shapes? Standard FEM requires slow online remeshing.
+        \footnotesize
         \begin{itemize}
+          \setlength{\itemsep}{3pt}
+          \item Started as a \textbf{teaching tool} to illustrate structural dynamics.
+          \item Evolved into a \textbf{research framework} for real-time interactive simulations.
+        \end{itemize}
+      \end{block}
+      
+      \vspace{0.15cm}
+      
+      \begin{block}{Objective \& The Problem}
+        \footnotesize
+        \begin{itemize}
+          \setlength{\itemsep}{3pt}
+          \item \textbf{The Goal}: Real-time parameter updates for complex shapes.
+          \item \textbf{The Bottleneck}: Standard FEM is too slow and requires remeshing.
           \item \textbf{Our Solution}: Exact geometry (IGA) + Fast solvers (ROM).
         \end{itemize}
       \end{block}
     \end{column}
-    \begin{column}{0.42\textwidth}
+    
+    \begin{column}{0.48\textwidth}
       \centering
-      \vspace{0.1cm}
-      \begin{tikzpicture}[every node/.style={font=\small}]
-        \node[draw=cnamred, thick, rounded corners, fill=cnamlightbg, minimum width=3.8cm, minimum height=0.7cm, align=center] (iga) {IGA (NURBS)\\{\footnotesize Exact geometry}};
-        \node[draw=cnamdark, thick, rounded corners, fill=cnamlightbg, minimum width=3.8cm, minimum height=0.7cm, align=center, below=0.35cm of iga] (rom) {ROM (POD + ECSW)\\{\footnotesize $r \ll N$ DOFs}};
-        \node[draw=gray!70, thick, rounded corners, fill=gray!10, minimum width=3.8cm, minimum height=0.7cm, align=center, below=0.35cm of rom] (dt) {Digital Twin\\{\footnotesize $< 1$ ms response}};
-        \draw[->, thick, cnamred] (iga) -- (rom);
-        \draw[->, thick, cnamdark] (rom) -- (dt);
+      \begin{tikzpicture}
+        \begin{scope}
+          \clip[rounded corners=5pt] (0,0) rectangle (5.5, 2.59);
+          \node[anchor=south west, inner sep=0pt] at (0,0) {%
+            \includegraphics[width=5.5cm, height=2.59cm, keepaspectratio]{web_app_ui.png}%
+          };
+        \end{scope}
+        \draw[rounded corners=5pt, cnamred!60, line width=1.0pt] (0,0) rectangle (5.5, 2.59);
       \end{tikzpicture}
-
-      \vspace{0.3cm}
-      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim-5.3/}{\color{cnamred}\bfseries\underline{Open Web Application}}
+      
+      \vspace{0.25cm}
+      \small
+      \href{run:DigitalTwin-ROM-SingleFile.exe}{\beamergotobutton{Launch Desktop App (.exe)}}
+      \\[0.15cm]
+      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim-5.3/}{\beamergotobutton{Open Web Simulation}}
     \end{column}
   \end{columns}
 \end{frame}
 
 % Slide: Conceptual Parallels
 \begin{frame}{Conceptual Parallels to Data Compression}
-  \begin{block}{IGA \hfill \footnotesize [Hughes et al., 2005]}
-    \small
-    \begin{itemize}
-      \item Exact CAD geometry (NURBS) — smooth boundaries without remeshing.
-    \end{itemize}
-  \end{block}
-  \vspace{0.12cm}
-  \begin{block}{ROM \hfill \footnotesize [Benner et al., 2015]}
-    \small
-    \begin{itemize}
-      \item Projects dynamics onto dominant energy-carrying modes (like lossy compression).
-      \item Solves equations in reduced space in milliseconds.
-    \end{itemize}
-  \end{block}
-  \vspace{0.12cm}
-  \begin{block}{Hyper-Reduction \hfill \footnotesize [Farhat et al., 2014]}
-    \small
-    \begin{itemize}
-      \item Isolates a sparse set of active integration cells (like optimal sensor placement).
-      \item Bypasses full-mesh assembly to resolve the online bottleneck.
-    \end{itemize}
-  \end{block}
+  \begin{columns}[T]
+    % Column 1: IGA
+    \begin{column}{0.31\textwidth}
+      \begin{block}{\centering IGA \hfill \tiny [Hughes, 2005]}
+        \centering
+        \vspace{0.06cm}
+        \begin{tikzpicture}
+          \begin{scope}
+            \clip[rounded corners=3pt] (0,0) rectangle (2.0, 3.0);
+            \node[anchor=south west, inner sep=0pt] at (0,0) {%
+              \includegraphics[width=2.0cm, height=3.0cm, keepaspectratio]{ref_iga_cottrell.jpg}%
+            };
+          \end{scope}
+          \draw[rounded corners=3pt, cnamred!60, line width=0.8pt] (0,0) rectangle (2.0, 3.0);
+        \end{tikzpicture}\\[0.08cm]
+        {\tiny\textbf{Cottrell, Hughes, Bazilevs}}\\[0.04cm]
+        {\scriptsize\color{black!75} Exact CAD geometry via NURBS without remeshing.}
+      \end{block}
+    \end{column}
+
+    % Column 2: ROM
+    \begin{column}{0.31\textwidth}
+      \begin{block}{\centering ROM \hfill \tiny [Quarteroni, 2016]}
+        \centering
+        \vspace{0.06cm}
+        \begin{tikzpicture}
+          \begin{scope}
+            \clip[rounded corners=3pt] (0,0) rectangle (2.0, 3.0);
+            \node[anchor=south west, inner sep=0pt] at (0,0) {%
+              \includegraphics[width=2.0cm, height=3.0cm, keepaspectratio]{ref_quarteroni_rom.jpg}%
+            };
+          \end{scope}
+          \draw[rounded corners=3pt, cnamred!60, line width=0.8pt] (0,0) rectangle (2.0, 3.0);
+        \end{tikzpicture}\\[0.08cm]
+        {\tiny\textbf{Quarteroni, Manzoni, Negri}}\\[0.04cm]
+        {\scriptsize\color{black!75} Projection onto dominant modal subspaces ($r \ll N$).}
+      \end{block}
+    \end{column}
+
+    % Column 3: Hyper-Reduction
+    \begin{column}{0.31\textwidth}
+      \begin{block}{\centering Hyper-ROM \hfill \tiny [Benner, 2017]}
+        \centering
+        \vspace{0.06cm}
+        \begin{tikzpicture}
+          \begin{scope}
+            \clip[rounded corners=3pt] (0,0) rectangle (2.0, 3.0);
+            \node[anchor=south west, inner sep=0pt] at (0,0) {%
+              \includegraphics[width=2.0cm, height=3.0cm, keepaspectratio]{ref_rom_benner.jpg}%
+            };
+          \end{scope}
+          \draw[rounded corners=3pt, cnamred!60, line width=0.8pt] (0,0) rectangle (2.0, 3.0);
+        \end{tikzpicture}\\[0.08cm]
+        {\tiny\textbf{Benner, Willcox, et al.}}\\[0.04cm]
+        {\scriptsize\color{black!75} Sparse element sampling bypassing full assembly.}
+      \end{block}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 

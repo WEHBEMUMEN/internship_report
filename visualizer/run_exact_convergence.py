@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright
 
 def run():
     print("Starting node server.js...")
-    server = subprocess.Popen(["node", "server.js"], cwd="d:/Internship_report/visualizer")
+    server = subprocess.Popen(["node", "server.js"], cwd="c:/Users/Wehbe/Documents/internship-report/internship_report/visualizer")
     time.sleep(3)
     
     try:
