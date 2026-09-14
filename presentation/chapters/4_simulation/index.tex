@@ -1,37 +1,25 @@
 % ─── Chapter 4: Full Order Model ─────────────────────────────────────────────
 
-% Slide: Governing Dynamic Equations (from thesis Ch.4)
-\begin{frame}{Governing Dynamic Equations}
-  \begin{block}{Semi-Discrete Equation of Motion}
+% Slide: Full Order Model (FOM) & Dynamic Solver
+\begin{frame}{Full Order Model (FOM) \& Dynamic Solver}
+  \begin{block}{Semi-Discrete System of Equations}
     \vspace{-0.1cm}
     \[
-      \mat{M}(\boldsymbol{\mu})\,\ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu})\,\dot{\vect{U}}(t) + \mat{K}(\boldsymbol{\mu})\,\vect{U}(t) = \lambda(t)\,\vect{F}_{\text{ext}}
+      \mat{M}(\boldsymbol{\mu})\,\ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu})\,\dot{\vect{U}}(t) + \mat{K}(\boldsymbol{\mu})\,\vect{U}(t) = \vect{F}_{\text{ext}}(t)
     \]
-    \vspace{-0.3cm}
-    {\centering\scriptsize $\vect{U}(0) = \vect{U}_0, \quad \dot{\vect{U}}(0) = \vect{V}_0, \quad \mat{C}(\boldsymbol{\mu}) = \alpha_M\mat{M}(\boldsymbol{\mu}) + \beta_K\mat{K}(\boldsymbol{\mu})$\par}
-    \vspace{0.05cm}
+    \vspace{-0.25cm}
+    {\centering\scriptsize Initial Conditions: $\vect{U}(0) = \vect{U}_0, \quad \dot{\vect{U}}(0) = \vect{V}_0$\par}
   \end{block}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \scriptsize\textbf{Mass bilinear form}:
-      \[
-        m(\vect{v}_h, \ddot{\vect{u}}_h; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \rho\,\vect{v}_h \cdot \ddot{\vect{u}}_h\,d\Omega
-      \]
-      \textbf{Global mass}: $\mat{M}_{ab}(\boldsymbol{\mu}) = m(\vect{R}_a, \vect{R}_b; \boldsymbol{\mu})$
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \scriptsize\textbf{Stiffness bilinear form}:
-      \[
-        k(\vect{u}_h, \vect{v}_h; \boldsymbol{\mu}) = \int_{\Omega(\boldsymbol{\mu})} \boldsymbol{\varepsilon}(\vect{v}_h)^T \mat{D} \boldsymbol{\varepsilon}(\vect{u}_h) \, d\Omega
-      \]
-      \textbf{Global stiffness}: $\mat{K}_{ab}(\boldsymbol{\mu}) = k(\vect{R}_b, \vect{R}_a; \boldsymbol{\mu})$
-    \end{column}
-  \end{columns}
-  \vspace{0.1cm}
-  \begin{alertblock}{Online Assembly Bottleneck}
-    \scriptsize
-    Varying $\boldsymbol{\mu}$ shifts $\Omega(\boldsymbol{\mu}) \implies$ full physical mesh re-assembly is required at each time step.
-  \end{alertblock}
+
+  \vspace{0.15cm}
+
+  \begin{itemize}
+    \setlength{\itemsep}{0.25cm}
+    \small
+    \item \textbf{Implicit Solver}: Newmark-$\beta$ method ($\beta=0.25, \gamma=0.5$), unconditionally stable.
+    \item \textbf{System Size}: $80 \times 40$ elements ($6,888$ DOFs).
+    \item \textbf{The Bottleneck}: Re-assembling $\mat{K}(\boldsymbol{\mu})$ and $\mat{M}(\boldsymbol{\mu})$ when $\boldsymbol{\mu}$ changes is too slow for real-time interactivity.
+  \end{itemize}
 \end{frame}
 
 % Slide: Simulation Path & Solver Workflow

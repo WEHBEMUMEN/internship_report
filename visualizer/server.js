@@ -17,9 +17,9 @@ const path    = require('path');
 const app = express();
 
 // ── Configuration ──────────────────────────────────────────────────
-const SIM_ROOT   = path.resolve('D:/CNAM internship');            // your app
-const FIGURES_DIR = path.resolve('D:/Internship_report/figures'); // dedicated output folder
-const PORT       = 3000;
+const SIM_ROOT   = fs.existsSync('D:/CNAM internship') ? path.resolve('D:/CNAM internship') : path.resolve('C:/Users/moume/Documents/internship-cnam');
+const FIGURES_DIR = fs.existsSync('D:/Internship_report/figures') ? path.resolve('D:/Internship_report/figures') : path.resolve(__dirname, '../figures');
+const PORT       = process.env.PORT || 3000;
 
 // Auto-create the figures output directory if it doesn't exist
 if (!fs.existsSync(FIGURES_DIR)) {

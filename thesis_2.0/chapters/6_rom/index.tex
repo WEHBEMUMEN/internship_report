@@ -143,9 +143,12 @@ Applying Galerkin projection yields the $r \times r$ reduced dynamic system:
 \begin{equation}
     \mathbf{M}_r(\boldsymbol{\mu}) \ddot{\vect{q}}(t) + \mathbf{C}_r(\boldsymbol{\mu}) \dot{\vect{q}}(t) + \mathbf{K}_r(\boldsymbol{\mu}) \vect{q}(t) = \mathbf{F}_r(t)
 \end{equation}
-subject to the reduced initial conditions $\vect{q}(0) = \boldsymbol{\Phi}^T \mat{M}(\boldsymbol{\mu}) \vect{U}(0)$ and $\dot{\vect{q}}(0) = \boldsymbol{\Phi}^T \mat{M}(\boldsymbol{\mu}) \dot{\vect{U}}(0)$ (which reduce to $\vect{q}(0) = \mathbf{0}$ and $\dot{\vect{q}}(0) = \mathbf{0}$ when starting from rest at $t=0$), where the projected operators are defined as:
+subject to the reduced initial conditions $\vect{q}(0) = \boldsymbol{\Phi}^T \mat{M}(\boldsymbol{\mu}) \vect{U}(0)$ and $\dot{\vect{q}}(0) = \boldsymbol{\Phi}^T \mat{M}(\boldsymbol{\mu}) \dot{\vect{U}}(0)$ (which reduce to $\mathbf{0}$ at rest), where the projected operators are defined as:
 \begin{equation}
-    \mathbf{M}_r(\boldsymbol{\mu}) = \boldsymbol{\Phi}^T \mat{M}(\boldsymbol{\mu}) \boldsymbol{\Phi}, \quad \mathbf{K}_r(\boldsymbol{\mu}) = \boldsymbol{\Phi}^T \mat{K}(\boldsymbol{\mu}) \boldsymbol{\Phi}, \quad \mathbf{C}_r(\boldsymbol{\mu}) = \boldsymbol{\Phi}^T \mat{C}(\boldsymbol{\mu}) \boldsymbol{\Phi}, \quad \mathbf{F}_r(t) = \boldsymbol{\Phi}^T \mathbf{F}_{\text{ext}}(t)
+\begin{aligned}
+    \mathbf{M}_r(\boldsymbol{\mu}) &= \boldsymbol{\Phi}^T \mat{M}(\boldsymbol{\mu}) \boldsymbol{\Phi}, &\quad \mathbf{K}_r(\boldsymbol{\mu}) &= \boldsymbol{\Phi}^T \mat{K}(\boldsymbol{\mu}) \boldsymbol{\Phi}, \\
+    \mathbf{C}_r(\boldsymbol{\mu}) &= \boldsymbol{\Phi}^T \mat{C}(\boldsymbol{\mu}) \boldsymbol{\Phi}, &\quad \mathbf{F}_r(t) &= \boldsymbol{\Phi}^T \mathbf{F}_{\text{ext}}(t)
+\end{aligned}
 \end{equation}
 
 Algorithmic characteristics and computational trade-offs of the reference configuration mapping paradigm are highlighted below:

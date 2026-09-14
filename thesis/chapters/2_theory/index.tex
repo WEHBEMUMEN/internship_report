@@ -6,7 +6,7 @@
 \section{Geometry Configurations}
 
 Let $\Omega(\boldsymbol{\mu}) \subset \mathbb{R}^d$ ($d \in \{1, 2, 3\}$) define the parameterized physical configuration, parameterized by a vector of design variables $\boldsymbol{\mu} \in \mathcal{D} \subset \mathbb{R}^P$. The fig.~\ref{fig:notched_beam_geometry} illustrates the geometry of a 2D cantilever beam under geometric parameter variations. The active design parameters are grouped into a vector
-$\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ represents the radius of the symmetric circular notches cut out from the top and bottom boundaries, and $x_c$ denotes the spatial position (distance from the clamped boundary on the left) of the notch center along the longitudinal axis of the beam. The notch width factor $\sigma$ is kept constant as a configuration parameter ($\sigma = 0.6$ m).
+$\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ represents the depth of the symmetric circular notches cut out from the top and bottom boundaries, and $x_c$ denotes the spatial position (distance from the clamped boundary on the left) of the notch center along the longitudinal axis of the beam. The notch width factor $\sigma$ is kept constant as a configuration parameter ($\sigma = 0.6$ m).
 
 
 \begin{figure}[htbp]
@@ -40,7 +40,7 @@ $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
         \draw[dimline] (3.0, 0.6) -- (3.8, 0.6);
         \draw[blue!70!black, ->, >=latex, line width=0.8pt] (3.8, 0.6) -- (3.8, 0.2) node[midway, right] {$r$};
     \end{tikzpicture}
-    \caption{Schematic of the parameterized notched cantilever beam configuration $\Omega(\boldsymbol{\mu})$ showing Dirichlet boundary support $\Gamma_D(\boldsymbol{\mu})$ and the design parameters $x_c$ (notch center position) and $r$ (notch radius).}
+    \caption{Schematic of the parameterized notched cantilever beam configuration $\Omega(\boldsymbol{\mu})$ showing Dirichlet boundary support $\Gamma_D(\boldsymbol{\mu})$ and the design parameters $x_c$ (notch center position) and $r$ (notch depth).}
     \label{fig:notched_beam_geometry}
 \end{figure}
 
@@ -153,7 +153,7 @@ $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D} \subset \mathbb{R}^2$ where $r$ r
         $\Gamma_D(\boldsymbol{\mu})$         & Dirichlet boundary (clamped left edge where $\vect{u} = \vect{0}$)     \\
         $\Gamma_N(\boldsymbol{\mu})$         & Neumann boundary (surface under traction forces)                       \\
         $x_c$                                & Geometric parameter: notch longitudinal starting position              \\
-        $r$                                  & Geometric parameter: radius of the symmetric notches                   \\
+        $r$                                  & Geometric parameter: depth of the symmetric notches                   \\
         $\vect{u}$                           & Displacement field vector $\vect{u}(\vect{x}, t; \boldsymbol{\mu})$    \\
         $\vect{h}_N$                         & Boundary traction load vector applied on $\Gamma_N(\boldsymbol{\mu})$  \\
         $\vect{f}_b$                         & Volumetric body force vector                                           \\
@@ -199,7 +199,7 @@ To derive the variational statement, we multiply the momentum balance equation b
 \begin{equation}
     \mathcal{V}_0(\Omega(\boldsymbol{\mu})) = \{ \vect{v} \in [H^1(\Omega(\boldsymbol{\mu}))]^2 \mid \vect{v} = \vect{0} \text{ on } \Gamma_D(\boldsymbol{\mu}) \}
 \end{equation}
-Integrating by parts over the parameterized spatial domain $\Omega(\boldsymbol{\mu})$ yields the weak form:
+Applying Green's divergence theorem over the parameterized spatial domain $\Omega(\boldsymbol{\mu})$ yields the weak form:
 \begin{equation}
     m(\ddot{\vect{u}}, \delta\vect{u}; \boldsymbol{\mu}) + k(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = f(\delta\vect{u}) \quad \forall \delta\vect{u} \in \mathcal{V}_0(\Omega(\boldsymbol{\mu}))
 \end{equation}

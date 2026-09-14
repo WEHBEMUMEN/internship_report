@@ -2,12 +2,23 @@
     "latex-workshop.formatting.latex": "latexindent",
     "latex-workshop.latex.rootFile.useSubFile": false,
     "latex-workshop.latex.autoBuild.run": "onSave",
+    "latex-workshop.latex.recipe.default": "first",
     "latex-workshop.latex.search.rootFiles.include": [
         "**/main.tex"
     ],
     "latex-workshop.latex.autoClean.run": "never",
     "latex-workshop.latex.clean.method": "glob",
     "latex-workshop.latex.tools": [
+        {
+            "name": "lualatex",
+            "command": "lualatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ]
+        },
         {
             "name": "pdflatex",
             "command": "pdflatex",
@@ -16,6 +27,13 @@
                 "-interaction=nonstopmode",
                 "-file-line-error",
                 "%DOC%"
+            ]
+        },
+        {
+            "name": "bibtex",
+            "command": "bibtex",
+            "args": [
+                "%DOCFILE%"
             ]
         },
         {
@@ -32,8 +50,20 @@
     ],
     "latex-workshop.latex.recipes": [
         {
-            "name": "pdflatex",
+            "name": "lualatex ➞ bibtex ➞ lualatex × 2",
             "tools": [
+                "lualatex",
+                "bibtex",
+                "lualatex",
+                "lualatex"
+            ]
+        },
+        {
+            "name": "pdflatex ➞ bibtex ➞ pdflatex × 2",
+            "tools": [
+                "pdflatex",
+                "bibtex",
+                "pdflatex",
                 "pdflatex"
             ]
         },

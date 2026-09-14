@@ -471,13 +471,13 @@ The application follows the classic Model-View-Controller (MVC) design pattern:
 \begin{itemize}
     \item \textbf{The Model}: Consists of the IGA-ROM engine, which manages the reduced state vectors $\vect{q}$ and executes the hyper-reduced integration loops. High-speed mathematical operations are performed using native JavaScript \texttt{Float64Array} typed arrays to minimize overhead.
     \item \textbf{The View}: A responsive user interface featuring an HTML5 Canvas viewport for rendering the structural deformation and real-time Von Mises stress heatmaps.
-    \item \textbf{The Controller}: Event listeners that monitor user inputs (parameter sliders for the notch position $x_c$ and radius $r$), trigger the ROM solver, and update the view dynamically.
+    \item \textbf{The Controller}: Event listeners that monitor user inputs (parameter sliders for the notch position $x_c$ and notch depth $r$), trigger the ROM solver, and update the view dynamically.
 \end{itemize}
 
 Pre-computed ROM datasets (the reduced basis $\boldsymbol{\Phi}$, the active element weights $w_e$, and the geometric mapping tables) are serialized into compact \texttt{JSON} payloads. The controller fetches these payloads asynchronously on startup, allowing the model to initialize in milliseconds.
 
 \subsection{Real-Time Parameter Synchronization and Interactivity}
-The core feature of the Digital Twin is the bi-directional link between user inputs and the virtual model. As the user modifies a parameter slider (e.g., notch position $x_c$ or radius $r$), the ROM engine performs an instantaneous state reconstruction:
+The core feature of the Digital Twin is the bi-directional link between user inputs and the virtual model. As the user modifies a parameter slider (e.g., notch position $x_c$ or notch depth $r$), the ROM engine performs an instantaneous state reconstruction:
 \begin{equation}
     \vect{U}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \vect{q}(\boldsymbol{\mu})
 \end{equation}

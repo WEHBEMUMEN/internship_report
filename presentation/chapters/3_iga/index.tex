@@ -305,26 +305,26 @@
 \end{frame}
 
 
-% Slide: 2D Bivariate IGA Mapping
-\begin{frame}{2D Bivariate IGA Mapping}
+% Slide: Parametric to Physical Domain Mapping
+\begin{frame}{Parametric to Physical Domain Mapping}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
       \small
-      \textbf{Tensor-Product NURBS}:
+      \textbf{Parent to Physical Space Mapping}:
       \begin{itemize}
-        \item Bivariate rational basis functions $R_{i,j}^{p,q}(\xi, \eta)$ extend 1D B-splines to 2D surfaces:
+        \item Maps the parent parametric square $[0,1]^2$ to the physical 2D domain $\Omega$:
               \[
-                R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k} \sum_{l} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}}
+                \vect{x}(\xi, \eta) = \sum_{i} \sum_{j} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
               \]
-        \item Geometric mapping $\vect{S}(\xi, \eta)$ maps the parametric square $[0,1]^2$ to the physical 2D domain:
+        \item \textbf{Spatial Coordinate Jacobian} $\mat{J}_{\boldsymbol{\xi}}$:
               \[
-                \vect{S}(\xi, \eta) = \sum_{i} \sum_{j} R_{i,j}^{p,q}(\xi, \eta) \vect{P}_{i,j}
+                \mat{J}_{\boldsymbol{\xi}}(\xi,\eta) = \begin{bmatrix} \frac{\partial x}{\partial \xi} & \frac{\partial y}{\partial \xi} \\[0.2em] \frac{\partial x}{\partial \eta} & \frac{\partial y}{\partial \eta} \end{bmatrix}
               \]
-        \item $\vect{P}_{i,j}$ forms a bidimensional control net lattice.
+        \item \textbf{Differential Element}:
+              \[
+                \mathrm{d}\Omega = \det(\mat{J}_{\boldsymbol{\xi}})\,\mathrm{d}\xi\,\mathrm{d}\eta
+              \]
       \end{itemize}
-      \par\vspace{0.2cm}
-      \centering
-      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim-2.1/}{\beamerbutton{Interactive IGA Surface Web App}}
     \end{column}
     \begin{column}{0.48\textwidth}
       \centering
@@ -372,8 +372,9 @@
           \node[blue!70!black] at (2.5, 1.0) {$\vect{S}(\xi,\eta)$};
         \end{tikzpicture}
       }
-      \\[6pt]
-      {\scriptsize 2D B-spline surface patch mapping concept}
+      \\[4pt]
+      {\scriptsize 2D B-spline surface patch mapping concept}\\[0.15cm]
+      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim-2.1/}{\beamergotobutton{Open 2D Surface Web App}}
     \end{column}
   \end{columns}
 \end{frame}

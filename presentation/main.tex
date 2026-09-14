@@ -151,27 +151,26 @@
 \setbeamercolor{date}{fg=white}
 \setbeamercolor{institute}{fg=white}
 
-\AtBeginDocument{
-\setbeamercolor{footline}{fg=black!60, bg=white}
-
 % ─── Footline (Author Name, Title, and Slide Number) ─────────────────────────
+\setbeamercolor{footline}{fg=cnamneutral, bg=white}
 \setbeamertemplate{footline}{%
   \ifnum\insertframenumber>0
-    \leavevmode%
-    \begin{tikzpicture}[remember picture, overlay]
-      % Light divider rule
-      \draw[black!15, line width=0.4pt] ($(current page.south west)+(0.8cm, 0.65cm)$) -- ($(current page.south east)+(-0.8cm, 0.65cm)$);
-      % Footer labels
-      \node[anchor=south west, inner sep=0pt] at ($(current page.south west)+(0.8cm, 0.25cm)$) {%
-        \parbox{\dimexpr\paperwidth-1.6cm\relax}{%
-          \usebeamerfont{author in head/foot}\color{black!60}\scriptsize%
-          Mumen Wehbe \hfill Real-Time Physics on the Web \hfill \insertframenumber%
-        }%
-      };
-    \end{tikzpicture}%
-    \vspace{0.65cm}%
+    \begin{beamercolorbox}[wd=\paperwidth, sep=0pt, leftskip=1.0cm, rightskip=1.0cm]{footline}%
+      {\color{black!15}\rule{\dimexpr\paperwidth-2.0cm\relax}{0.4pt}}\par\vskip2.5pt%
+      \parbox{\dimexpr\paperwidth-2.0cm\relax}{%
+        \scriptsize\sffamily%
+        {\bfseries\color{cnamneutral!90}Mumen Wehbe}%
+        \quad{\color{black!25}\textbar}\quad%
+        {\color{cnamneutral!60}Cnam Paris}%
+        \hfill%
+        {\color{cnamneutral!75}Real-Time Physics on the Web}%
+        \hfill%
+        {\bfseries\color{cnamred}\insertframenumber}%
+        {\color{black!40}\,/\,\inserttotalframenumber}%
+      }%
+      \vskip3pt%
+    \end{beamercolorbox}%
   \fi
-}
 }
 
 % ─── Section Splash Slides ───────────────────────────────────────────────────

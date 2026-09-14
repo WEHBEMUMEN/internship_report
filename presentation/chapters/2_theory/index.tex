@@ -8,7 +8,7 @@
   \]
   \small
   \begin{itemize}
-    \item $r$ — notch radius;\quad $x_c$ — notch center position
+    \item $r$ — notch depth;\quad $x_c$ — notch center position
     \item $\mathcal{D} = [r_{\min},\, r_{\max}] \times [x_{c,\min},\, x_{c,\max}]$ — compact parameter domain
   \end{itemize}
   
@@ -43,29 +43,35 @@
   }
 \end{frame}
 
-% Slide: Governing Equations & Strong Form
-\begin{frame}{Governing Equations \& Strong Form}
+% Slide: Governing Equations & Assumptions
+\begin{frame}{Governing Equations \& Assumptions}
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
       \small
-      Assuming small strains and a linear elastic isotropic material, the balance of linear momentum on $\Omega(\boldsymbol{\mu}) \times (0,T]$ is:
-      
-      \begin{block}{Strong Form}
+      \textbf{Key Modeling Assumptions:}
+      \begin{itemize}
+        \setlength{\itemsep}{2pt}
+        \item Small strain \& small displacement hypothesis
+        \item Linear elastic, homogeneous, isotropic material
+        \item 2D Plane Stress formulation
+      \end{itemize}
+
+      \vspace{0.1cm}
+      \begin{block}{Balance of Linear Momentum}
         \vspace{-0.15cm}
         \[
           \rho\,\ddot{\vect{u}} - \nabla \cdot \boldsymbol{\sigma}(\vect{u}) = \vect{f}_b \quad \text{in } \Omega(\boldsymbol{\mu}) \times (0,T]
         \]
       \end{block}
       
-      \par\vspace{0.15cm}
+      \par\vspace{0.1cm}
       \textbf{Boundary, Initial \& Constitutive Relations:}
       \begin{itemize}
-        \setlength{\itemsep}{3pt}
+        \setlength{\itemsep}{2pt}
         \item $\vect{u} = \vect{0}$ on $\Gamma_D(\boldsymbol{\mu})$ \hfill (Clamped BC)
         \item $\boldsymbol{\sigma}\cdot\vect{n} = \vect{h}_N$ on $\Gamma_N(\boldsymbol{\mu})$ \hfill (Traction BC)
         \item $\vect{u} = \vect{u}_0$, $\dot{\vect{u}} = \vect{v}_0$ at $t=0$ \hfill (Initial Conditions)
-        \item $\boldsymbol{\sigma} = \mat{D}:\boldsymbol{\varepsilon}(\vect{u})$ \hfill (Hooke's Law)
-        \item $\boldsymbol{\varepsilon}(\vect{u}) = \tfrac{1}{2}\!\left(\nabla\vect{u} + (\nabla\vect{u})^T\right)$ \hfill (Strain tensor)
+        \item $\boldsymbol{\sigma} = \mat{D}:\boldsymbol{\varepsilon}(\vect{u})$, \quad $\boldsymbol{\varepsilon}(\vect{u}) = \tfrac{1}{2}\!\left(\nabla\vect{u} + (\nabla\vect{u})^T\right)$
       \end{itemize}
     \end{column}
     
@@ -166,7 +172,7 @@
 
 % Slide: Classical Weak Form
 \begin{frame}{Classical Weak Form on $\Omega(\boldsymbol{\mu})$}
-  Multiplying the strong form by test functions and integrating by parts yields:
+  Multiplying by test functions $\vect{v}$ and applying Green's divergence theorem yields:
   \begin{block}{Weak Formulation on the Physical Domain}
     \footnotesize
     Find $\vect{u}(t) \in \mathcal{V}(\Omega(\textcolor{red}{\boldsymbol{\mu}}))$ such that:
