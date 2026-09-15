@@ -1,0 +1,108 @@
+\documentclass[final,5p,times,twocolumn]{elsarticle}
+
+% ==============================================================================
+% Packages & Environment Setup
+% ==============================================================================
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{bm}
+\usepackage{graphicx}
+\graphicspath{{./}{../figures/}}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{microtype}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, calc}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    pdftitle={Isogeometric Analysis and Proper Orthogonal Decomposition Reduced Order Modeling for Structural Dynamics Digital Twins},
+    pdfauthor={Mumen Wehbe}
+}
+
+\journal{Computer Methods in Applied Mechanics and Engineering}
+
+% ==============================================================================
+% Document Body
+% ==============================================================================
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Real-Time Structural Dynamics via Isogeometric Analysis and Proper Orthogonal Decomposition Reduced Order Modeling}
+
+\author[1]{Mumen Wehbe\corref{cor1}}
+\ead{mumen.wehbe@lecnam.net}
+\cortext[cor1]{Corresponding author}
+
+\affiliation[1]{organization={Conservatoire National des Arts et Métiers (Cnam)},
+            addressline={292 Rue Saint-Martin},
+            city={Paris},
+            postcode={75003},
+            country={France}}
+
+% ------------------------------------------------------------------------------
+% Abstract
+% ------------------------------------------------------------------------------
+\begin{abstract}
+\input{sections/00_abstract.tex}
+\end{abstract}
+
+% ------------------------------------------------------------------------------
+% Graphical Abstract & Highlights
+% ------------------------------------------------------------------------------
+\begin{graphicalabstract}
+\includegraphics[width=\linewidth]{figures/graphical_abstract.pdf}
+\end{graphicalabstract}
+
+\begin{highlights}
+\item High-fidelity exact CAD geometry discretization via B-spline/NURBS Isogeometric Analysis (IGA).
+\item Proper Orthogonal Decomposition (POD) basis extraction for structural dynamics reduction.
+\item Real-time web-based 3D digital twin visualizer executing online ROM states at $>$24 FPS.
+\item Order-of-magnitude reduction in degrees of freedom with strict energy preservation.
+\end{highlights}
+
+% ------------------------------------------------------------------------------
+% Keywords
+% ------------------------------------------------------------------------------
+\begin{keyword}
+Isogeometric Analysis \sep Reduced Order Modeling \sep Proper Orthogonal Decomposition \sep Structural Dynamics \sep Digital Twin \sep Real-time Visualization
+\end{keyword}
+
+\end{frontmatter}
+
+% ==============================================================================
+% Main Sections
+% ==============================================================================
+\section{Introduction}
+\label{sec:introduction}
+\input{sections/01_introduction.tex}
+
+\section{Governing Equations \& Theoretical Framework}
+\label{sec:methodology}
+\input{sections/02_methodology.tex}
+
+\section{Isogeometric Discretization \& Reduced Order Modeling}
+\label{sec:implementation}
+\input{sections/03_implementation.tex}
+
+\section{Numerical Results \& Benchmarks}
+\label{sec:results}
+\input{sections/04_results.tex}
+
+\section{Conclusion \& Future Work}
+\label{sec:conclusion}
+\input{sections/05_conclusion.tex}
+
+% ==============================================================================
+% Bibliography
+% ==============================================================================
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+
+\end{document}

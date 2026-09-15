@@ -1,0 +1,82 @@
+\subsection{Full Order Model (FOM) Discrete Equations}
+Applying the Galerkin semi-discretization to the elastodynamic virtual work statement yields the Full Order Model (FOM) system of second-order ordinary differential equations:
+\begin{equation}
+    \bm{M} \ddot{\bm{d}}(t) + \bm{C} \dot{\bm{d}}(t) + \bm{K} \bm{d}(t) = \bm{F}(t),
+    \label{eq:fom}
+\end{equation}
+where $\bm{M}, \bm{C}, \bm{K} \in \mathbb{R}^{N \times N}$ represent the global mass, damping, and stiffness matrices respectively, $\bm{d}(t) \in \mathbb{R}^N$ is the vector of control point displacement degrees of freedom (DOFs), and $\bm{F}(t) \in \mathbb{R}^N$ is the external force vector.
+
+\subsection{Proper Orthogonal Decomposition (POD) Reduction}
+To reduce the dimension $N \gg 1$ to $r \ll N$, an offline snapshot matrix $\bm{S} \in \mathbb{R}^{N \times n_s}$ is assembled by recording displacement states at discrete time instances $t_1, t_2, \dots, t_{n_s}$:
+\begin{equation}
+    \bm{S} = \begin{bmatrix} \bm{d}(t_1) & \bm{d}(t_2) & \dots & \bm{d}(t_{n_s}) \end{bmatrix}.
+\end{equation}
+Performing Singular Value Decomposition (SVD) on the snapshot matrix yields:
+\begin{equation}
+    \bm{S} = \bm{U} \bm{\Sigma} \bm{V}^T,
+\end{equation}
+where $\bm{U} = [\bm{\phi}_1, \bm{\phi}_2, \dots, \bm{\phi}_N] \in \mathbb{R}^{N \times N}$ contains orthonormal spatial modes. The reduced basis matrix $\bm{V}_r \in \mathbb{R}^{N \times r}$ is constructed by selecting the first $r$ modes corresponding to the largest singular values $\sigma_i$, satisfying the energy ratio criterion:
+\begin{equation}
+    \gamma = \frac{\sum_{i=1}^r \sigma_i^2}{\sum_{j=1}^{\min(N, n_s)} \sigma_j^2} \ge 1 - \varepsilon_{\text{POD}},
+\end{equation}
+where $\varepsilon_{\text{POD}}$ is the desired truncation tolerance (e.g., $10^{-6}$).
+
+\begin{algorithm}[h]
+\caption{Offline IGA-POD Reduced Basis Generation}
+\label{alg:offline_pod}
+\begin{algorithmic}[1]
+\Require IGA matrices $\bm{M}, \bm{K}, \bm{C} \in \mathbb{R}^{N \times N}$, forcing function $\bm{F}(t)$, time step $\Delta t$, tolerance $\varepsilon_{\text{POD}}$.
+\Ensure Reduced basis $\bm{V}_r \in \mathbb{R}^{N \times r}$, reduced operators $\bm{M}_r, \bm{K}_r, \bm{C}_r \in \mathbb{R}^{r \times r}$.
+\State Compute FOM trajectory $\{\bm{d}(t_k)\}_{k=1}^{n_s}$ using High-order Newmark-$\beta$ scheme.
+\State Construct snapshot matrix $\bm{S} = [\bm{d}(t_1), \bm{d}(t_2), \dots, \bm{d}(t_{n_s})]$.
+\State Compute thin SVD: $\bm{S} = \bm{U} \bm{\Sigma} \bm{V}^T$.
+\State Determine truncation rank $r$ such that $\sum_{i=1}^r \sigma_i^2 / \sum_{j=1}^{n_s} \sigma_j^2 \ge 1 - \varepsilon_{\text{POD}}$.
+\State Truncate modes: $\bm{V}_r = \bm{U}[:, 1:r]$.
+\State Compute reduced operators: $\bm{M}_r = \bm{V}_r^T \bm{M} \bm{V}_r$, $\bm{K}_r = \bm{V}_r^T \bm{K} \bm{V}_r$, $\bm{C}_r = \bm{V}_r^T \bm{C} \bm{V}_r$.
+\State Export $\bm{V}_r, \bm{M}_r, \bm{K}_r, \bm{C}_r$ to JSON format for WebGL runtime engine.
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Online Galerkin Projection \& WebGL Integration}
+Assuming the displacement approximation $\bm{d}(t) \approx \bm{V}_r \bm{q}(t)$ with reduced coordinates $\bm{q}(t) \in \mathbb{R}^r$, substitute into Eq.~\eqref{eq:fom} and project onto $\bm{V}_r^T$:
+\begin{equation}
+    \bm{M}_r \ddot{\bm{q}}(t) + \bm{C}_r \dot{\bm{q}}(t) + \bm{K}_r \bm{q}(t) = \bm{F}_r(t),
+    \label{eq:rom}
+\end{equation}
+where the pre-computed reduced operators are given by $\bm{M}_r, \bm{C}_r, \bm{K}_r \in \mathbb{R}^{r \times r}$ and $\bm{F}_r(t) = \bm{V}_r^T \bm{F}(t) \in \mathbb{R}^r$. Time integration of Eq.~\eqref{eq:rom} is executed online using the Newmark-$\beta$ scheme in $\mathcal{O}(r^3)$ operations per time step.
+
+\begin{algorithm}[h]
+\caption{Online Real-time Digital Twin Integration}
+\label{alg:online_digital_twin}
+\begin{algorithmic}[1]
+\Require Reduced operators $\bm{M}_r, \bm{K}_r, \bm{C}_r \in \mathbb{R}^{r \times r}$, basis $\bm{V}_r \in \mathbb{R}^{N \times r}$, parameter $p(t)$.
+\Ensure Real-time updated 3D mesh vertex positions at $\ge 24$ FPS.
+\For{each animation frame step $k = 1, 2, \dots$}
+    \State Evaluate reduced load vector $\bm{F}_r^k = \bm{V}_r^T \bm{F}(t_k; p(t_k))$.
+    \State Solve $r \times r$ linear system: $\bm{A}_r \bm{q}_{k+1} = \bm{b}_r(\bm{q}_k, \dot{\bm{q}}_k, \ddot{\bm{q}}_k, \bm{F}_r^k)$.
+    \State Reconstruct full displacement field: $\bm{d}_{k+1} = \bm{V}_r \bm{q}_{k+1}$.
+    \State Pass $\bm{d}_{k+1}$ to GPU vertex buffer via Three.js / WebGL.
+    \State Render frame and wait for next requestAnimationFrame cycle.
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[node distance=1.0cm, auto, >=stealth', thick,
+  box/.style={rectangle, draw=blue!80, fill=blue!10, rounded corners, text width=2.0cm, align=center, minimum height=0.8cm, font=\scriptsize},
+  rombox/.style={rectangle, draw=cyan!80, fill=cyan!10, rounded corners, text width=2.0cm, align=center, minimum height=0.8cm, font=\scriptsize},
+  webbox/.style={rectangle, draw=green!60!black, fill=green!10, rounded corners, text width=2.0cm, align=center, minimum height=0.8cm, font=\scriptsize}]
+
+  \node [box] (iga) {CAD / IGA Mesh Discretization};
+  \node [box, right=0.5cm of iga] (fom) {FOM Time Integration};
+  \node [rombox, right=0.5cm of fom] (svd) {SVD Snapshot Truncation};
+  \node [webbox, below=0.8cm of svd] (webgl) {3D WebGL Digital Twin};
+
+  \draw[->] (iga) -- (fom);
+  \draw[->] (fom) -- (svd);
+  \draw[->] (svd) -- (webgl);
+\end{tikzpicture}
+\caption{Schematic overview of the offline IGA-POD reduction pipeline and online WebGL digital twin rendering.}
+\label{fig:digital_twin_arch}
+\end{figure}

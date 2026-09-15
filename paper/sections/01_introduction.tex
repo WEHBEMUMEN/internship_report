@@ -1,0 +1,14 @@
+Modern structural engineering and cyber-physical systems increasingly demand digital twins capable of predicting transient mechanical behavior under real-time operational constraints \cite{hughes2005, Benner2015}. Traditional structural monitoring relies either on sparse sensor arrays or computationally expensive Finite Element (FE) simulations that cannot run synchronously with physical operations.
+
+Isogeometric Analysis (IGA), pioneered by Hughes et al. \cite{hughes2005}, unifies Computer-Aided Design (CAD) and Computer-Aided Engineering (CAE) by utilizing CAD basis functions—such as B-splines and Non-Uniform Rational B-Splines (NURBS)—directly for field approximations. Beyond geometric exactness, IGA exhibits superior per-degree-of-freedom accuracy and elevated spectrum fidelity compared to standard $C^0$-continuous Finite Element Methods (FEM) \cite{cottrell2009}.
+
+However, despite these advantages, high-fidelity IGA models for large-scale transient structural dynamics remain computationally intensive. Evaluating high-dimensional stiffness and mass matrices at each time step prevents real-time interactive execution. Reduced Order Modeling (ROM), specifically Proper Orthogonal Decomposition (POD) coupled with Galerkin projection, offers an effective framework for projecting high-dimensional state vectors onto low-dimensional subspaces \cite{Benner2015}.
+
+In this paper, we propose an integrated framework bridging NURBS-based IGA with POD-Galerkin reduction for real-time elastodynamic simulation. The main contributions of this work are summarized as follows:
+\begin{enumerate}
+    \item Formulation of a unified IGA-POD Galerkin projection solver for linear and nonlinearly constrained elastodynamics.
+    \item Spectrum preservation analysis comparing high-order IGA basis continuity ($C^{p-1}$) against $C^0$ FE discretizations under projection-based model reduction.
+    \item Deployment of an online interactive 3D web-based digital twin visualizer achieving frame rates exceeding 24 FPS with sub-millisecond solver step evaluations.
+\end{enumerate}
+
+The remainder of this paper is organized as follows: Section~\ref{sec:methodology} reviews the continuum mechanics formulation and IGA fundamentals. Section~\ref{sec:implementation} outlines the offline/online POD-Galerkin reduction procedure. Section~\ref{sec:results} presents numerical benchmarks, validation metrics, and performance speedup comparisons. Section~\ref{sec:conclusion} concludes the paper.

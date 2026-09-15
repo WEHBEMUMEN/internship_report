@@ -1,0 +1,5 @@
+In this work, we presented an integrated computational pipeline combining NURBS-based Isogeometric Analysis (IGA) with Proper Orthogonal Decomposition (POD) Reduced Order Modeling for real-time elastodynamic simulations. The high-order smoothness of IGA basis functions ensures superior spatial accuracy and spectrum fidelity in the Full Order Model, while POD projection effectively compresses the high-dimensional state space down to a dozen reduced coordinates.
+
+Numerical benchmarks on 3D elastodynamic structures demonstrated speedups near $400\times$ without sacrificing accuracy, maintaining relative displacement errors below $10^{-4}$. Furthermore, the lightweight online ROM solver enables seamless synchronization with 3D digital twin visualization engines at real-time frame rates ($>24$ FPS).
+
+Future work will focus on extending the reduction framework to nonlinearly hyperelastic materials using hyper-reduction methods (such as DEIM/ECSW) and integrating live sensor feedback streams for real-time structural health monitoring.

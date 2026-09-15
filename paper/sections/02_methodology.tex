@@ -1,0 +1,67 @@
+\subsection{Elastodynamic Continuum Formulation}
+Consider a spatial domain $\Omega \subset \mathbb{R}^d$ ($d \in \{2, 3\}$) bounded by $\partial \Omega = \Gamma_D \cup \Gamma_N$, where $\Gamma_D \cap \Gamma_N = \emptyset$. The strong form governing linear elastodynamics is expressed as:
+\begin{equation}
+    \rho \ddot{\bm{u}}(\bm{x}, t) + c \dot{\bm{u}}(\bm{x}, t) - \nabla \cdot \bm{\sigma}(\bm{u}) = \bm{b}(\bm{x}, t) \quad \text{in } \Omega \times (0, T],
+\end{equation}
+subject to boundary and initial conditions:
+\begin{align}
+    \bm{u}(\bm{x}, t) &= \bm{g}_D(\bm{x}, t) \quad \text{on } \Gamma_D \times (0, T], \\
+    \bm{\sigma}(\bm{u}) \cdot \bm{n} &= \bm{h}_N(\bm{x}, t) \quad \text{on } \Gamma_N \times (0, T], \\
+    \bm{u}(\bm{x}, 0) &= \bm{u}_0(\bm{x}), \quad \dot{\bm{u}}(\bm{x}, 0) = \bm{v}_0(\bm{x}),
+\end{align}
+where $\rho$ is the mass density, $c$ is the damping coefficient, $\bm{u}$ is the displacement field, $\bm{\sigma}$ is the Cauchy stress tensor, and $\bm{b}$ represents body forces per unit volume.
+
+Assuming small-strain isotropic linear elasticity, the constitutive relationship follows Hooke's Law:
+\begin{equation}
+    \bm{\sigma}(\bm{u}) = \lambda \text{tr}(\bm{\varepsilon}(\bm{u})) \bm{I} + 2 \mu \bm{\varepsilon}(\bm{u}),
+\end{equation}
+where $\bm{\varepsilon}(\bm{u}) = \frac{1}{2}\left(\nabla \bm{u} + (\nabla \bm{u})^T\right)$ is the infinitesimal strain tensor, and $\lambda, \mu$ are the Lame parameters derived from Young's modulus $E$ and Poisson's ratio $\nu$:
+\begin{equation}
+    \lambda = \frac{E \nu}{(1 + \nu)(1 - 2\nu)}, \quad \mu = \frac{E}{2(1 + \nu)}.
+\end{equation}
+
+\subsection{B-Spline and NURBS Basis Functions}
+In IGA, the spatial geometry and field variables are parameterized using identical basis functions. Univariate B-spline basis functions of degree $p$ are generated recursively using the Cox-de Boor formula over a non-decreasing knot vector $\Xi = \{\xi_1, \xi_2, \dots, \xi_{n+p+1}\}$:
+\begin{equation}
+    N_{i,0}(\xi) = \begin{cases} 
+    1 & \text{if } \xi_i \le \xi < \xi_{i+1}, \\
+    0 & \text{otherwise},
+    \end{cases}
+\end{equation}
+\begin{equation}
+    N_{i,p}(\xi) = \frac{\xi - \xi_i}{\xi_{i+p} - \xi_i} N_{i,p-1}(\xi) + \frac{\xi_{i+p+1} - \xi}{\xi_{i+p+1} - \xi_{i+1}} N_{i+1,p-1}(\xi).
+\end{equation}
+
+For bivariate and trivariate domains, tensor-product NURBS basis functions $R_{\bm{i}}^{\bm{p}}(\bm{\xi})$ are constructed as:
+\begin{equation}
+    R_{i,j}^{p,q}(\xi, \eta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) w_{i,j}}{\sum_{k=1}^{n} \sum_{l=1}^{m} N_{k,p}(\xi) M_{l,q}(\eta) w_{k,l}},
+\end{equation}
+where $w_{i,j} > 0$ are the control point weights. Crucially, across internal knots of multiplicity $k$, the basis functions retain $C^{p-k}$ continuity, providing smooth stress fields and superior spectrum accuracy.
+
+\subsection{Parametric Geometry Mapping \& Strain Matrix}
+The physical domain $\Omega$ is parameterized by the mapping $\bm{F}: \hat{\Omega} \to \Omega$ from the parametric domain $\hat{\Omega}$:
+\begin{equation}
+    \bm{x}(\bm{\xi}) = \sum_{i=1}^{n_{cp}} R_i(\bm{\xi}) \bm{P}_i,
+\end{equation}
+where $\bm{P}_i \in \mathbb{R}^d$ are the control point coordinates. The spatial gradients of the basis functions are computed via the inverse Jacobian matrix $\bm{J}^{-1} = \left(\frac{\partial \bm{x}}{\partial \bm{\xi}}\right)^{-1}$:
+\begin{equation}
+    \nabla_{\bm{x}} R_i(\bm{\xi}) = \bm{J}^{-1}(\bm{\xi}) \, \nabla_{\bm{\xi}} R_i(\bm{\xi}).
+\end{equation}
+
+The strain-displacement matrix $\bm{B}_i(\bm{\xi})$ for control point $i$ in 2D elastodynamics is defined as:
+\begin{equation}
+    \bm{B}_i(\bm{\xi}) = \begin{bmatrix}
+        \frac{\partial R_i}{\partial x} & 0 \\[4pt]
+        0 & \frac{\partial R_i}{\partial y} \\[4pt]
+        \frac{\partial R_i}{\partial y} & \frac{\partial R_i}{\partial x}
+    \end{bmatrix}.
+\end{equation}
+
+The global stiffness matrix $\bm{K}$ and mass matrix $\bm{M}$ are assembled over parametric element domains $\hat{\Omega}_e$:
+\begin{equation}
+    \bm{K}_{ij} = \sum_{e} \int_{\hat{\Omega}_e} \bm{B}_i^T \bm{D} \bm{B}_j \, |\det \bm{J}| \, d\hat{\Omega},
+\end{equation}
+\begin{equation}
+    \bm{M}_{ij} = \sum_{e} \int_{\hat{\Omega}_e} \rho R_i R_j \bm{I}_{d \times d} \, |\det \bm{J}| \, d\hat{\Omega},
+\end{equation}
+where $\bm{D}$ is the constitutive elasticity matrix. Rayleigh damping is modeled as $\bm{C} = \alpha_M \bm{M} + \beta_K \bm{K}$ with mass and stiffness weighting parameters $\alpha_M, \beta_K$.
