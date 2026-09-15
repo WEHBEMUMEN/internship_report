@@ -1,0 +1,35 @@
+\subsection{Proper Orthogonal Decomposition (POD)}
+\label{subsec:pod_formulation}
+To construct a low-dimensional approximation space, Proper Orthogonal Decomposition (POD) \cite{berkooz1993, willcox2002} is utilized. High-fidelity Full-Order Model (FOM) simulations are sampled across training parameter values $\{\bm{\mu}_k\}_{k=1}^{N_s} \subset \mathcal{P}$ and discrete time steps $\{t_j\}_{j=1}^{N_t}$ \cite{Benner2015, quarteroni2014}. The computed state vectors are compiled into a snapshot matrix:
+\begin{equation}
+    \bm{S} = \begin{bmatrix} \hat{\bm{u}}(t_1; \bm{\mu}_1) & \cdots & \hat{\bm{u}}(t_{N_t}; \bm{\mu}_{N_s}) \end{bmatrix} \in \mathbb{R}^{N_{\text{dof}} \times N_{\text{snap}}},
+\end{equation}
+where $N_{\text{snap}} = N_s \times N_t$. Taking the Thin Singular Value Decomposition (SVD) of $\bm{S}$:
+\begin{equation}
+    \bm{S} = \bm{U} \bm{\Sigma} \bm{W}^\top = \sum_{i=1}^{N_{\text{snap}}} \sigma_i \bm{\phi}_i \bm{\psi}_i^\top.
+\end{equation}
+The optimal $r$-dimensional projection basis $\bm{V}_r \in \mathbb{R}^{N_{\text{dof}} \times r}$ ($r \ll N_{\text{dof}}$) is constructed from the leading $r$ left singular vectors:
+\begin{equation}
+    \bm{V}_r = \begin{bmatrix} \bm{\phi}_1 & \bm{\phi}_2 & \cdots & \bm{\phi}_r \end{bmatrix}, \quad \bm{V}_r^\top \bm{V}_r = \bm{I}_r.
+\end{equation}
+The truncated basis captures the maximum kinetic/strain energy of the snapshot ensemble according to the relative singular value decay:
+\begin{equation}
+    \mathcal{E}(r) = \frac{\sum_{i=1}^r \sigma_i^2}{\sum_{i=1}^{N_{\text{snap}}} \sigma_i^2}.
+\end{equation}
+
+\subsection{Galerkin Projection for Parameterized Dynamics}
+\label{subsec:galerkin_prom}
+The state vector is approximated as a linear combination of reduced basis modes:
+\begin{equation}
+    \hat{\bm{u}}(t; \bm{\mu}) \approx \bm{V}_r \bm{q}_r(t; \bm{\mu}),
+\end{equation}
+where $\bm{q}_r(t; \bm{\mu}) \in \mathbb{R}^r$ denotes the reduced generalized coordinates. Applying the Galerkin projection $\bm{V}_r^\top$ to the semidiscrete equation~\eqref{eq:semidiscrete_system} leads to the system of $r$ coupled ordinary differential equations:
+\begin{equation}
+    \bm{M}_r(\bm{\mu}) \ddot{\bm{q}}_r(t) + \bm{C}_r(\bm{\mu}) \dot{\bm{q}}_r(t) + \bm{K}_r(\bm{\mu}) \bm{q}_r(t) = \bm{F}_r(t; \bm{\mu}),
+    \label{eq:reduced_ode}
+\end{equation}
+where:
+\begin{equation}
+    \bm{M}_r(\bm{\mu}) = \bm{V}_r^\top \bm{M}(\bm{\mu}) \bm{V}_r, \quad \bm{K}_r(\bm{\mu}) = \bm{V}_r^\top \bm{K}(\bm{\mu}) \bm{V}_r, \quad \bm{F}_r(t; \bm{\mu}) = \bm{V}_r^\top \bm{F}_{\text{ext}}(t; \bm{\mu}).
+\end{equation}
+In linear cases with affine parameter dependence, $\bm{M}_r(\bm{\mu})$ and $\bm{K}_r(\bm{\mu})$ can be precomputed offline as linear combinations of parameter-independent projected matrices, enabling extremely rapid online time integration.

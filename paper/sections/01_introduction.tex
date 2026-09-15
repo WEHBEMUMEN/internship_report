@@ -1,14 +1,35 @@
-Modern structural engineering and cyber-physical systems increasingly demand digital twins capable of predicting transient mechanical behavior under real-time operational constraints \cite{hughes2005, Benner2015}. Traditional structural monitoring relies either on sparse sensor arrays or computationally expensive Finite Element (FE) simulations that cannot run synchronously with physical operations.
+Transient structural dynamics plays an essential role in predictive engineering, vibration assessment, and design optimization of mechanical systems \cite{hughes2005, Benner2015}. In many practical scenarios, such as sensitivity analysis, parametric exploration, and uncertainty quantification, the governing equations of motion must be solved repeatedly under varying geometric configurations, boundary conditions, and material properties. However, high-fidelity numerical models often require tens to hundreds of thousands of degrees of freedom, rendering direct many-query evaluations computationally prohibitive.
 
-Isogeometric Analysis (IGA), pioneered by Hughes et al. \cite{hughes2005}, unifies Computer-Aided Design (CAD) and Computer-Aided Engineering (CAE) by utilizing CAD basis functions—such as B-splines and Non-Uniform Rational B-Splines (NURBS)—directly for field approximations. Beyond geometric exactness, IGA exhibits superior per-degree-of-freedom accuracy and elevated spectrum fidelity compared to standard $C^0$-continuous Finite Element Methods (FEM) \cite{cottrell2009}.
+\subsection{Dynamics and the Research Gap}
+Conventional transient structural dynamics solvers discretize the second-order hyperbolic system of equations in space and time. Even with efficient implicit or explicit time integration schemes, repeatedly solving large sparse algebraic systems across parameterized domains remains a significant computational bottleneck. When parameters alter the geometric shape of the domain, the standard approach demands remeshing or mesh morphing at each design point, which introduces numerical projection errors, geometric distortion, and high preprocessing overhead.
 
-However, despite these advantages, high-fidelity IGA models for large-scale transient structural dynamics remain computationally intensive. Evaluating high-dimensional stiffness and mass matrices at each time step prevents real-time interactive execution. Reduced Order Modeling (ROM), specifically Proper Orthogonal Decomposition (POD) coupled with Galerkin projection, offers an effective framework for projecting high-dimensional state vectors onto low-dimensional subspaces \cite{Benner2015}.
+\subsection{Isogeometric Analysis (IGA) and Its Challenges}
+Isogeometric Analysis (IGA), introduced by Hughes et al. \cite{hughes2005}, employs spline basis functions—specifically B-splines and Non-Uniform Rational B-Splines (NURBS)—as the approximation space for the physical solution fields. IGA offers key advantages: exact geometric representation of curved boundaries at any refinement level, higher-order inter-element continuity ($C^{p-1}$), and improved spectral accuracy per degree of freedom compared to classical $C^0$-continuous Finite Element Methods (FEM) \cite{cottrell2009}. 
 
-In this paper, we propose an integrated framework bridging NURBS-based IGA with POD-Galerkin reduction for real-time elastodynamic simulation. The main contributions of this work are summarized as follows:
+Despite these compelling properties, high-fidelity IGA models remain computationally expensive for transient dynamics due to denser element support and increased quadrature effort. Furthermore, when geometry varies parametrically, maintaining consistent spatial parameterizations across different geometric designs remains a nontrivial task.
+
+\subsection{Reduced Order Modeling (ROM) and the Parameterization Gap}
+Reduced Order Modeling (ROM), in particular Proper Orthogonal Decomposition (POD) combined with Galerkin projection, offers an effective route to project large-scale systems onto low-dimensional subspaces spanned by optimal empirical basis functions \cite{Benner2015, quarteroni2014}. However, classical projection-based ROMs face two major hurdles in parameterized structural dynamics:
 \begin{enumerate}
-    \item Formulation of a unified IGA-POD Galerkin projection solver for linear and nonlinearly constrained elastodynamics.
-    \item Spectrum preservation analysis comparing high-order IGA basis continuity ($C^{p-1}$) against $C^0$ FE discretizations under projection-based model reduction.
-    \item Deployment of an online interactive 3D web-based digital twin visualizer achieving frame rates exceeding 24 FPS with sub-millisecond solver step evaluations.
+    \item \textbf{Geometric parameterization:} Traditional POD snapshots assume a fixed spatial mesh. When the physical geometry changes, snapshots no longer share identical spatial degrees of freedom, which severely complicates the construction of a global projection basis unless costly interpolation or mapping onto a common reference grid is performed.
+    \item \textbf{The non-affine evaluation bottleneck:} When geometric mappings or constitutive laws introduce non-affine parameter dependencies into the system matrices, the reduced operators cannot be precomputed offline. As a result, constructing the projected operators still scales with the full-order dimension, neutralizing the computational savings during online evaluation.
 \end{enumerate}
 
-The remainder of this paper is organized as follows: Section~\ref{sec:methodology} reviews the continuum mechanics formulation and IGA fundamentals. Section~\ref{sec:implementation} outlines the offline/online POD-Galerkin reduction procedure. Section~\ref{sec:results} presents numerical benchmarks, validation metrics, and performance speedup comparisons. Section~\ref{sec:conclusion} concludes the paper.
+\subsection{Originality: Filling the Gap}
+To overcome these limitations, this work proposes a unified framework combining Isogeometric Analysis with reference domain mapping and projection-based Reduced Order Modeling (pROM) via hyper-reduction. The core contributions and original aspects of this work are:
+\begin{enumerate}
+    \item \textbf{Exact geometry mapping on a parameter-independent reference domain:} By exploiting the natural parametric representation of NURBS geometries \cite{piegl1997, cottrell2009}, parameter-dependent physical domains are pulled back to a fixed reference parametric domain $\hat{\Omega} = (0, 1)^d$. This preserves consistent control-point indexing across geometric variations without remeshing or spatial interpolation.
+    \item \textbf{Projection-based IGA-POD formulation:} We construct a low-dimensional reduced subspace from transient dynamic snapshots \cite{berkooz1993, willcox2002, Benner2015} defined over the common parametric domain, ensuring consistent projection across the full parameter space \cite{zhu2018}.
+    \item \textbf{Hyper-reduction for accelerated operator evaluation:} We apply hyper-reduction techniques, including DEIM/MDEIM \cite{Chaturantabut2010, Bonomi2017} and energy-conserving sampling and weighting (ECSW) \cite{Farhat2014, farhat2015, Maierhofer2022}, to eliminate the non-affine dependency in the parametric mapping and Jacobian evaluations, ensuring online simulation complexity is strictly independent of the full-order IGA mesh size.
+    \item \textbf{Comprehensive verification on 2D and 3D benchmarks:} The proposed approach is demonstrated and rigorously evaluated on representative 2D and 3D transient elastodynamic benchmark problems.
+\end{enumerate}
+
+\subsection{Paper Outline}
+The remainder of this paper is organized as follows: 
+Section~\ref{sec:parameterized_dynamics} reviews the governing equations of parameterized structural dynamics. 
+Section~\ref{sec:iga} outlines the Isogeometric Analysis discretization framework. 
+Section~\ref{sec:ref_mapping} details the geometric mapping onto a fixed reference domain. 
+Section~\ref{sec:prom} formulates the projection-based Reduced Order Modeling (pROM) via POD and Galerkin reduction. 
+Section~\ref{sec:hyperreduction} describes the hyper-reduction schemes designed to resolve the non-affine bottleneck. 
+Section~\ref{sec:examples} presents numerical benchmarks on 2D and 3D problems, and 
+Section~\ref{sec:conclusion} concludes the paper with perspectives for future work.

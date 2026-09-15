@@ -1,0 +1,25 @@
+\subsection{B-splines and NURBS Formulations}
+\label{subsec:bsplines_nurbs}
+In Isogeometric Analysis (IGA) \cite{hughes2005, cottrell2009}, the geometric domain and the unknown solution fields are parameterized using identical basis functions. A univariate B-spline basis function of degree $p$, denoted $N_{i,p}(\xi)$, is constructed recursively over an open knot vector $\Xi = \{\xi_1, \xi_2, \dots, \xi_{n+p+1}\}$ via the Cox-de Boor recursion formula \cite{piegl1997}:
+\begin{align}
+    N_{i,0}(\xi) &= \begin{cases} 1 & \text{if } \xi_i \le \xi < \xi_{i+1}, \\ 0 & \text{otherwise}, \end{cases} \\
+    N_{i,p}(\xi) &= \frac{\xi - \xi_i}{\xi_{i+p} - \xi_i} N_{i,p-1}(\xi) + \frac{\xi_{i+p+1} - \xi}{\xi_{i+p+1} - \xi_{i+1}} N_{i+1,p-1}(\xi).
+\end{align}
+Non-Uniform Rational B-Splines (NURBS) are obtained by introducing projective weights $w_i > 0$:
+\begin{equation}
+    R_i^p(\xi) = \frac{N_{i,p}(\xi) w_i}{\sum_{j=1}^n N_{j,p}(\xi) w_j}.
+\end{equation}
+Multivariate basis functions in 2D and 3D are defined via tensor products of univariate B-spline or NURBS functions.
+
+\subsection{Galerkin Semidiscretization}
+\label{subsec:iga_semidiscretization}
+Using the isoparametric concept, the displacement vector $\bm{u}(\bm{x}, t)$ is approximated as:
+\begin{equation}
+    \bm{u}^h(\bm{x}, t) = \sum_{A=1}^{N_{\text{cp}}} R_A(\bm{\xi}(\bm{x})) \, \hat{\bm{u}}_A(t),
+\end{equation}
+where $N_{\text{cp}}$ denotes the number of control points and $\hat{\bm{u}}_A(t)$ are the corresponding control point displacements. Substituting this expansion into the weak form~\eqref{eq:weak_form} yields the semi-discrete equation of motion:
+\begin{equation}
+    \bm{M}(\bm{\mu}) \ddot{\hat{\bm{u}}}(t) + \bm{C}(\bm{\mu}) \dot{\hat{\bm{u}}}(t) + \bm{K}(\bm{\mu}) \hat{\bm{u}}(t) = \bm{F}_{\text{ext}}(t; \bm{\mu}),
+    \label{eq:semidiscrete_system}
+\end{equation}
+where $\bm{M} \in \mathbb{R}^{N_{\text{dof}} \times N_{\text{dof}}}$, $\bm{K} \in \mathbb{R}^{N_{\text{dof}} \times N_{\text{dof}}}$, and $\bm{C} \in \mathbb{R}^{N_{\text{dof}} \times N_{\text{dof}}}$ represent the global mass, stiffness, and damping matrices, respectively, with $N_{\text{dof}} = d \times N_{\text{cp}}$.

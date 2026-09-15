@@ -1,0 +1,19 @@
+\subsection{The Non-Affine / Nonlinear Evaluation Bottleneck}
+\label{subsec:hyperred_bottleneck}
+When the geometry mapping $\bm{\Phi}(\bm{\xi}; \bm{\mu})$ induces a non-affine parameter dependence in the Jacobian matrix $\bm{J}(\bm{\xi}; \bm{\mu})$ and metric tensor, or in the presence of nonlinear material models, the projected stiffness matrix $\bm{K}_r(\bm{\mu}) = \bm{V}_r^\top \bm{K}(\bm{\mu}) \bm{V}_r$ cannot be expressed as an exact affine expansion:
+\begin{equation}
+    \bm{K}(\bm{\mu}) \neq \sum_{q=1}^{Q} \theta_q(\bm{\mu}) \bm{K}_q.
+\end{equation}
+Direct computation of $\bm{K}_r(\bm{\mu})$ at each new parameter value $\bm{\mu}$ would require assembling the full $N_{\text{dof}} \times N_{\text{dof}}$ matrix and performing full-order matrix-matrix multiplications of order $\mathcal{O}(N_{\text{dof}}^2 r)$, destroying the online computational advantage of the reduced model.
+
+\subsection{Discrete Empirical Interpolation and Hyper-Reduction Schemes}
+\label{subsec:deim_formulation}
+To regain online complexity independent of $N_{\text{dof}}$, hyper-reduction techniques approximate the parameterized nonlinear or non-affine operators by sampling only a small subset of spatial indices or quadrature points.
+
+In the Discrete Empirical Interpolation Method (DEIM) \cite{Chaturantabut2010} and its matrix variants (MDEIM) \cite{Bonomi2017}, the parameter-dependent integrand or vector field $\bm{f}(\bm{\mu})$ is approximated via a collateral basis $\bm{\Phi}_m \in \mathbb{R}^{N_{\text{dof}} \times m}$ ($m \ll N_{\text{dof}}$) extracted from operator snapshots:
+\begin{equation}
+    \bm{f}(\bm{\mu}) \approx \bm{\Phi}_m \left( \bm{P}^\top \bm{\Phi}_m \right)^{-1} \bm{P}^\top \bm{f}(\bm{\mu}),
+\end{equation}
+where $\bm{P} = [\bm{e}_{\wp_1}, \dots, \bm{e}_{\wp_m}] \in \mathbb{R}^{N_{\text{dof}} \times m}$ is a sampling matrix selecting $m$ optimal interpolation indices determined via a greedy error-minimization algorithm \cite{Chaturantabut2010, Cai2022}.
+
+Alternatively, Energy-Conserving Sampling and Weighting (ECSW), developed by Farhat et al. \cite{Farhat2014, farhat2015}, selects a sparse subset of element domains $\hat{\Omega}_e$ with non-negative weights determined via non-negative least squares (NNLS) \cite{lawson1974, Maierhofer2022}. Unlike point collocation, ECSW strictly preserves the symmetric positive-definiteness (SPD) and energy conservation principles of the continuous Hamiltonian elastodynamic system. With hyper-reduction, the online evaluation cost of $\bm{K}_r(\bm{\mu})$ scales as $\mathcal{O}(m \cdot r^2)$ rather than $\mathcal{O}(N_{\text{dof}})$, guaranteeing complete detachment from the underlying IGA mesh resolution during online evaluation.

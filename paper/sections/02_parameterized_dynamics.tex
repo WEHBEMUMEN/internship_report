@@ -1,0 +1,32 @@
+\subsection{Governing Equations of Motion}
+\label{subsec:governing_eqs}
+Transient structural dynamics considers the balance of linear momentum for an elastic body occupying a physical domain $\Omega(\bm{\mu}) \subset \mathbb{R}^d$ ($d=2,3$) dependent on a set of design or operational parameters $\bm{\mu} \in \mathcal{P} \subset \mathbb{R}^{n_p}$. The initial-boundary value problem is governed by:
+\begin{equation}
+    \rho(\bm{\mu}) \ddot{\bm{u}}(\bm{x}, t; \bm{\mu}) - \nabla \cdot \bm{\sigma}(\bm{u}; \bm{\mu}) = \bm{b}(\bm{x}, t; \bm{\mu}) \quad \text{in } \Omega(\bm{\mu}) \times (0, T],
+    \label{eq:momentum_balance}
+\end{equation}
+subject to Dirichlet and Neumann boundary conditions:
+\begin{align}
+    \bm{u}(\bm{x}, t; \bm{\mu}) &= \bar{\bm{u}}(\bm{x}, t; \bm{\mu}) \quad \text{on } \Gamma_D(\bm{\mu}) \times (0, T], \\
+    \bm{\sigma}(\bm{u}; \bm{\mu}) \cdot \bm{n} &= \bar{\bm{t}}(\bm{x}, t; \bm{\mu}) \quad \text{on } \Gamma_N(\bm{\mu}) \times (0, T],
+\end{align}
+and initial conditions $\bm{u}(\bm{x}, 0; \bm{\mu}) = \bm{u}_0(\bm{x})$ and $\dot{\bm{u}}(\bm{x}, 0; \bm{\mu}) = \bm{v}_0(\bm{x})$, where $\rho$ is the mass density, $\bm{u}$ is the displacement field, $\bm{\sigma}$ denotes the Cauchy stress tensor, $\bm{b}$ is the body force, and $\bm{n}$ is the outward unit normal vector to the boundary.
+
+\subsection{Linear Elasticity and Weak Form}
+\label{subsec:weak_form}
+Assuming infinitesimal strain theory, the strain-displacement relation is given by:
+\begin{equation}
+    \bm{\varepsilon}(\bm{u}) = \frac{1}{2} \left( \nabla \bm{u} + (\nabla \bm{u})^\top \right).
+\end{equation}
+The constitutive relation follows Hooke's law:
+\begin{equation}
+    \bm{\sigma}(\bm{u}; \bm{\mu}) = \mathbb{C}(\bm{\mu}) : \bm{\varepsilon}(\bm{u}),
+\end{equation}
+where $\mathbb{C}(\bm{\mu})$ is the fourth-order elasticity tensor parametrized by Young's modulus $E(\bm{\mu})$ and Poisson's ratio $\nu(\bm{\mu})$.
+
+The variational (weak) formulation consists of finding $\bm{u}(\cdot, t; \bm{\mu}) \in \mathcal{V}$ such that for all test functions $\bm{w} \in \mathcal{V}_0$:
+\begin{equation}
+    \int_{\Omega(\bm{\mu})} \rho \bm{w} \cdot \ddot{\bm{u}} \, \mathrm{d}\Omega + \int_{\Omega(\bm{\mu})} \bm{\varepsilon}(\bm{w}) : \mathbb{C} : \bm{\varepsilon}(\bm{u}) \, \mathrm{d}\Omega = \int_{\Omega(\bm{\mu})} \bm{w} \cdot \bm{b} \, \mathrm{d}\Omega + \int_{\Gamma_N(\bm{\mu})} \bm{w} \cdot \bar{\bm{t}} \, \mathrm{d}\Gamma,
+    \label{eq:weak_form}
+\end{equation}
+where $\mathcal{V}$ and $\mathcal{V}_0$ are standard trial and test function spaces satisfying Dirichlet boundary conditions.

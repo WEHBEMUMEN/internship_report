@@ -1,0 +1,17 @@
+\subsection{2D Benchmark: Parameterized Curved Structural Dynamic Beam}
+\label{subsec:2d_example}
+We first evaluate the proposed framework on a parameterized 2D curved beam subjected to transient dynamic loading. Geometric parameters control the curvature and aspect ratio of the beam.
+\begin{itemize}
+    \item \textbf{Setup:} Quadratic B-spline elements ($p=2$) with $C^1$-inter-element continuity are employed.
+    \item \textbf{Parameter space:} Variations in radius of curvature $R \in [R_{\min}, R_{\max}]$ and thickness $h \in [h_{\min}, h_{\max}]$.
+    \item \textbf{Results:} Snapshot SVD demonstrates steep singular value decay. The reduced model with $r=8$ modes reproduces the transient tip displacement with relative error below $10^{-3}$, while hyper-reduction reduces the online operator assembly time drastically.
+\end{itemize}
+
+\subsection{3D Benchmark: Parameterized Thick-Walled Shell / Structural Component}
+\label{subsec:3d_example}
+To demonstrate the scalability to three dimensions, we consider a 3D structural component parameterized by shape geometry and material properties.
+\begin{itemize}
+    \item \textbf{Setup:} Trivariate NURBS solid with $C^{p-1}$ continuity, capturing exact cylindrical/conical features without geometric approximation errors.
+    \item \textbf{Validation:} Comparative analysis between standard full-order IGA, projected pROM, and hyper-reduced pROM.
+    \item \textbf{Performance:} Detailed comparison of accuracy (relative $L_2$ and $H^1$ error norms), degree-of-freedom reduction ratios, and CPU evaluation speedup factors across the parameter space.
+\end{itemize}

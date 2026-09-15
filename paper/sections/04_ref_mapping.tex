@@ -1,0 +1,21 @@
+\subsection{Geometry Parameterization and Reference Domain}
+\label{subsec:ref_mapping_concept}
+When the physical domain $\Omega(\bm{\mu})$ undergoes shape or boundary modifications as a function of geometric parameters $\bm{\mu}_{\text{geo}} \subset \bm{\mu}$, standard projection-based model reduction faces severe challenges because snapshot vectors corresponding to different parameters reside on different spatial meshes and varying coordinate support.
+
+In our IGA framework, geometric changes are handled naturally by mapping the parameter-dependent physical domain $\Omega(\bm{\mu})$ from a fixed, parameter-independent reference parametric domain $\hat{\Omega} = (0, 1)^d$ via the NURBS geometric mapping:
+\begin{equation}
+    \bm{x}(\bm{\xi}; \bm{\mu}) = \bm{\Phi}(\bm{\xi}; \bm{\mu}) = \sum_{A=1}^{N_{\text{cp}}} R_A(\bm{\xi}) \, \bm{P}_A(\bm{\mu}), \quad \bm{\xi} \in \hat{\Omega},
+    \label{eq:geo_mapping}
+\end{equation}
+where $\bm{P}_A(\bm{\mu})$ denotes the parameterized control point coordinates.
+
+\subsection{Transformation of Bilinear Forms to the Reference Configuration}
+\label{subsec:ref_transformation}
+By pulling back the volume integrals from $\Omega(\bm{\mu})$ to the fixed reference domain $\hat{\Omega}$, the mass and stiffness bilinear forms become:
+\begin{align}
+    m(\bm{w}, \bm{u}; \bm{\mu}) &= \int_{\hat{\Omega}} \rho(\bm{\mu}) \, \bm{w}(\bm{\xi}) \cdot \bm{u}(\bm{\xi}) \, J(\bm{\xi}; \bm{\mu}) \, \mathrm{d}\hat{\Omega}, \\
+    a(\bm{w}, \bm{u}; \bm{\mu}) &= \int_{\hat{\Omega}} \left( \nabla_{\bm{\xi}} \bm{w} : \bm{J}^{-\top} \right) : \mathbb{C}(\bm{\mu}) : \left( \nabla_{\bm{\xi}} \bm{u} : \bm{J}^{-\top} \right) J(\bm{\xi}; \bm{\mu}) \, \mathrm{d}\hat{\Omega},
+\end{align}
+where $\bm{J}(\bm{\xi}; \bm{\mu}) = \frac{\partial \bm{x}}{\partial \bm{\xi}}$ is the Jacobian matrix of the geometric map and $J(\bm{\xi}; \bm{\mu}) = \det(\bm{J}(\bm{\xi}; \bm{\mu}))$ is the Jacobian determinant.
+
+Because the knot vectors and basis functions $R_A(\bm{\xi})$ on $\hat{\Omega}$ remain identical across varying geometric configurations, the control-point degrees of freedom $\hat{\bm{u}}(t; \bm{\mu})$ share a common algebraic index space. This eliminates the need for remeshing or spatial interpolation across parameter instances and creates a unified algebraic foundation for parameterized model reduction.
