@@ -12,9 +12,9 @@
 
 \opening{Dear Editor-in-Chief,}
 
-We are pleased to submit our original research manuscript entitled \textbf{"Real-Time Structural Dynamics via Isogeometric Analysis and Proper Orthogonal Decomposition Reduced Order Modeling"} for publication consideration as a regular research article in \textit{Computer Methods in Applied Mechanics and Engineering}.
+We are pleased to submit our original research manuscript entitled \textbf{"Projection-based Reduced Order Modeling for Structural Dynamics via Isogeometric Analysis and Hyper-Reduction"} for publication consideration as a regular research article in \textit{Computer Methods in Applied Mechanics and Engineering}.
 
-In this manuscript, we present a unified computational framework bridging Non-Uniform Rational B-Splines (NURBS)-based Isogeometric Analysis (IGA) with Proper Orthogonal Decomposition (POD) Galerkin projection. The principal contribution of this work is an end-to-end digital twin pipeline capable of delivering real-time 3D transient elastodynamic predictions at sub-millisecond evaluation times ($>24$ FPS) while maintaining relative energy errors below $10^{-4}$.
+In this manuscript, we present an integrated computational framework combining Isogeometric Analysis (IGA) with reference domain mapping and projection-based Reduced Order Modeling (pROM) via hyper-reduction for parameterized transient structural dynamics. By exploiting the exact geometry representation of B-splines and NURBS, parameter-dependent physical geometries are pulled back to a fixed, parameter-independent reference parametric domain $\hat{\Omega} = (0,1)^d$. This preserves consistent control-point degrees of freedom without remeshing or spatial interpolation across shape variations. Furthermore, Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction is formulated to resolve the non-affine Jacobian evaluation bottleneck, slashing element assembly by over $99\%$ and achieving speedup factors from $64.5\times$ up to $386\times$ on 2D and 3D elastodynamic benchmarks with relative errors bounded below $0.06\%$.
 
 We confirm that this manuscript is original, has not been published previously, and is not currently under consideration for publication elsewhere. All authors have read and approved the manuscript.
 

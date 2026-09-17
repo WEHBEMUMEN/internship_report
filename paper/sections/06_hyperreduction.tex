@@ -1,19 +1,102 @@
 \subsection{The Non-Affine / Nonlinear Evaluation Bottleneck}
 \label{subsec:hyperred_bottleneck}
-When the geometry mapping $\bm{\Phi}(\bm{\xi}; \bm{\mu})$ induces a non-affine parameter dependence in the Jacobian matrix $\bm{J}(\bm{\xi}; \bm{\mu})$ and metric tensor, or in the presence of nonlinear material models, the projected stiffness matrix $\bm{K}_r(\bm{\mu}) = \bm{V}_r^\top \bm{K}(\bm{\mu}) \bm{V}_r$ cannot be expressed as an exact affine expansion:
+When the geometry mapping $\bm{\Phi}(\bm{\xi}; \bm{\mu})$ induces a non-affine parameter dependence in the Jacobian matrix $\bm{J}(\bm{\xi}; \bm{\mu})$ and metric tensor, the projected stiffness matrix $\bm{K}_r(\bm{\mu}) = \bm{V}_r^\top \bm{K}(\bm{\mu}) \bm{V}_r$ cannot be expressed as an exact affine expansion:
 \begin{equation}
     \bm{K}(\bm{\mu}) \neq \sum_{q=1}^{Q} \theta_q(\bm{\mu}) \bm{K}_q.
 \end{equation}
-Direct computation of $\bm{K}_r(\bm{\mu})$ at each new parameter value $\bm{\mu}$ would require assembling the full $N_{\text{dof}} \times N_{\text{dof}}$ matrix and performing full-order matrix-matrix multiplications of order $\mathcal{O}(N_{\text{dof}}^2 r)$, destroying the online computational advantage of the reduced model.
+Direct computation of $\bm{K}_r(\bm{\mu})$ at each new parameter query $\bm{\mu}$ requires assembling the full $N_{\text{dof}} \times N_{\text{dof}}$ matrix and performing full-order matrix multiplications of order $\mathcal{O}(N_{\text{dof}}^2 r)$, destroying the online computational advantage of the reduced model.
 
-\subsection{Discrete Empirical Interpolation and Hyper-Reduction Schemes}
-\label{subsec:deim_formulation}
-To regain online complexity independent of $N_{\text{dof}}$, hyper-reduction techniques approximate the parameterized nonlinear or non-affine operators by sampling only a small subset of spatial indices or quadrature points.
-
-In the Discrete Empirical Interpolation Method (DEIM) \cite{Chaturantabut2010} and its matrix variants (MDEIM) \cite{Bonomi2017}, the parameter-dependent integrand or vector field $\bm{f}(\bm{\mu})$ is approximated via a collateral basis $\bm{\Phi}_m \in \mathbb{R}^{N_{\text{dof}} \times m}$ ($m \ll N_{\text{dof}}$) extracted from operator snapshots:
+\subsection{Energy-Conserving Sampling and Weighting (ECSW)}
+\label{subsec:ecsw_formulation}
+To restore complete online independence from the full mesh size $N_{\text{dof}}$, we adopt Energy-Conserving Sampling and Weighting (ECSW) \cite{Farhat2014, farhat2015, Maierhofer2022}. In IGA, the reference domain $\hat{\Omega}$ is partitioned into $E$ knot span elements $\hat{\Omega}_e$. The global stiffness matrix is assembled from element contributions:
 \begin{equation}
-    \bm{f}(\bm{\mu}) \approx \bm{\Phi}_m \left( \bm{P}^\top \bm{\Phi}_m \right)^{-1} \bm{P}^\top \bm{f}(\bm{\mu}),
+    \bm{K}(\bm{\mu}) = \sum_{e=1}^E \bm{L}_e^\top \bm{K}_e(\bm{\mu}) \bm{L}_e,
 \end{equation}
-where $\bm{P} = [\bm{e}_{\wp_1}, \dots, \bm{e}_{\wp_m}] \in \mathbb{R}^{N_{\text{dof}} \times m}$ is a sampling matrix selecting $m$ optimal interpolation indices determined via a greedy error-minimization algorithm \cite{Chaturantabut2010, Cai2022}.
+where $\bm{L}_e \in \mathbb{R}^{n_e \times N_{\text{dof}}}$ is the element Boolean localization operator. Projecting onto the POD basis $\bm{V}_r$ yields:
+\begin{equation}
+    \bm{K}_r(\bm{\mu}) = \sum_{e=1}^E \bm{V}_r^{e\top} \bm{K}_e(\bm{\mu}) \bm{V}_r^e,
+\end{equation}
+with $\bm{V}_r^e = \bm{L}_e \bm{V}_r \in \mathbb{R}^{n_e \times r}$. ECSW approximates this full summation via a sparse weighted subset of elements $\mathcal{E}^* \subset \{1, \dots, E\}$ with $|\mathcal{E}^*| = E^* \ll E$:
+\begin{equation}
+    \tilde{\bm{K}}_r(\bm{\mu}) = \sum_{e \in \mathcal{E}^*} w_e \bm{V}_r^{e\top} \bm{K}_e(\bm{\mu}) \bm{V}_r^e,
+    \label{eq:ecsw_stiffness}
+\end{equation}
+where $w_e > 0$ are positive scalar integration weights. Because $w_e > 0$ and element matrices $\bm{K}_e$ are positive semi-definite, the hyper-reduced stiffness $\tilde{\bm{K}}_r(\bm{\mu})$ strictly preserves symmetric positive-definiteness (SPD) and mechanical stability.
 
-Alternatively, Energy-Conserving Sampling and Weighting (ECSW), developed by Farhat et al. \cite{Farhat2014, farhat2015}, selects a sparse subset of element domains $\hat{\Omega}_e$ with non-negative weights determined via non-negative least squares (NNLS) \cite{lawson1974, Maierhofer2022}. Unlike point collocation, ECSW strictly preserves the symmetric positive-definiteness (SPD) and energy conservation principles of the continuous Hamiltonian elastodynamic system. With hyper-reduction, the online evaluation cost of $\bm{K}_r(\bm{\mu})$ scales as $\mathcal{O}(m \cdot r^2)$ rather than $\mathcal{O}(N_{\text{dof}})$, guaranteeing complete detachment from the underlying IGA mesh resolution during online evaluation.
+\subsection{Weight Optimization and Coercivity Pre-Seeding}
+\label{subsec:nnls_optimization}
+The weights $\bm{w} = [w_e]_{e=1}^E$ are determined by solving a Non-Negative Least Squares (NNLS) problem \cite{lawson1974} over training state snapshots:
+\begin{equation}
+    \min_{\bm{w} \ge \bm{0}} \|\bm{A}\bm{w} - \bm{b}\|_2^2,
+    \label{eq:nnls}
+\end{equation}
+where $\bm{A}_{:, e}$ represents the projected element internal force vector and $\bm{b}$ is the target full-mesh projected force vector across all training instances. To guarantee structural coercivity and prevent numerical under-integration at Dirichlet boundaries and stress concentrations, the active index set is pre-seeded with clamped and geometric feature elements:
+\begin{equation}
+    \mathcal{E}_{\text{seed}} = \mathcal{E}_{\text{clamp}} \cup \mathcal{E}_{\text{notch}} \subseteq \mathcal{E}^*.
+\end{equation}
+To eliminate minor residual stiffness drift, the weights are calibrated at a reference parameter $\bm{\mu}_0$ using the dominant mode $\bm{\phi}_1$:
+\begin{equation}
+    \gamma_{\text{stiff}} = \frac{\bm{\phi}_1^\top \bm{K}(\bm{\mu}_0) \bm{\phi}_1}{\bm{\phi}_1^\top \tilde{\bm{K}}(\bm{\mu}_0) \bm{\phi}_1}, \quad w_e \gets \gamma_{\text{stiff}} \, w_e \quad \forall e \in \mathcal{E}^*.
+\end{equation}
+With ECSW, the online evaluation cost of $\tilde{\bm{K}}_r(\bm{\mu})$ scales as $\mathcal{O}(E^* \cdot n_e \cdot r^2)$, achieving total detachment from $N_{\text{dof}}$. A systematic comparison of asymptotic costs is summarized in Table~\ref{tab:computational_complexity}.
+
+\begin{table}[htbp]
+\centering
+\caption{Asymptotic computational complexity comparison across FOM, standard Galerkin pROM, and ECSW hyper-reduced pROM per time step.}
+\label{tab:computational_complexity}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{Offline Cost} & \textbf{Online Assembly} & \textbf{Online Solve} & \textbf{Scales with $N_{\text{dof}}$?} \\
+\midrule
+Full Order (FOM) & None & $\mathcal{O}(E \cdot n_e^2)$ & $\mathcal{O}(N_{\text{dof}}^{\alpha})$ ($\alpha \approx 1.5\text{--}2$) & Yes (Full mesh) \\
+Galerkin pROM & $\mathcal{O}(N_{\text{snap}} N_{\text{dof}}^2)$ & $\mathcal{O}(E \cdot n_e \cdot r)$ & $\mathcal{O}(r^3)$ & Yes ($\mathcal{O}(E)$ loop) \\
+\textbf{ECSW pROM} & $\text{SVD} + \text{NNLS}$ & $\bm{\mathcal{O}(E^* \cdot n_e \cdot r^2)}$ & $\bm{\mathcal{O}(r^3)}$ & \textbf{No ($E^* \ll E$)} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{algorithm}[htbp]
+\caption{Offline ECSW Hyper-reduction Training}
+\label{alg:ecsw_training}
+\begin{algorithmic}[1]
+\Require Full mesh elements $E$, POD basis $\bm{V}_r$, training states $\{\hat{\bm{u}}_k\}_{k=1}^{M}$, tolerance $\varepsilon_{\text{tol}}$.
+\Ensure Active element set $\mathcal{E}^*$, positive weights $\{w_e\}_{e \in \mathcal{E}^*}$.
+\State Assemble force snapshot matrix $\bm{A} \in \mathbb{R}^{rM \times E}$ and target $\bm{b} \in \mathbb{R}^{rM}$.
+\State Pre-seed coercivity elements: $\mathcal{E}^* \gets \mathcal{E}_{\text{clamp}} \cup \mathcal{E}_{\text{notch}}$.
+\State Initialize residual $\bm{r} \gets \bm{b} - \sum_{e \in \mathcal{E}^*} \bm{A}_{:, e}$.
+\While{$\|\bm{r}\|_2 / \|\bm{b}\|_2 > \varepsilon_{\text{tol}}$ and $|\mathcal{E}^*| < E_{\max}^*$}
+    \State Select candidate: $e^* \gets \arg\max_{e \notin \mathcal{E}^*} \left( \bm{A}_{:, e}^\top \bm{r} \right)$.
+    \State Update active set: $\mathcal{E}^* \gets \mathcal{E}^* \cup \{e^*\}$.
+    \State Solve NNLS for non-negative weights $\bm{w}$ restricted to $\mathcal{E}^*$.
+    \State Update residual $\bm{r} \gets \bm{b} - \bm{A}_{:, \mathcal{E}^*} \bm{w}$.
+\EndWhile
+\State Apply modal stiffness calibration: $\bm{w} \gets \gamma_{\text{stiff}} \bm{w}$.
+\State \Return $\mathcal{E}^*, \{w_e\}_{e \in \mathcal{E}^*}$.
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=0.6cm,
+    block/.style={rectangle, draw=blue!80, fill=blue!8, rounded corners, minimum width=3.2in, minimum height=0.45cm, align=center, font=\scriptsize},
+    subblock/.style={rectangle, draw=cyan!80!black, fill=cyan!10, rounded corners, text width=1.45in, minimum height=0.6cm, align=center, font=\tiny},
+    arrow/.style={thick, ->, >=stealth}
+]
+\node [block] (b1) {\textbf{Offline Step 1: Reference Domain Pullback \& FOM Simulation} \\ Map varying $\Omega(\bm{\mu})$ to $\hat{\Omega}$ \ \textbullet\ \ Collect snapshot matrix $\bm{S}$};
+\node [block, below=0.35cm of b1] (b2) {\textbf{Offline Step 2: POD Truncation \& ECSW Training} \\ Thin SVD of $\bm{S} \to \bm{V}_r$ \ \textbullet\ \ NNLS element selection ($E^* \ll E$)};
+\node [block, below=0.35cm of b2] (b3) {\textbf{Online Evaluation for New Parameter $\bm{\mu} \in \mathcal{P}$}};
+
+\node [subblock, below=0.25cm of b3, xshift=-0.8in] (b4a) {\textbf{Sparse Operator Assembly} \\ Assemble $\tilde{\bm{K}}_r(\bm{\mu})$ over $E^*$ only \\ Cost: $\mathcal{O}(E^* \cdot r^2)$};
+\node [subblock, below=0.25cm of b3, xshift=0.8in] (b4b) {\textbf{Reduced Time Stepping} \\ Solve $r \times r$ Newmark system \\ Cost: $\mathcal{O}(r^3)$};
+
+\draw [arrow] (b1) -- (b2);
+\draw [arrow] (b2) -- (b3);
+\draw [arrow] (b3.south) -| (b4a.north);
+\draw [arrow] (b3.south) -| (b4b.north);
+\end{tikzpicture}
+\caption{Comprehensive offline-online IGA-pROM-ECSW hyper-reduction pipeline.}
+\label{fig:prom_pipeline}
+\end{figure}

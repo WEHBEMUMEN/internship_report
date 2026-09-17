@@ -1,36 +1,36 @@
 \section*{Nomenclature}
 \addcontentsline{toc}{section}{Nomenclature}
 
-\noindent\begin{tabularx}{\linewidth}{@{}l X@{}}
+\noindent{\footnotesize
+\begin{tabularx}{\linewidth}{@{}l X@{}}
 \multicolumn{2}{@{}l}{\textbf{Latin Symbols}} \\
-$\bm{u}, \dot{\bm{u}}, \ddot{\bm{u}}$ & Displacement, velocity, acceleration fields \\
-$\hat{\bm{u}}$ & Vector of control variable displacements \\
-$\bm{M}, \bm{C}, \bm{K}$ & Full-order mass, damping, stiffness matrices \\
-$\bm{M}_r, \bm{K}_r$ & Reduced mass and stiffness matrices \\
-$\bm{V}_r$ & Projection basis matrix ($\bm{V}_r \in \mathbb{R}^{N_{\text{dof}} \times r}$) \\
-$\bm{F}_{\text{ext}}, \bm{F}_r$ & Full and reduced external force vectors \\
-$\bm{q}_r$ & Reduced coordinate vector \\
+$\bm{u}, \dot{\bm{u}}, \ddot{\bm{u}}$ & Displacement, velocity, and acceleration fields \\
+$\hat{\bm{u}}, \bm{q}_r$ & Full control variable and reduced coordinate vectors \\
+$\bm{M}, \bm{C}, \bm{K}$ & Full-order mass, damping, and stiffness matrices \\
+$\bm{M}_r, \bm{C}_r, \bm{K}_r$ & Reduced mass, damping, and stiffness matrices \\
+$\bm{V}_r, \bm{P}$ & POD projection basis and DEIM selection matrix \\
+$\bm{F}_{\text{ext}}, \bm{F}_r$ & Full and reduced external dynamic load vectors \\
+$\bm{S}, \bm{U}, \bm{\Sigma}, \bm{W}$ & Snapshot and SVD factor matrices \\
+$\sigma_i, \bm{\phi}_i, \bm{\psi}_i$ & Singular values and left/right singular vectors \\
 $N_{i,p}, R_i^p$ & B-spline and NURBS basis functions \\
-$N_{\text{dof}}, r, m$ & Full DOFs, reduced basis size, sample points \\
-$\bm{P}$ & Hyper-reduction selection matrix \\[0.6em]
+$N_{\text{dof}}, r$ & Full degrees of freedom and reduced basis rank \\
+$E, E^*$ & Total mesh elements and ECSW active element subset \\
+$w_e, \gamma_{\text{stiff}}$ & ECSW integration weights and stiffness scale factor \\[0.3em]
 
 \multicolumn{2}{@{}l}{\textbf{Greek Symbols}} \\
-$\Omega(\bm{\mu}), \Gamma$ & Physical domain and boundary \\
-$\hat{\Omega}$ & Fixed reference parametric domain \\
-$\bm{\xi} = (\xi, \eta, \zeta)$ & Parametric coordinates \\
-$\bm{\mu}$ & Parameter vector ($\bm{\mu} \in \mathcal{P}$) \\
-$\Xi$ & Knot vector \\
-$\bm{\varepsilon}, \bm{\sigma}$ & Strain and Cauchy stress tensors \\
-$\rho, \mathbb{C}$ & Density and fourth-order elasticity tensor \\
-$\bm{\Phi}$ & Geometric mapping ($\hat{\Omega} \to \Omega$) \\
-$\bm{J}, J$ & Jacobian matrix and determinant \\[0.6em]
+$\Omega(\bm{\mu}), \hat{\Omega}$ & Physical and fixed reference parametric domains \\
+$\bm{\xi}, \bm{\mu}$ & Parametric coordinates and parameter vector \\
+$\Xi, \bm{\varepsilon}, \bm{\sigma}$ & Knot vector, strain, and Cauchy stress tensors \\
+$\rho, \mathbb{C}$ & Mass density and fourth-order elasticity tensor \\
+$\alpha_M, \beta_K$ & Rayleigh mass and stiffness damping parameters \\
+$\beta_{\text{N}}, \gamma_{\text{N}}$ & Newmark time integration parameters \\
+$\bm{\Phi}, \bm{J}, J$ & Geometric map, Jacobian matrix, and determinant $\det(\bm{J})$ \\
+$\mathcal{E}(r), \gamma(r)$ & Cumulative snapshot energy ratio \\[0.3em]
 
 \multicolumn{2}{@{}l}{\textbf{Acronyms}} \\
-IGA & Isogeometric Analysis \\
-POD & Proper Orthogonal Decomposition \\
-pROM & Projection-based Reduced Order Model \\
-SVD & Singular Value Decomposition \\
-DEIM & Discrete Empirical Interpolation Method \\
-ECSW & Energy-Conserving Sampling and Weighting \\
+IGA, POD, pROM & Isogeometric Analysis, POD, reduced model \\
+SVD, NNLS, FOM & Singular Value Decomp., NNLS, Full Order Model \\
+DEIM, ECSW & Discrete Empirical Interp., Energy-Conserving Sampling \\
 \end{tabularx}
-\vspace{1em}
+}
+\vspace{0.3em}

@@ -12,14 +12,14 @@ The optimal $r$-dimensional projection basis $\bm{V}_r \in \mathbb{R}^{N_{\text{
 \begin{equation}
     \bm{V}_r = \begin{bmatrix} \bm{\phi}_1 & \bm{\phi}_2 & \cdots & \bm{\phi}_r \end{bmatrix}, \quad \bm{V}_r^\top \bm{V}_r = \bm{I}_r.
 \end{equation}
-The truncated basis captures the maximum kinetic/strain energy of the snapshot ensemble according to the relative singular value decay:
+The truncated basis captures the maximum kinetic and strain energy of the snapshot ensemble according to the relative singular value decay:
 \begin{equation}
     \mathcal{E}(r) = \frac{\sum_{i=1}^r \sigma_i^2}{\sum_{i=1}^{N_{\text{snap}}} \sigma_i^2}.
 \end{equation}
 
 \subsection{Galerkin Projection for Parameterized Dynamics}
 \label{subsec:galerkin_prom}
-The state vector is approximated as a linear combination of reduced basis modes:
+The full displacement vector is approximated as a linear combination of reduced basis modes:
 \begin{equation}
     \hat{\bm{u}}(t; \bm{\mu}) \approx \bm{V}_r \bm{q}_r(t; \bm{\mu}),
 \end{equation}
@@ -28,8 +28,42 @@ where $\bm{q}_r(t; \bm{\mu}) \in \mathbb{R}^r$ denotes the reduced generalized c
     \bm{M}_r(\bm{\mu}) \ddot{\bm{q}}_r(t) + \bm{C}_r(\bm{\mu}) \dot{\bm{q}}_r(t) + \bm{K}_r(\bm{\mu}) \bm{q}_r(t) = \bm{F}_r(t; \bm{\mu}),
     \label{eq:reduced_ode}
 \end{equation}
-where:
+with initial conditions $\bm{q}_r(0) = \bm{V}_r^\top \bm{M} \hat{\bm{u}}(0)$ and $\dot{\bm{q}}_r(0) = \bm{V}_r^\top \bm{M} \dot{\hat{\bm{u}}}(0)$, and where the projected operators are:
+\begin{align}
+    \bm{M}_r(\bm{\mu}) &= \bm{V}_r^\top \bm{M}(\bm{\mu}) \bm{V}_r, \quad \bm{C}_r(\bm{\mu}) = \bm{V}_r^\top \bm{C}(\bm{\mu}) \bm{V}_r, \label{eq:red_matrices1} \\
+    \bm{K}_r(\bm{\mu}) &= \bm{V}_r^\top \bm{K}(\bm{\mu}) \bm{V}_r, \quad \bm{F}_r(t; \bm{\mu}) = \bm{V}_r^\top \bm{F}_{\text{ext}}(t; \bm{\mu}). \label{eq:red_matrices2}
+\end{align}
+
+\subsection{Reduced Transient Time Integration}
+\label{subsec:reduced_time_integration}
+Equation~\eqref{eq:reduced_ode} is integrated online using the unconditionally stable Newmark-$\beta$ implicit scheme with standard average acceleration parameters ($\beta_{\text{N}} = 0.25$, $\gamma_{\text{N}} = 0.5$). At each time step $t_{n+1} = t_n + \Delta t$, the effective linear system of size $r \times r$ is solved:
 \begin{equation}
-    \bm{M}_r(\bm{\mu}) = \bm{V}_r^\top \bm{M}(\bm{\mu}) \bm{V}_r, \quad \bm{K}_r(\bm{\mu}) = \bm{V}_r^\top \bm{K}(\bm{\mu}) \bm{V}_r, \quad \bm{F}_r(t; \bm{\mu}) = \bm{V}_r^\top \bm{F}_{\text{ext}}(t; \bm{\mu}).
+    \hat{\bm{K}}_r(\bm{\mu}) \bm{q}_{r, n+1} = \hat{\bm{F}}_{r, n+1},
+    \label{eq:effective_reduced_system}
 \end{equation}
-In linear cases with affine parameter dependence, $\bm{M}_r(\bm{\mu})$ and $\bm{K}_r(\bm{\mu})$ can be precomputed offline as linear combinations of parameter-independent projected matrices, enabling extremely rapid online time integration.
+where:
+\begin{align}
+    \hat{\bm{K}}_r(\bm{\mu}) &= \bm{K}_r(\bm{\mu}) + c_1 \bm{C}_r(\bm{\mu}) + c_0 \bm{M}_r(\bm{\mu}), \\
+    \hat{\bm{F}}_{r, n+1} &= \bm{F}_r(t_{n+1}; \bm{\mu}) \nonumber \\
+    &\quad + \bm{M}_r \left( c_0 \bm{q}_{r,n} + c_2 \dot{\bm{q}}_{r,n} + c_3 \ddot{\bm{q}}_{r,n} \right) \nonumber \\
+    &\quad + \bm{C}_r \left( c_1 \bm{q}_{r,n} + c_4 \dot{\bm{q}}_{r,n} + c_5 \ddot{\bm{q}}_{r,n} \right),
+\end{align}
+with Newmark integration constants $c_0 = \frac{1}{\beta_{\text{N}} \Delta t^2}$, $c_1 = \frac{\gamma_{\text{N}}}{\beta_{\text{N}} \Delta t}$, $c_2 = \frac{1}{\beta_{\text{N}} \Delta t}$, $c_3 = \frac{1}{2\beta_{\text{N}}} - 1$, $c_4 = \frac{\gamma_{\text{N}}}{\beta_{\text{N}}} - 1$, and $c_5 = \Delta t \left(\frac{\gamma_{\text{N}}}{2\beta_{\text{N}}} - 1\right)$. Because $\hat{\bm{K}}_r \in \mathbb{R}^{r \times r}$, the factorizations require merely $\mathcal{O}(r^3)$ operations per time step.
+
+\begin{algorithm}[htbp]
+\caption{Offline Snapshot Collection and IGA-POD Basis Generation}
+\label{alg:pod_basis_generation}
+\begin{algorithmic}[1]
+\Require Admissible parameter samples $\{\bm{\mu}_k\}_{k=1}^{N_s} \subset \mathcal{P}$, time steps $\{t_j\}_{j=1}^{N_t}$, tolerance $\varepsilon_{\text{POD}}$.
+\Ensure Reduced basis $\bm{V}_r \in \mathbb{R}^{N_{\text{dof}} \times r}$.
+\State Initialize snapshot matrix $\bm{S} \gets [\;]$.
+\For{$k = 1, \dots, N_s$}
+    \State Compute FOM transient trajectory $\{\hat{\bm{u}}(t_j; \bm{\mu}_k)\}_{j=1}^{N_t}$ on $\hat{\Omega}$.
+    \State Concatenate into $\bm{S} \gets [\bm{S}, \; \hat{\bm{u}}(t_1; \bm{\mu}_k), \dots, \hat{\bm{u}}(t_{N_t}; \bm{\mu}_k)]$.
+\EndFor
+\State Compute Thin SVD: $\bm{S} = \bm{U} \bm{\Sigma} \bm{W}^\top$.
+\State Determine truncation rank $r$ such that $\mathcal{E}(r) \ge 1 - \varepsilon_{\text{POD}}$.
+\State Form reduced basis $\bm{V}_r = \bm{U}[:, 1:r]$.
+\State \Return $\bm{V}_r$.
+\end{algorithmic}
+\end{algorithm}

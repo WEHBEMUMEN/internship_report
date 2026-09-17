@@ -1,15 +1,40 @@
 \subsection{B-splines and NURBS Formulations}
 \label{subsec:bsplines_nurbs}
-In Isogeometric Analysis (IGA) \cite{hughes2005, cottrell2009}, the geometric domain and the unknown solution fields are parameterized using identical basis functions. A univariate B-spline basis function of degree $p$, denoted $N_{i,p}(\xi)$, is constructed recursively over an open knot vector $\Xi = \{\xi_1, \xi_2, \dots, \xi_{n+p+1}\}$ via the Cox-de Boor recursion formula \cite{piegl1997}:
+In Isogeometric Analysis (IGA) \cite{hughes2005, cottrell2009}, the geometric domain and the unknown physical solution fields are discretized using identical smooth spline basis functions. A univariate B-spline basis function of degree $p$, denoted $N_{i,p}(\xi)$, is constructed recursively over an open knot vector $\Xi = \{\xi_1, \xi_2, \dots, \xi_{n+p+1}\}$ via the Cox-de Boor recursion formula \cite{piegl1997}:
 \begin{align}
     N_{i,0}(\xi) &= \begin{cases} 1 & \text{if } \xi_i \le \xi < \xi_{i+1}, \\ 0 & \text{otherwise}, \end{cases} \\
     N_{i,p}(\xi) &= \frac{\xi - \xi_i}{\xi_{i+p} - \xi_i} N_{i,p-1}(\xi) + \frac{\xi_{i+p+1} - \xi}{\xi_{i+p+1} - \xi_{i+1}} N_{i+1,p-1}(\xi).
 \end{align}
-Non-Uniform Rational B-Splines (NURBS) are obtained by introducing projective weights $w_i > 0$:
+Non-Uniform Rational B-Splines (NURBS) are obtained by introducing projective weights $w_i > 0$ to capture conic sections and exact CAD geometries:
 \begin{equation}
     R_i^p(\xi) = \frac{N_{i,p}(\xi) w_i}{\sum_{j=1}^n N_{j,p}(\xi) w_j}.
 \end{equation}
-Multivariate basis functions in 2D and 3D are defined via tensor products of univariate B-spline or NURBS functions.
+Multivariate basis functions in 2D and 3D are defined via tensor products of univariate B-spline or NURBS functions. For example, in three dimensions:
+\begin{equation}
+    R_{i,j,k}^{p,q,s}(\xi, \eta, \zeta) = \frac{N_{i,p}(\xi) M_{j,q}(\eta) L_{k,s}(\zeta) w_{i,j,k}}{\sum_{\hat{i},\hat{j},\hat{k}} N_{\hat{i},p}(\xi) M_{\hat{j},q}(\eta) L_{\hat{k},s}(\zeta) w_{\hat{i},\hat{j},\hat{k}}}.
+\end{equation}
+
+A fundamental advantage of IGA over standard Finite Element Methods (FEM) is $k$-refinement (order elevation followed by knot insertion), which yields basis functions with maximum inter-element continuity $C^{p-1}$ across knot spans \cite{cottrell2009}. In transient structural dynamics, this elevated inter-element regularity prevents spurious optical frequency branches, dramatically suppresses numerical dispersion errors, and delivers superior spectral convergence per degree of freedom. A comparative synthesis highlighting these distinctions is provided in Table~\ref{tab:fem_vs_iga}.
+
+\begin{table}[htbp]
+\centering
+\caption{Methodological comparison between classical $C^0$ FEM and $C^{p-1}$ IGA for structural dynamics.}
+\label{tab:fem_vs_iga}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lll}
+\toprule
+\textbf{Feature} & \textbf{Classical FEM} & \textbf{Isogeometric Analysis (IGA)} \\
+\midrule
+Geometry representation & Faceted / piecewise linear & Exact CAD / NURBS at all scales \\
+Inter-element continuity & $C^0$ (derivative jumps) & $C^{p-1}$ across internal knot spans \\
+Refinement mechanisms & $h$- and $p$-refinement & $h$-, $p$-, and $k$-refinement \\
+Dispersion \& optical modes & High dispersion; optical branches & Minimized dispersion; acoustic spectrum \\
+Parametric domain & Non-aligned element grids & Fixed tensor unit cube $\hat{\Omega} = (0,1)^d$ \\
+Shape morphing for ROM & Costly remeshing / morphing & Natural pullback mapping $\bm{\Phi}(\bm{\xi}; \bm{\mu})$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 
 \subsection{Galerkin Semidiscretization}
 \label{subsec:iga_semidiscretization}
@@ -17,9 +42,9 @@ Using the isoparametric concept, the displacement vector $\bm{u}(\bm{x}, t)$ is 
 \begin{equation}
     \bm{u}^h(\bm{x}, t) = \sum_{A=1}^{N_{\text{cp}}} R_A(\bm{\xi}(\bm{x})) \, \hat{\bm{u}}_A(t),
 \end{equation}
-where $N_{\text{cp}}$ denotes the number of control points and $\hat{\bm{u}}_A(t)$ are the corresponding control point displacements. Substituting this expansion into the weak form~\eqref{eq:weak_form} yields the semi-discrete equation of motion:
+where $N_{\text{cp}}$ denotes the number of control points and $\hat{\bm{u}}_A(t)$ are the corresponding control point displacement vectors. Substituting this expansion into the weak form~\eqref{eq:weak_form} alongside the Rayleigh damping model~\eqref{eq:rayleigh_damping} yields the semi-discrete equation of motion:
 \begin{equation}
     \bm{M}(\bm{\mu}) \ddot{\hat{\bm{u}}}(t) + \bm{C}(\bm{\mu}) \dot{\hat{\bm{u}}}(t) + \bm{K}(\bm{\mu}) \hat{\bm{u}}(t) = \bm{F}_{\text{ext}}(t; \bm{\mu}),
     \label{eq:semidiscrete_system}
 \end{equation}
-where $\bm{M} \in \mathbb{R}^{N_{\text{dof}} \times N_{\text{dof}}}$, $\bm{K} \in \mathbb{R}^{N_{\text{dof}} \times N_{\text{dof}}}$, and $\bm{C} \in \mathbb{R}^{N_{\text{dof}} \times N_{\text{dof}}}$ represent the global mass, stiffness, and damping matrices, respectively, with $N_{\text{dof}} = d \times N_{\text{cp}}$.
+where $\bm{M}, \bm{C}, \bm{K} \in \mathbb{R}^{N_{\text{dof}} \times N_{\text{dof}}}$ represent the global mass, damping, and stiffness matrices, respectively, with $N_{\text{dof}} = d \times N_{\text{cp}}$. The damping matrix is given by $\bm{C}(\bm{\mu}) = \alpha_M \bm{M}(\bm{\mu}) + \beta_K \bm{K}(\bm{\mu})$.
