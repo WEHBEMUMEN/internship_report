@@ -28,7 +28,7 @@ where $\bm{q}_r(t; \bm{\mu}) \in \mathbb{R}^r$ denotes the reduced generalized c
     \bm{M}_r(\bm{\mu}) \ddot{\bm{q}}_r(t) + \bm{C}_r(\bm{\mu}) \dot{\bm{q}}_r(t) + \bm{K}_r(\bm{\mu}) \bm{q}_r(t) = \bm{F}_r(t; \bm{\mu}),
     \label{eq:reduced_ode}
 \end{equation}
-with initial conditions $\bm{q}_r(0) = \bm{V}_r^\top \bm{M} \hat{\bm{u}}(0)$ and $\dot{\bm{q}}_r(0) = \bm{V}_r^\top \bm{M} \dot{\hat{\bm{u}}}(0)$, and where the projected operators are:
+with initial conditions $\bm{q}_r(0) = \bm{V}_r^\top \hat{\bm{u}}(0)$ and $\dot{\bm{q}}_r(0) = \bm{V}_r^\top \dot{\hat{\bm{u}}}(0)$ (which identically vanish for structures initially at rest), and where the projected operators are:
 \begin{align}
     \bm{M}_r(\bm{\mu}) &= \bm{V}_r^\top \bm{M}(\bm{\mu}) \bm{V}_r, \quad \bm{C}_r(\bm{\mu}) = \bm{V}_r^\top \bm{C}(\bm{\mu}) \bm{V}_r, \label{eq:red_matrices1} \\
     \bm{K}_r(\bm{\mu}) &= \bm{V}_r^\top \bm{K}(\bm{\mu}) \bm{V}_r, \quad \bm{F}_r(t; \bm{\mu}) = \bm{V}_r^\top \bm{F}_{\text{ext}}(t; \bm{\mu}). \label{eq:red_matrices2}

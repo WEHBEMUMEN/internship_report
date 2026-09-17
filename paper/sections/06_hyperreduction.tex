@@ -1,31 +1,31 @@
 \subsection{The Non-Affine / Nonlinear Evaluation Bottleneck}
 \label{subsec:hyperred_bottleneck}
-When the geometry mapping $\bm{\Phi}(\bm{\xi}; \bm{\mu})$ induces a non-affine parameter dependence in the Jacobian matrix $\bm{J}(\bm{\xi}; \bm{\mu})$ and metric tensor, the projected stiffness matrix $\bm{K}_r(\bm{\mu}) = \bm{V}_r^\top \bm{K}(\bm{\mu}) \bm{V}_r$ cannot be expressed as an exact affine expansion:
+When the geometry mapping $\bm{\Phi}(\bm{\xi}; \bm{\mu})$ induces a non-affine parameter dependence in the Jacobian matrix $\bm{J}(\bm{\xi}; \bm{\mu})$ and metric tensor, the projected stiffness matrix $\bm{K}_r(\bm{\mu}) = \bm{V}_r^\top \bm{K}(\bm{\mu}) \bm{V}_r$ and mass matrix $\bm{M}_r(\bm{\mu}) = \bm{V}_r^\top \bm{M}(\bm{\mu}) \bm{V}_r$ cannot be expressed as exact affine expansions:
 \begin{equation}
-    \bm{K}(\bm{\mu}) \neq \sum_{q=1}^{Q} \theta_q(\bm{\mu}) \bm{K}_q.
+    \bm{K}(\bm{\mu}) \neq \sum_{q=1}^{Q_K} \theta_q^K(\bm{\mu}) \bm{K}_q, \quad \bm{M}(\bm{\mu}) \neq \sum_{q=1}^{Q_M} \theta_q^M(\bm{\mu}) \bm{M}_q.
 \end{equation}
-Direct computation of $\bm{K}_r(\bm{\mu})$ at each new parameter query $\bm{\mu}$ requires assembling the full $N_{\text{dof}} \times N_{\text{dof}}$ matrix and performing full-order matrix multiplications of order $\mathcal{O}(N_{\text{dof}}^2 r)$, destroying the online computational advantage of the reduced model.
+Direct computation of $\bm{K}_r(\bm{\mu})$ and $\bm{M}_r(\bm{\mu})$ at each new parameter query $\bm{\mu}$ requires assembling the full $N_{\text{dof}} \times N_{\text{dof}}$ matrices and performing full-order projections of order $\mathcal{O}(N_{\text{dof}}^2 r)$, destroying the online computational advantage of the reduced model.
 
 \subsection{Energy-Conserving Sampling and Weighting (ECSW)}
 \label{subsec:ecsw_formulation}
-To restore complete online independence from the full mesh size $N_{\text{dof}}$, we adopt Energy-Conserving Sampling and Weighting (ECSW) \cite{Farhat2014, farhat2015, Maierhofer2022}. In IGA, the reference domain $\hat{\Omega}$ is partitioned into $E$ knot span elements $\hat{\Omega}_e$. The global stiffness matrix is assembled from element contributions:
+To restore complete online independence from the full mesh size $N_{\text{dof}}$, we adopt Energy-Conserving Sampling and Weighting (ECSW) \cite{Farhat2014, farhat2015, Maierhofer2022}. In IGA, the reference domain $\hat{\Omega}$ is partitioned into $N_e$ knot span elements $\hat{\Omega}_e$. The global stiffness and mass matrices are assembled from element contributions:
 \begin{equation}
-    \bm{K}(\bm{\mu}) = \sum_{e=1}^E \bm{L}_e^\top \bm{K}_e(\bm{\mu}) \bm{L}_e,
+    \bm{K}(\bm{\mu}) = \sum_{e=1}^{N_e} \bm{L}_e^\top \bm{K}_e(\bm{\mu}) \bm{L}_e, \quad \bm{M}(\bm{\mu}) = \sum_{e=1}^{N_e} \bm{L}_e^\top \bm{M}_e(\bm{\mu}) \bm{L}_e,
 \end{equation}
 where $\bm{L}_e \in \mathbb{R}^{n_e \times N_{\text{dof}}}$ is the element Boolean localization operator. Projecting onto the POD basis $\bm{V}_r$ yields:
 \begin{equation}
-    \bm{K}_r(\bm{\mu}) = \sum_{e=1}^E \bm{V}_r^{e\top} \bm{K}_e(\bm{\mu}) \bm{V}_r^e,
+    \bm{K}_r(\bm{\mu}) = \sum_{e=1}^{N_e} \bm{V}_r^{e\top} \bm{K}_e(\bm{\mu}) \bm{V}_r^e, \quad \bm{M}_r(\bm{\mu}) = \sum_{e=1}^{N_e} \bm{V}_r^{e\top} \bm{M}_e(\bm{\mu}) \bm{V}_r^e,
 \end{equation}
-with $\bm{V}_r^e = \bm{L}_e \bm{V}_r \in \mathbb{R}^{n_e \times r}$. ECSW approximates this full summation via a sparse weighted subset of elements $\mathcal{E}^* \subset \{1, \dots, E\}$ with $|\mathcal{E}^*| = E^* \ll E$:
+with $\bm{V}_r^e = \bm{L}_e \bm{V}_r \in \mathbb{R}^{n_e \times r}$. ECSW approximates these full summations via a shared sparse weighted subset of elements $\mathcal{E}^* \subset \{1, \dots, N_e\}$ with $|\mathcal{E}^*| = N_e^* \ll N_e$:
 \begin{equation}
-    \tilde{\bm{K}}_r(\bm{\mu}) = \sum_{e \in \mathcal{E}^*} w_e \bm{V}_r^{e\top} \bm{K}_e(\bm{\mu}) \bm{V}_r^e,
+    \tilde{\bm{K}}_r(\bm{\mu}) = \sum_{e \in \mathcal{E}^*} w_e \bm{V}_r^{e\top} \bm{K}_e(\bm{\mu}) \bm{V}_r^e, \quad \tilde{\bm{M}}_r(\bm{\mu}) = \sum_{e \in \mathcal{E}^*} w_e \bm{V}_r^{e\top} \bm{M}_e(\bm{\mu}) \bm{V}_r^e,
     \label{eq:ecsw_stiffness}
 \end{equation}
-where $w_e > 0$ are positive scalar integration weights. Because $w_e > 0$ and element matrices $\bm{K}_e$ are positive semi-definite, the hyper-reduced stiffness $\tilde{\bm{K}}_r(\bm{\mu})$ strictly preserves symmetric positive-definiteness (SPD) and mechanical stability.
+and dynamic Rayleigh damping is consistently hyper-reduced as $\tilde{\bm{C}}_r(\bm{\mu}) = \alpha_M \tilde{\bm{M}}_r(\bm{\mu}) + \beta_K \tilde{\bm{K}}_r(\bm{\mu})$, where $w_e > 0$ are positive scalar integration weights. Because $w_e > 0$ and element matrices $\bm{K}_e, \bm{M}_e$ are positive semi-definite, the hyper-reduced operators $\tilde{\bm{K}}_r(\bm{\mu})$ and $\tilde{\bm{M}}_r(\bm{\mu})$ strictly preserve symmetric positive-definiteness (SPD) and numerical stability.
 
 \subsection{Weight Optimization and Coercivity Pre-Seeding}
 \label{subsec:nnls_optimization}
-The weights $\bm{w} = [w_e]_{e=1}^E$ are determined by solving a Non-Negative Least Squares (NNLS) problem \cite{lawson1974} over training state snapshots:
+The weights $\bm{w} = [w_e]_{e=1}^{N_e}$ are determined by solving a Non-Negative Least Squares (NNLS) problem \cite{lawson1974} over training state snapshots:
 \begin{equation}
     \min_{\bm{w} \ge \bm{0}} \|\bm{A}\bm{w} - \bm{b}\|_2^2,
     \label{eq:nnls}
@@ -34,11 +34,11 @@ where $\bm{A}_{:, e}$ represents the projected element internal force vector and
 \begin{equation}
     \mathcal{E}_{\text{seed}} = \mathcal{E}_{\text{clamp}} \cup \mathcal{E}_{\text{notch}} \subseteq \mathcal{E}^*.
 \end{equation}
-To eliminate minor residual stiffness drift, the weights are calibrated at a reference parameter $\bm{\mu}_0$ using the dominant mode $\bm{\phi}_1$:
+To eliminate minor residual stiffness drift, the weights are calibrated at a reference parameter $\bm{\mu}_0$ using the dominant mode:
 \begin{equation}
-    \gamma_{\text{stiff}} = \frac{\bm{\phi}_1^\top \bm{K}(\bm{\mu}_0) \bm{\phi}_1}{\bm{\phi}_1^\top \tilde{\bm{K}}(\bm{\mu}_0) \bm{\phi}_1}, \quad w_e \gets \gamma_{\text{stiff}} \, w_e \quad \forall e \in \mathcal{E}^*.
+    \gamma_{\text{stiff}} = \frac{\bm{e}_1^\top \bm{K}_r(\bm{\mu}_0) \bm{e}_1}{\bm{e}_1^\top \tilde{\bm{K}}_r(\bm{\mu}_0) \bm{e}_1}, \quad w_e \gets \gamma_{\text{stiff}} \, w_e \quad \forall e \in \mathcal{E}^*,
 \end{equation}
-With ECSW, the online evaluation cost of $\tilde{\bm{K}}_r(\bm{\mu})$ scales as $\mathcal{O}(E^* \cdot n_e \cdot r^2)$, achieving total detachment from $N_{\text{dof}}$. A systematic comparison of asymptotic costs is summarized in Table~\ref{tab:computational_complexity}.
+where $\bm{e}_1 = [1, 0, \dots, 0]^\top \in \mathbb{R}^r$ represents the dominant generalized coordinate. With ECSW, the online evaluation cost of $\tilde{\bm{K}}_r(\bm{\mu})$ and $\tilde{\bm{M}}_r(\bm{\mu})$ scales as $\mathcal{O}(N_e^* \cdot n_e \cdot r^2)$, achieving total detachment from $N_{\text{dof}}$. A systematic comparison of asymptotic costs is summarized in Table~\ref{tab:computational_complexity}.
 
 \begin{table}[htbp]
 \centering
@@ -49,9 +49,9 @@ With ECSW, the online evaluation cost of $\tilde{\bm{K}}_r(\bm{\mu})$ scales as 
 \toprule
 \textbf{Model} & \textbf{Offline Cost} & \textbf{Online Assembly} & \textbf{Online Solve} & \textbf{Scales with $N_{\text{dof}}$?} \\
 \midrule
-Full Order (FOM) & None & $\mathcal{O}(E \cdot n_e^2)$ & $\mathcal{O}(N_{\text{dof}}^{\alpha})$ ($\alpha \approx 1.5\text{--}2$) & Yes (Full mesh) \\
-Galerkin pROM & $\mathcal{O}(N_{\text{snap}} N_{\text{dof}}^2)$ & $\mathcal{O}(E \cdot n_e \cdot r)$ & $\mathcal{O}(r^3)$ & Yes ($\mathcal{O}(E)$ loop) \\
-\textbf{ECSW pROM} & $\text{SVD} + \text{NNLS}$ & $\bm{\mathcal{O}(E^* \cdot n_e \cdot r^2)}$ & $\bm{\mathcal{O}(r^3)}$ & \textbf{No ($E^* \ll E$)} \\
+Full Order (FOM) & None & $\mathcal{O}(N_e \cdot n_e^2)$ & $\mathcal{O}(N_{\text{dof}}^{\alpha})$ ($\alpha \approx 1.5\text{--}2$) & Yes (Full mesh) \\
+Galerkin pROM & $\mathcal{O}(N_{\text{snap}} N_{\text{dof}}^2)$ & $\mathcal{O}(N_e \cdot n_e \cdot r)$ & $\mathcal{O}(r^3)$ & Yes ($\mathcal{O}(N_e)$ loop) \\
+\textbf{ECSW pROM} & $\text{SVD} + \text{NNLS}$ & $\bm{\mathcal{O}(N_e^* \cdot n_e \cdot r^2)}$ & $\bm{\mathcal{O}(r^3)}$ & \textbf{No ($N_e^* \ll N_e$)} \\
 \bottomrule
 \end{tabular}%
 }
@@ -61,12 +61,12 @@ Galerkin pROM & $\mathcal{O}(N_{\text{snap}} N_{\text{dof}}^2)$ & $\mathcal{O}(E
 \caption{Offline ECSW Hyper-reduction Training}
 \label{alg:ecsw_training}
 \begin{algorithmic}[1]
-\Require Full mesh elements $E$, POD basis $\bm{V}_r$, training states $\{\hat{\bm{u}}_k\}_{k=1}^{M}$, tolerance $\varepsilon_{\text{tol}}$.
+\Require Full mesh elements $N_e$, POD basis $\bm{V}_r$, training states $\{\hat{\bm{u}}_k\}_{k=1}^{M}$, tolerance $\varepsilon_{\text{tol}}$.
 \Ensure Active element set $\mathcal{E}^*$, positive weights $\{w_e\}_{e \in \mathcal{E}^*}$.
-\State Assemble force snapshot matrix $\bm{A} \in \mathbb{R}^{rM \times E}$ and target $\bm{b} \in \mathbb{R}^{rM}$.
+\State Assemble force snapshot matrix $\bm{A} \in \mathbb{R}^{rM \times N_e}$ and target $\bm{b} \in \mathbb{R}^{rM}$.
 \State Pre-seed coercivity elements: $\mathcal{E}^* \gets \mathcal{E}_{\text{clamp}} \cup \mathcal{E}_{\text{notch}}$.
-\State Initialize residual $\bm{r} \gets \bm{b} - \sum_{e \in \mathcal{E}^*} \bm{A}_{:, e}$.
-\While{$\|\bm{r}\|_2 / \|\bm{b}\|_2 > \varepsilon_{\text{tol}}$ and $|\mathcal{E}^*| < E_{\max}^*$}
+\State Solve initial NNLS on $\mathcal{E}^*$ for weights $\bm{w}$ and initialize $\bm{r} \gets \bm{b} - \bm{A}_{:, \mathcal{E}^*} \bm{w}$.
+\While{$\|\bm{r}\|_2 / \|\bm{b}\|_2 > \varepsilon_{\text{tol}}$ and $|\mathcal{E}^*| < N_{e,\max}^*$}
     \State Select candidate: $e^* \gets \arg\max_{e \notin \mathcal{E}^*} \left( \bm{A}_{:, e}^\top \bm{r} \right)$.
     \State Update active set: $\mathcal{E}^* \gets \mathcal{E}^* \cup \{e^*\}$.
     \State Solve NNLS for non-negative weights $\bm{w}$ restricted to $\mathcal{E}^*$.

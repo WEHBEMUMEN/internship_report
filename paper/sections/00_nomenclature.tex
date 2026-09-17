@@ -8,18 +8,18 @@ $\bm{u}, \dot{\bm{u}}, \ddot{\bm{u}}$ & Displacement, velocity, and acceleration
 $\hat{\bm{u}}, \bm{q}_r$ & Full control variable and reduced coordinate vectors \\
 $\bm{M}, \bm{C}, \bm{K}$ & Full-order mass, damping, and stiffness matrices \\
 $\bm{M}_r, \bm{C}_r, \bm{K}_r$ & Reduced mass, damping, and stiffness matrices \\
-$\bm{V}_r, \bm{P}$ & POD projection basis and DEIM selection matrix \\
+$\bm{V}_r, \bm{P}_A$ & POD projection basis and parameterized control points \\
 $\bm{F}_{\text{ext}}, \bm{F}_r$ & Full and reduced external dynamic load vectors \\
 $\bm{S}, \bm{U}, \bm{\Sigma}, \bm{W}$ & Snapshot and SVD factor matrices \\
 $\sigma_i, \bm{\phi}_i, \bm{\psi}_i$ & Singular values and left/right singular vectors \\
 $N_{i,p}, R_i^p$ & B-spline and NURBS basis functions \\
 $N_{\text{dof}}, r$ & Full degrees of freedom and reduced basis rank \\
-$E, E^*$ & Total mesh elements and ECSW active element subset \\
+$N_e, N_e^*$ & Total mesh elements and ECSW active element subset \\
 $w_e, \gamma_{\text{stiff}}$ & ECSW integration weights and stiffness scale factor \\[0.3em]
 
 \multicolumn{2}{@{}l}{\textbf{Greek Symbols}} \\
-$\Omega(\bm{\mu}), \hat{\Omega}$ & Physical and fixed reference parametric domains \\
-$\bm{\xi}, \bm{\mu}$ & Parametric coordinates and parameter vector \\
+$\Omega(\bm{\mu}), \hat{\Omega}$ & Parameterized physical and invariant reference domains \\
+$\hat{\Omega}_{\text{param}}, \bm{\xi}, \bm{\mu}$ & Parametric unit domain, parametric coordinates, and parameter vector \\
 $\Xi, \bm{\varepsilon}, \bm{\sigma}$ & Knot vector, strain, and Cauchy stress tensors \\
 $\rho, \mathbb{C}$ & Mass density and fourth-order elasticity tensor \\
 $\alpha_M, \beta_K$ & Rayleigh mass and stiffness damping parameters \\
@@ -28,9 +28,9 @@ $\bm{\Phi}, \bm{J}, J$ & Geometric map, Jacobian matrix, and determinant $\det(\
 $\mathcal{E}(r), \gamma(r)$ & Cumulative snapshot energy ratio \\[0.3em]
 
 \multicolumn{2}{@{}l}{\textbf{Acronyms}} \\
-IGA, POD, pROM & Isogeometric Analysis, POD, reduced model \\
+IGA, POD, pROM & Isogeometric Analysis, POD, reduced order model \\
 SVD, NNLS, FOM & Singular Value Decomp., NNLS, Full Order Model \\
-DEIM, ECSW & Discrete Empirical Interp., Energy-Conserving Sampling \\
+MOR, ECSW & Model Order Reduction, Energy-Conserving Sampling and Weighting \\
 \end{tabularx}
 }
 \vspace{0.3em}

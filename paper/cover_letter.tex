@@ -1,22 +1,34 @@
 \documentclass[11pt]{letter}
 \usepackage[utf8]{inputenc}
 \usepackage{geometry}
-\geometry{a4paper, margin=2.5cm}
+\geometry{a4paper, margin=2.0cm}
+\usepackage{amsmath,bm}
 \usepackage{hyperref}
 
 \signature{Mumen Wehbe\\Conservatoire National des Arts et Métiers (Cnam)\\Paris, France\\Email: mumen.wehbe@lecnam.net}
 
 \begin{document}
 
-\begin{letter}{Editor-in-Chief\\Computer Methods in Applied Mechanics and Engineering (CMAME)\\Elsevier}
+\date{September 17, 2026}
 
-\opening{Dear Editor-in-Chief,}
+\begin{letter}{Prof. Thomas J.R. Hughes and Prof. Manolis Papadrakakis\\Editors-in-Chief\\Computer Methods in Applied Mechanics and Engineering (CMAME)\\Elsevier}
+
+\opening{Dear Editors-in-Chief,}
 
 We are pleased to submit our original research manuscript entitled \textbf{"Projection-based Reduced Order Modeling for Structural Dynamics via Isogeometric Analysis and Hyper-Reduction"} for publication consideration as a regular research article in \textit{Computer Methods in Applied Mechanics and Engineering}.
 
-In this manuscript, we present an integrated computational framework combining Isogeometric Analysis (IGA) with reference domain mapping and projection-based Reduced Order Modeling (pROM) via hyper-reduction for parameterized transient structural dynamics. By exploiting the exact geometry representation of B-splines and NURBS, parameter-dependent physical geometries are pulled back to a fixed, parameter-independent reference parametric domain $\hat{\Omega} = (0,1)^d$. This preserves consistent control-point degrees of freedom without remeshing or spatial interpolation across shape variations. Furthermore, Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction is formulated to resolve the non-affine Jacobian evaluation bottleneck, slashing element assembly by over $99\%$ and achieving speedup factors from $64.5\times$ up to $386\times$ on 2D and 3D elastodynamic benchmarks with relative errors bounded below $0.06\%$.
+In this manuscript, we present an integrated computational framework combining Isogeometric Analysis (IGA) with reference configuration mapping and projection-based Reduced Order Modeling (pROM) accelerated via hyper-reduction for parameterized transient structural dynamics. By exploiting the exact spline geometry representation of B-splines and NURBS, parameter-dependent physical configurations $\Omega(\bm{\mu})$ are pulled back to an invariant reference domain $\hat{\Omega}$. This preserves consistent control-point degrees of freedom and an identical algebraic index space without spatial remeshing or re-interpolation across shape variations. Furthermore, Energy-Conserving Sampling and Weighting (ECSW) hyper-reduction is formulated for IGA discretizations to resolve the non-affine Jacobian evaluation bottleneck for both stiffness and mass operators, slashing element assembly by over $99.1\%$ and achieving speedup factors of $64.5\times$ on 2D parameterized elastodynamics and $386\times$ on 3D high-order dynamic benchmarks with relative $L_2$ errors bounded below $0.054\%$.
 
 We confirm that this manuscript is original, has not been published previously, and is not currently under consideration for publication elsewhere. All authors have read and approved the manuscript.
+
+\vspace{0.5em}
+\noindent\textbf{Suggested Expert Reviewers:}
+\begin{enumerate}
+    \item \textbf{Prof. Charbel Farhat}, Stanford University, USA (\texttt{cfarhat@stanford.edu}) -- Pioneer of Energy-Conserving Sampling and Weighting (ECSW) and nonlinear model reduction in structural dynamics.
+    \item \textbf{Prof. Gianluigi Rozza}, SISSA (Scuola Internazionale Superiore di Studi Avanzati), Italy (\texttt{grozza@sissa.it}) -- Expert in reduced basis methods, parametric PDEs, and geometric mapping.
+    \item \textbf{Prof. Daniel J. Rixen}, Technical University of Munich (TUM), Germany (\texttt{rixen@tum.de}) -- Expert in hyper-reduction (ECSW/DEIM), structural dynamics, and substructuring.
+    \item \textbf{Prof. Yuri Bazilevs}, Brown University, USA (\texttt{yuri\_bazilevs@brown.edu}) -- Pioneer of Isogeometric Analysis (IGA) and computational mechanics.
+\end{enumerate}
 
 Thank you for considering our work for publication in \textit{Computer Methods in Applied Mechanics and Engineering}.
 

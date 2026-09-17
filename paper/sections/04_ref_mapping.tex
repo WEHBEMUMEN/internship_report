@@ -2,23 +2,23 @@
 \label{subsec:ref_mapping_concept}
 When the physical domain $\Omega(\bm{\mu})$ undergoes shape or boundary modifications as a function of geometric parameters $\bm{\mu}_{\text{geo}} \subset \bm{\mu}$, standard projection-based model reduction faces severe challenges because snapshot vectors corresponding to different parameters reside on incompatible spatial meshes with non-coincident coordinate support.
 
-In our IGA framework, geometric variations are accommodated naturally by mapping the parameter-dependent physical domain $\Omega(\bm{\mu})$ from a fixed, parameter-independent reference parametric domain $\hat{\Omega} = (0, 1)^d$ via the NURBS geometric mapping:
+In our IGA framework, geometric variations are accommodated naturally by establishing a diffeomorphic mapping connecting three domains: the unit parametric coordinate domain $\hat{\Omega}_{\text{param}} = (0, 1)^d$, a fixed parameter-independent reference configuration $\hat{\Omega}$, and the parameterized physical domain $\Omega(\bm{\mu})$. The physical coordinates are represented via the NURBS geometric mapping:
 \begin{equation}
-    \bm{x}(\bm{\xi}; \bm{\mu}) = \bm{\Phi}(\bm{\xi}; \bm{\mu}) = \sum_{A=1}^{N_{\text{cp}}} R_A(\bm{\xi}) \, \bm{P}_A(\bm{\mu}), \quad \bm{\xi} \in \hat{\Omega},
+    \bm{x}(\bm{\xi}; \bm{\mu}) = \bm{\Phi}(\bm{\xi}; \bm{\mu}) = \sum_{A=1}^{N_{\text{cp}}} R_A(\bm{\xi}) \, \bm{P}_A(\bm{\mu}), \quad \bm{\xi} \in \hat{\Omega}_{\text{param}},
     \label{eq:geo_mapping}
 \end{equation}
-where $\bm{P}_A(\bm{\mu})$ denotes the parameterized control point coordinates. To ensure the mapping is an orientation-preserving diffeomorphism free from mesh entangling or localized folding, the Jacobian determinant must satisfy strict positivity across the parametric domain:
+where $\bm{P}_A(\bm{\mu})$ denotes the parameterized control point coordinates. To ensure the mapping is an orientation-preserving diffeomorphism free from mesh entangling or localized folding, the Jacobian determinant must satisfy strict positivity across the domain:
 \begin{equation}
-    J(\bm{\xi}; \bm{\mu}) = \det(\bm{J}(\bm{\xi}; \bm{\mu})) > 0 \quad \forall \bm{\xi} \in \hat{\Omega}, \; \forall \bm{\mu} \in \mathcal{P}_{\text{admissible}},
+    J(\bm{\xi}; \bm{\mu}) = \det(\bm{J}(\bm{\xi}; \bm{\mu})) > 0 \quad \forall \bm{\xi} \in \hat{\Omega}_{\text{param}}, \; \forall \bm{\mu} \in \mathcal{P}_{\text{admissible}},
     \label{eq:positivity_jacobian}
 \end{equation}
 which defines the admissible parameter domain $\mathcal{P}_{\text{admissible}}$.
 
-It is conceptually critical to distinguish the geometric shape transformation from the physical elastodynamic field. Specifically, the physical coordinate is decomposed as:
+It is conceptually critical to distinguish the geometric shape transformation from the physical elastodynamic field. Specifically, the physical geometry is decomposed as:
 \begin{equation}
     \bm{x}(\bm{\xi}; \bm{\mu}) = \hat{\bm{x}}(\bm{\xi}) + \bm{d}_{\text{geo}}(\bm{\xi}; \bm{\mu}),
 \end{equation}
-where $\hat{\bm{x}}(\bm{\xi}) = \sum_{A=1}^{N_{\text{cp}}} R_A(\bm{\xi}) \hat{\bm{P}}_A$ defines the invariant reference baseline geometry, and $\bm{d}_{\text{geo}}(\bm{\xi}; \bm{\mu})$ denotes the parameter-dependent geometric morphing displacement. This geometric morphing operates purely at the level of coordinate pullbacks and metric tensor evaluations, completely decoupled from the unknown physical displacement field $\bm{u}(\bm{x}, t)$ solving the elastodynamic equations of motion.
+where $\hat{\bm{x}}(\bm{\xi}) = \sum_{A=1}^{N_{\text{cp}}} R_A(\bm{\xi}) \hat{\bm{P}}_A$ defines the invariant baseline geometry on the reference domain $\hat{\Omega}$, and $\bm{d}_{\text{geo}}(\bm{\xi}; \bm{\mu}) = \sum_{A=1}^{N_{\text{cp}}} R_A(\bm{\xi}) (\bm{P}_A(\bm{\mu}) - \hat{\bm{P}}_A)$ denotes the parameter-dependent geometric morphing displacement. When boundary parameters $\bm{\mu}$ (such as notch position and radius) displace boundary control points, the interior control points $\bm{P}_A(\bm{\mu})$ are updated smoothly via transfinite interpolation or pseudo-elastic boundary-displacement propagation, guaranteeing $J(\bm{\xi}; \bm{\mu}) > 0$ without localized mesh distortion. This geometric morphing operates purely at the level of coordinate pullbacks and metric tensor evaluations, completely decoupled from the unknown physical displacement field $\bm{u}(\bm{x}, t)$ solving the elastodynamic equations of motion.
 
 \begin{figure}[htbp]
 \centering
@@ -45,11 +45,12 @@ where $\hat{\bm{x}}(\bm{\xi}) = \sum_{A=1}^{N_{\text{cp}}} R_A(\bm{\xi}) \hat{\b
 
 \subsection{Transformation of Bilinear Forms to the Reference Configuration}
 \label{subsec:ref_transformation}
-By pulling back the volume integrals from $\Omega(\bm{\mu})$ to the fixed reference domain $\hat{\Omega}$, the mass and stiffness bilinear forms become:
+By pulling back the volume and surface integrals from $\Omega(\bm{\mu})$ to the fixed reference domain $\hat{\Omega}$, the mass, stiffness, and load forms become:
 \begin{align}
-    m(\bm{w}, \bm{u}; \bm{\mu}) &= \int_{\hat{\Omega}} \rho(\bm{\mu}) \, \bm{w}(\bm{\xi}) \cdot \bm{u}(\bm{\xi}) \, J(\bm{\xi}; \bm{\mu}) \, \mathrm{d}\hat{\Omega}, \\
-    a(\bm{w}, \bm{u}; \bm{\mu}) &= \int_{\hat{\Omega}} \left( \nabla_{\bm{\xi}} \bm{w} \, \bm{J}^{-\top} \right) : \mathbb{C}(\bm{\mu}) : \left( \nabla_{\bm{\xi}} \bm{u} \, \bm{J}^{-\top} \right) J(\bm{\xi}; \bm{\mu}) \, \mathrm{d}\hat{\Omega},
+    m(\bm{w}, \bm{u}; \bm{\mu}) &= \int_{\hat{\Omega}} \rho(\bm{\mu}) \, \bm{w} \cdot \bm{u} \, J(\bm{\xi}; \bm{\mu}) \, \mathrm{d}\hat{\Omega}, \\
+    a(\bm{w}, \bm{u}; \bm{\mu}) &= \int_{\hat{\Omega}} \left( \nabla_{\bm{\xi}} \bm{w} \, \bm{J}^{-\top} \right) : \mathbb{C}(\bm{\mu}) : \left( \nabla_{\bm{\xi}} \bm{u} \, \bm{J}^{-\top} \right) J(\bm{\xi}; \bm{\mu}) \, \mathrm{d}\hat{\Omega}, \\
+    f_{\text{ext}}(\bm{w}; \bm{\mu}) &= \int_{\hat{\Omega}} \bm{w} \cdot \bm{b} \, J(\bm{\xi}; \bm{\mu}) \, \mathrm{d}\hat{\Omega} + \int_{\hat{\Gamma}_N} \bm{w} \cdot \bar{\bm{t}} \, J_{\Gamma}(\bm{\xi}; \bm{\mu}) \, \mathrm{d}\hat{\Gamma},
 \end{align}
-where $\bm{J}(\bm{\xi}; \bm{\mu}) = \frac{\partial \bm{x}}{\partial \bm{\xi}}$ is the Jacobian matrix and $\nabla_{\bm{\xi}}$ denotes the gradient with respect to parametric coordinates.
+where $\bm{J}(\bm{\xi}; \bm{\mu}) = \frac{\partial \bm{x}}{\partial \bm{\xi}}$ is the Jacobian matrix, $\nabla_{\bm{\xi}}$ denotes the gradient with respect to parametric coordinates, and $J_{\Gamma}(\bm{\xi}; \bm{\mu})$ denotes the boundary metric Jacobian.
 
 Because the knot vectors and basis functions $R_A(\bm{\xi})$ on $\hat{\Omega}$ remain strictly invariant across varying geometric designs, the control-point degrees of freedom $\hat{\bm{u}}(t; \bm{\mu})$ share a uniform algebraic index space $\mathbb{R}^{N_{\text{dof}}}$. This circumvents the requirement for remeshing or coordinate re-interpolation across the parameter space, creating a unified foundation for projection-based model reduction.

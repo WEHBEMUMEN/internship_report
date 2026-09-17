@@ -26,13 +26,16 @@ where $\mathbb{C}(\bm{\mu})$ is the fourth-order elasticity tensor parametrized 
 
 The variational (weak) formulation consists of finding $\bm{u}(\cdot, t; \bm{\mu}) \in \mathcal{V}$ such that for all test functions $\bm{w} \in \mathcal{V}_0$:
 \begin{equation}
-\begin{aligned}
-    &\int_{\Omega(\bm{\mu})} \rho \bm{w} \cdot \ddot{\bm{u}} \, \mathrm{d}\Omega + \int_{\Omega(\bm{\mu})} \bm{\varepsilon}(\bm{w}) : \mathbb{C} : \bm{\varepsilon}(\bm{u}) \, \mathrm{d}\Omega \\
-    &\quad = \int_{\Omega(\bm{\mu})} \bm{w} \cdot \bm{b} \, \mathrm{d}\Omega + \int_{\Gamma_N(\bm{\mu})} \bm{w} \cdot \bar{\bm{t}} \, \mathrm{d}\Gamma,
-\end{aligned}
-\label{eq:weak_form}
+    m(\bm{w}, \ddot{\bm{u}}; \bm{\mu}) + c(\bm{w}, \dot{\bm{u}}; \bm{\mu}) + a(\bm{w}, \bm{u}; \bm{\mu}) = f_{\text{ext}}(\bm{w}; \bm{\mu}),
+    \label{eq:weak_form}
 \end{equation}
-where $\mathcal{V}$ and $\mathcal{V}_0$ are the trial and test function spaces satisfying homogeneous and inhomogeneous Dirichlet boundary conditions, respectively.
+where the mass and internal stiffness bilinear forms, alongside the external dynamic load linear functional, are defined as:
+\begin{align}
+    m(\bm{w}, \ddot{\bm{u}}; \bm{\mu}) &= \int_{\Omega(\bm{\mu})} \rho(\bm{\mu}) \bm{w} \cdot \ddot{\bm{u}} \, \mathrm{d}\Omega, \label{eq:mass_form} \\
+    a(\bm{w}, \bm{u}; \bm{\mu}) &= \int_{\Omega(\bm{\mu})} \bm{\varepsilon}(\bm{w}) : \mathbb{C}(\bm{\mu}) : \bm{\varepsilon}(\bm{u}) \, \mathrm{d}\Omega, \label{eq:stiff_form} \\
+    f_{\text{ext}}(\bm{w}; \bm{\mu}) &= \int_{\Omega(\bm{\mu})} \bm{w} \cdot \bm{b} \, \mathrm{d}\Omega + \int_{\Gamma_N(\bm{\mu})} \bm{w} \cdot \bar{\bm{t}} \, \mathrm{d}\Gamma, \label{eq:load_form}
+\end{align}
+and where $\mathcal{V}$ and $\mathcal{V}_0$ denote the trial and test function spaces satisfying inhomogeneous and homogeneous Dirichlet boundary conditions, respectively.
 
 To account for structural dissipation in transient vibration regimes, viscous damping is modeled via the Rayleigh dissipation formulation. In this setting, the dissipation bilinear form is parameterized as a linear combination of inertial and stiffness contributions:
 \begin{equation}
