@@ -1,0 +1,140 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,bm}
+\usepackage[margin=1.8cm]{geometry}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+\definecolor{cnamred}{RGB}{196, 18, 45}
+\definecolor{cnamdark}{RGB}{120, 10, 28}
+\definecolor{boxbg}{RGB}{252, 246, 247}
+\definecolor{graytext}{RGB}{80, 80, 80}
+
+\titleformat{\section}{\large\bfseries\color{cnamred}}{\thesection}{1em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries\color{cnamdark}}{\thesubsection}{1em}{}
+
+\newtcolorbox{speechbox}[2][]{colback=boxbg,colframe=cnamred!70,fonttitle=\bfseries\small,title={#2},#1}
+\newtcolorbox{actionbox}[1][]{colback=gray!5,colframe=gray!60,fonttitle=\bfseries\footnotesize,title={Action \& Stage Direction},#1}
+
+\title{\textbf{\color{cnamred} Master 2 Thesis Defense: Oral Speech Script}\\[0.2cm]\large\color{graytext} Real-Time Physics on the Web: IGA \& ROM for Parameterized Structural Dynamics}
+\author{\textbf{Mumen Wehbe} \quad$\bullet$\quad Supervisor: \textbf{Dr. Christophe Hoareau}\\[0.1cm] LMSSC / Conservatoire National des Arts et Métiers (Cnam Paris)}
+\date{Allocated Defense Time: \textbf{30 Minutes} (Target: 27m 30s + 2m 30s buffer)}
+
+\begin{document}
+\maketitle
+
+\vspace{-0.5cm}
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Section} & \textbf{Slides} & \textbf{Time Window} & \textbf{Duration} & \textbf{Core Focus} \\
+\midrule
+Title, Laboratory \& Overview & 1--4 & 00:00 -- 02:00 & 2m 00s & Context, LMSSC team, agenda \\
+Ch 1: Introduction \& Motivation & 5--6 & 02:00 -- 04:30 & 2m 30s & Dual scope, compression analogies \\
+Ch 2: Theory \& Pullback Mapping & 7--11 & 04:30 -- 09:00 & 4m 30s & Parameter space, $\hat{\Omega}$ pullback weak form \\
+Ch 3: Isogeometric Analysis (IGA) & 12--22 & 09:00 -- 16:00 & 7m 00s & NURBS, $h/p/k$-refinements, exact CAD \\
+Ch 4: Full Order Model (FOM) & 23--28 & 16:00 -- 20:30 & 4m 30s & Newmark-$\beta$, stress field, verification \\
+Ch 5: ROM \& Hyper-Reduction & 29--36 & 20:30 -- 26:00 & 5m 30s & POD, ECSW 28 cells, $64.5\times$, live demo \\
+Ch 6: Conclusions \& Perspectives & 37--39 & 26:00 -- 28:00 & 2m 00s & Achievements, future paths, opening Q\&A \\
+\textbf{Buffer Margin} & -- & \textbf{28:00 -- 30:00} & \textbf{2m 00s} & Safety buffer for Q\&A handover \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.3cm}
+
+\section*{Preamble: Title, Laboratory \& Team (Slides 1--4)}
+
+\begin{speechbox}{Slide 1: Title Slide \hfill [00:00 -- 00:45 | Duration: 45s]}
+\textit{[Stand upright, make deliberate eye contact with the jury members and president. Speak with confident pacing.]}\\[0.15cm]
+``Dear members of the jury, Mr. President, and attendees. Welcome to my Master 2 thesis defense in Computational Mechanics. Today, I am proud to present my research entitled: \textbf{`Real-Time Physics on the Web: Geometrical Parameters in Isogeometric Analysis and Reduced Order Modeling for Structural Dynamics'}. This research was carried out at the Conservatoire National des Arts et Métiers under the supervision of Dr. Christophe Hoareau. Our central objective is to bridge rigorous continuum mechanics with modern web technologies to achieve millisecond-scale, interactive dynamic simulations of parameterized structures.''
+\end{speechbox}
+
+\begin{speechbox}{Slides 2--4: Institution, Lab \& Overview \hfill [00:45 -- 02:00 | Duration: 1m 15s]}
+\textit{[Gesture to the CNAM portal and LMSSC research axes, then summarize the roadmap.]}\\[0.15cm]
+``This work was conducted at the \textbf{LMSSC} laboratory, which specializes in structural dynamics, multiphysics coupling, and vibration control. I extend my sincere gratitude to Dr. Christophe Hoareau and the LMSSC team for their continuous support.\\
+Our presentation is structured into six chapters: beginning with motivation and state of the art, through continuous pullback formulation, IGA discretization, full-order dynamic simulation, and reduced-order modeling via POD and ECSW hyper-reduction, before concluding with perspectives.''
+\end{speechbox}
+
+\section*{Chapter 1: Motivation \& Conceptual Parallels (Slides 5--6)}
+
+\begin{speechbox}{Slide 5: Motivation \& Dual Scope \hfill [02:00 -- 03:15 | Duration: 1m 15s]}
+\textit{[Point to the two left blocks, gesture to the UI preview. Do not click the web link yet.]}\\[0.15cm]
+``To understand our motivation, we must consider its \textbf{Dual Scope}:\\
+On one hand, a \textbf{pedagogical need}: structural dynamics is often taught with static formulas. We aimed to build an intuitive, zero-install web visualizer that enables students to interact with wave propagation live.\\
+On the other hand, this raised a severe \textbf{computational challenge}: in parametric design, changing shape in standard FEM requires remeshing, and solving thousands of DOFs cannot maintain 60 FPS in a browser.\\
+To resolve this bottleneck, our framework couples \textbf{Isogeometric Analysis (IGA)} for exact geometry with \textbf{Reduced Order Modeling (ROM)} and \textbf{ECSW hyper-reduction}.''
+\end{speechbox}
+
+\begin{speechbox}{Slide 6: Conceptual Parallels to Data Compression \hfill [03:15 -- 04:30 | Duration: 1m 15s]}
+\textit{[Highlight the Hughes, Quarteroni, and Farhat cards sequentially.]}\\[0.15cm]
+``We can draw helpful analogies to data compression:\\
+1. \textbf{IGA (Hughes et al., 2005)} is analogous to \textbf{vector graphics versus pixel grids}: CAD splines are retained exactly, avoiding polygonal facet approximations.\\
+2. \textbf{ROM (Quarteroni et al.)} acts like \textbf{spectral audio compression}: projecting thousands of degrees of freedom onto dominant energy-carrying spatial modes.\\
+3. \textbf{ECSW Hyper-ROM (Farhat et al., 2014)} is like \textbf{optimal sensor placement}: selecting a sparse subset of active cells to compute reduced matrices in microseconds without touching the full mesh.''
+\end{speechbox}
+
+\section*{Chapter 2: Theory \& Pullback Mapping (Slides 7--11)}
+
+\begin{speechbox}{Slides 7--11: Boundary Value Problem \& Reference Pullback \hfill [04:30 -- 09:00 | Duration: 4m 30s]}
+\textit{[Explain the geometry $\boldsymbol{\mu}=(r, x_c)$, then trace the pullback mapping arrow $\boldsymbol{\Psi}: \hat{\Omega} \to \Omega(\boldsymbol{\mu})$.]}\\[0.15cm]
+``We consider a 2D clamped cantilever beam with symmetric notches parameterized by $\boldsymbol{\mu} = (r, x_c)^T$, governing notch depth and axial position. The dynamic behavior obeys balance of linear momentum with Hookean plane-stress elasticity.\\
+\textbf{The mathematical obstacle}: changing $\boldsymbol{\mu}$ deforms the physical domain $\Omega(\boldsymbol{\mu})$. Because the function spaces vary with $\boldsymbol{\mu}$, we cannot extract a global reduced basis directly.\\
+\textbf{The solution}: we introduce a diffeomorphic pullback mapping $\boldsymbol{\Psi}(\hat{\mathbf{x}}; \boldsymbol{\mu})$ onto a static reference rectangle $\hat{\Omega}$. By mapping derivatives through the transformation Jacobian $\mathbf{F}$ and determinant $J$, geometry variations are completely transferred from the integration boundary into the algebraic coefficients of the differential operators. All solutions now live on a fixed Hilbert space $H^1(\hat{\Omega})$.''
+\end{speechbox}
+
+\section*{Chapter 3: Isogeometric Analysis (IGA) (Slides 12--22)}
+
+\begin{speechbox}{Slides 12--22: NURBS Foundations \& Refinement \hfill [09:00 -- 16:00 | Duration: 7m 00s]}
+\textit{[Pacing is key here: spend ~35-40s per concept. Emphasize why IGA is uniquely suited to shape parameters.]}\\[0.15cm]
+``Classical FEA discretizes CAD models with faceted linear elements, requiring complete remeshing when shape changes. \textbf{IGA} uses the CAD basis functions—B-Splines and NURBS—directly for physical analysis.\\
+Basis functions are evaluated recursively via Cox-de Boor. Crucially, moving control points perturbs the geometry smoothly with \textbf{zero change in mesh topology}.\\
+For 2D continua, we employ bivariate tensor products. The parent parametric space $[0,1]^2$ serves natively as our reference domain $\hat{\Omega}$.\\
+Furthermore, IGA offers \textbf{$k$-refinement}: elevating degree before inserting knots yields high-order basis functions with continuous inter-element derivatives ($C^{p-1}$), eliminating artificial inter-element stress jumps. Following the isoparametric concept, the displacement field $\mathbf{u}_h$ is approximated using these identical basis functions.''
+\end{speechbox}
+
+\section*{Chapter 4: Full Order Model (FOM) Simulation (Slides 23--28)}
+
+\begin{speechbox}{Slides 23--28: Dynamic Solver, Stress \& Verification \hfill [16:00 -- 20:30 | Duration: 4m 30s]}
+\textit{[Show the dynamic system $M\ddot{u} + K(\mu)u = f$, the smooth Von Mises stress, and the verification plot.]}\\[0.15cm]
+``The discretized equations yield an $N = 6{,}564$ DOF system. We integrate in time using the implicit \textbf{Newmark-$\beta$} method ($\beta = 1/4, \gamma = 1/2$), guaranteeing unconditional stability.\\
+The computed Von Mises stress concentrates cleanly at the notch roots with smooth continuity across elements.\\
+\textbf{Validation}: we proved equivalence between the physical domain solver and the pulled-back reference solver. The numerical difference is on the order of machine precision ($< 10^{-12}$), validating our formulation. An $h$-refinement study confirms optimal theoretical convergence rates $O(h^p)$.''
+\end{speechbox}
+
+\section*{Chapter 5: Reduced Order Modeling \& Hyper-Reduction (Slides 29--36)}
+
+\begin{speechbox}{Slides 29--36: POD, ECSW \& Benchmarks \hfill [20:30 -- 26:00 | Duration: 5m 30s]}
+\textit{[Highlight the budget $<1.5$ ms, the 28 active cells, the $64.5\times$ speedup table, and present the live demo.]}\\[0.15cm]
+``FOM requires 142 ms per step—far too slow for a 60 FPS web application with a $<1.5$ ms physics budget.\\
+In the \textbf{Offline stage}, we assemble snapshots across $\mathcal{D}$ and apply SVD. Just $r = 8$ to $12$ POD modes capture $>99.99\%$ of total dynamic energy.\\
+However, standard Galerkin projection $\mathbf{K}_r = \boldsymbol{\Phi}^T \mathbf{K}(\boldsymbol{\mu}) \boldsymbol{\Phi}$ still requires full-mesh assembly, actually running \textit{slower} online (154 ms).\\
+To break this bottleneck, we implement \textbf{ECSW Hyper-reduction}. ECSW selects a minimal sparse subset of just \textbf{28 active elements} out of 3,200. Because ECSW preserves non-negative quadrature weights, symmetry, coercivity, and energy conservation are strictly guaranteed.\\
+\textbf{Benchmark Results}: ECSW solves each step in \textbf{2.2 ms}---a \textbf{$64.5\times$ speedup} with only \textbf{0.054\% error}!\\
+\textit{[Live Demo]}: Demonstrating this directly in the browser, moving the notch sliders updates the wave dynamics live at 60 FPS entirely client-side without a server.''
+\end{speechbox}
+
+\section*{Chapter 6: Conclusions \& Defense Q\&A (Slides 37--39)}
+
+\begin{speechbox}{Slides 37--39: Summary \& Q\&A Opening \hfill [26:00 -- 28:00 | Duration: 2m 00s]}
+\textit{[Summarize contributions with authority, state future research paths, and open the floor to the jury.]}\\[0.15cm]
+``To conclude, we successfully:
+\begin{enumerate}[noitemsep]
+  \item Built a high-fidelity 2D IGA structural solver on exact CAD geometry.
+  \item Formulated a reference pullback mapping preserving mesh topology under shape variation.
+  \item Integrated POD and ECSW hyper-reduction, cutting 3,200 cells down to 28 with a $64.5\times$ speedup.
+  \item Packaged the solver into a real-time web-based Digital Twin.
+\end{enumerate}
+Future perspectives include nonlinear Green-Lagrange kinematics, 3D trivariate splines, and online adaptive basis enrichment.\\
+Thank you very much for your attention. I am now honored to take your questions.''
+\end{speechbox}
+
+\end{document}
