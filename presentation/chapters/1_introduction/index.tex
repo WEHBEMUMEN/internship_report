@@ -3,12 +3,12 @@
 \begin{frame}{Introduction \& Motivation}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{block}{Pedagogical Origin to Research Level}
+      \begin{block}{Dual Scope: Pedagogy \& Research}
         \footnotesize
         \begin{itemize}
           \setlength{\itemsep}{3pt}
-          \item Started as a \textbf{teaching tool} to illustrate structural dynamics.
-          \item Evolved into a \textbf{research framework} for real-time interactive simulations.
+          \item \textbf{Pedagogical Impact}: Intuitive, interactive visualizer for structural dynamics in education.
+          \item \textbf{Scientific Contribution}: Rigorous testbed for real-time parameterized model order reduction.
         \end{itemize}
       \end{block}
       
@@ -27,6 +27,7 @@
     
     \begin{column}{0.48\textwidth}
       \centering
+      \vspace*{0.85cm}
       \begin{tikzpicture}
         \begin{scope}
           \clip[rounded corners=5pt] (0,0) rectangle (5.5, 2.59);
@@ -37,11 +38,8 @@
         \draw[rounded corners=5pt, cnamred!60, line width=1.0pt] (0,0) rectangle (5.5, 2.59);
       \end{tikzpicture}
       
-      \vspace{0.25cm}
-      \small
-      \href{run:DigitalTwin-ROM-SingleFile.exe}{\beamergotobutton{Launch Desktop App (.exe)}}
-      \\[0.15cm]
-      \href{https://cnam-internship-mumen.netlify.app/app/simulations/iga-sim-5.3/}{\beamergotobutton{Open Web Simulation}}
+      \vspace{0.35cm}
+      {\small\href{https://cnam-internship-mumen.netlify.app/app/playground\#5.3a}{\beamergotobutton{Open Web Simulation}}}
     \end{column}
   \end{columns}
 \end{frame}
@@ -89,20 +87,20 @@
 
     % Column 3: Hyper-Reduction
     \begin{column}{0.31\textwidth}
-      \begin{block}{\centering Hyper-ROM \hfill \tiny [Benner, 2017]}
+      \begin{block}{\centering Hyper-ROM \hfill \tiny [Farhat, 2014]}
         \centering
         \vspace{0.06cm}
         \begin{tikzpicture}
           \begin{scope}
             \clip[rounded corners=3pt] (0,0) rectangle (2.0, 3.0);
             \node[anchor=south west, inner sep=0pt] at (0,0) {%
-              \includegraphics[width=2.0cm, height=3.0cm, keepaspectratio]{ref_rom_benner.jpg}%
+              \includegraphics[width=2.0cm, height=3.0cm, keepaspectratio]{ref_farhat_paper_card.jpg}%
             };
           \end{scope}
           \draw[rounded corners=3pt, cnamred!60, line width=0.8pt] (0,0) rectangle (2.0, 3.0);
         \end{tikzpicture}\\[0.08cm]
-        {\tiny\textbf{Benner, Cohen, Ohlberger, Willcox}}\\[0.04cm]
-        {\scriptsize\color{black!75} Sparse element sampling (ECSW) bypassing full assembly.}
+        {\tiny\textbf{Farhat, Chapman, Avery}}\\[0.04cm]
+        {\scriptsize\color{black!75} Energy-Conserving Sampling \& Weighting (ECSW).}
       \end{block}
     \end{column}
   \end{columns}

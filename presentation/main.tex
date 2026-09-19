@@ -198,7 +198,7 @@
 \subtitle{M2 Thesis Defense --- Parameterized Structural Dynamics}
 \author[M.~Wehbe]{Mumen Wehbe}
 \institute[Cnam Paris]{Conservatoire National des Arts et Métiers}
-\date{July 2026}
+\date{September 2026}
 
 % ─── Document ────────────────────────────────────────────────────────────────
 \begin{document}
@@ -224,60 +224,101 @@
   {\color{white!85}\footnotesize M2 Thesis Defense --- Parameterized Structural Dynamics}\\[0.25cm]
   {\color{white!60}\rule{0.8\textwidth}{0.4pt}}\\[0.25cm]
   {\color{white}\normalsize Mumen Wehbe} \quad {\color{white!85}\footnotesize\textbar\quad Supervisor: Christophe Hoareau}\\[0.12cm]
-  {\color{white!80}\scriptsize Conservatoire National des Arts et Métiers \quad $\bullet$ \quad July 2026}
+  {\color{white!80}\scriptsize Conservatoire National des Arts et Métiers \quad $\bullet$ \quad September 2026}
   \vspace*{0.2cm}
 \end{frame}
 }
 
 
 
-% ── Project & Team Slide ───────────────────────────────────────────────────
-\begin{frame}{Research Project \& Team}
-  \begin{block}{Project Title}
-    \centering
-    \vspace{0.02cm}
-    {\footnotesize\bfseries\color{cnamdark} Geometrical Parameters in Isogeometric Analysis \& Reduced Order Modeling for Structural Dynamics}\\[0.04cm]
-    {\tiny\color{black!75} Conducted at \textbf{Conservatoire National des Arts et Métiers (Cnam Paris)}}
-    \vspace{0.02cm}
-  \end{block}
-  
-  \vspace{0.05cm}
-  
+% ── Host Laboratory Slide ──────────────────────────────────────────────────
+\begin{frame}{Host Institution \& Research Laboratory}
   \begin{columns}[T]
-    \begin{column}{0.45\textwidth}
+    % Column 1: Institution
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Conservatoire National des Arts et Métiers}
+        \centering
+        \vspace{0.06cm}
+        \begin{tikzpicture}
+          \node[inner sep=0pt, rounded corners=4pt, clip] (facade) {
+            \includegraphics[width=\linewidth, height=2.6cm, keepaspectratio=false]{cnam_portal_cropped.jpg}
+          };
+          \node[anchor=north east, fill=white, rounded corners=3pt, inner sep=2.5pt, xshift=-0.12cm, yshift=-0.12cm] at (facade.north east) {
+            \includegraphics[height=0.42cm]{../thesis/CNAM_Logo.pdf}
+          };
+        \end{tikzpicture}
+        \vspace{0.18cm}
+
+        {\footnotesize\textbf{Cnam Paris} \quad$\bullet$\quad \color{black!75}Saint-Martin Campus}\\[0.06cm]
+        {\scriptsize\color{black!75} Founded 1794 $\bullet$ Engineering \& Applied Sciences}
+        \vspace{0.08cm}
+      \end{block}
+    \end{column}
+
+    % Column 2: Laboratory
+    \begin{column}{0.48\textwidth}
+      \begin{block}{LMSSC (EA 3196)}
+        \centering\vspace{0.04cm}
+        {\footnotesize\bfseries\color{cnamdark} Laboratoire de Mécanique des Structures\\et des Systèmes Couplés}\par
+        \vspace{0.14cm}
+        \flushleft\scriptsize
+        \textbf{Core Research Fields}:
+        \vspace{0.05cm}
+        \begin{itemize}\setlength{\itemsep}{3pt}
+          \item \textbf{DYSCOM}: Structural Dynamics \& Multiphysics
+          \item \textbf{IFS}: Fluid-Structure Interaction
+          \item \textbf{REVIB}: Vibration \& Noise Reduction
+          \item \textbf{AVA}: Acoustics, Vibrations \& Audio
+        \end{itemize}
+        \vspace{0.14cm}
+        \centering
+        {\tiny\color{black!70} Theoretical $\bullet$ Numerical $\bullet$ Experimental Mechanics}
+        \vspace{0.06cm}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ── Project & Team Slide ───────────────────────────────────────────────────
+\begin{frame}{Supervision \& Research Team}
+  \vspace{0.1cm}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
       \centering
       \begin{tikzpicture}
         \begin{scope}
-          \clip[rounded corners=3pt] (0,0) rectangle (1.4, 1.4);
+          \clip[rounded corners=4pt] (0,0) rectangle (2.0, 2.0);
           \node[anchor=south west, inner sep=0pt] at (0,0) {%
-            \includegraphics[width=1.4cm, height=1.4cm, keepaspectratio]{mumen_square.jpg}%
+            \includegraphics[width=2.0cm, height=2.0cm, keepaspectratio]{mumen_square.jpg}%
           };
         \end{scope}
-        \draw[rounded corners=3pt, cnamred!60, line width=0.8pt] (0,0) rectangle (1.4, 1.4);
-      \end{tikzpicture}\\[0.04cm]
-      {\bfseries\footnotesize\color{cnamred} Mumen Wehbe}\\[0.01cm]
-      {\tiny\color{black!75} Intern}
+        \draw[rounded corners=4pt, cnamred!70, line width=1.0pt] (0,0) rectangle (2.0, 2.0);
+      \end{tikzpicture}\\[0.12cm]
+      {\bfseries\normalsize\color{cnamred} Mumen Wehbe}\\[0.04cm]
+      {\footnotesize\textbf{Master 2 Research Intern}}\\[0.02cm]
+      {\scriptsize\color{black!75} Computational Mechanics \& Web Simulation}
     \end{column}
     
-    \begin{column}{0.45\textwidth}
+    \begin{column}{0.46\textwidth}
       \centering
       \begin{tikzpicture}
         \begin{scope}
-          \clip[rounded corners=3pt] (0,0) rectangle (1.4, 1.4);
+          \clip[rounded corners=4pt] (0,0) rectangle (2.0, 2.0);
           \node[anchor=south west, inner sep=0pt] at (0,0) {%
-            \includegraphics[width=1.4cm, height=1.4cm, keepaspectratio]{christophe_square.png}%
+            \includegraphics[width=2.0cm, height=2.0cm, keepaspectratio]{christophe_square.png}%
           };
         \end{scope}
-        \draw[rounded corners=3pt, cnamred!60, line width=0.8pt] (0,0) rectangle (1.4, 1.4);
-      \end{tikzpicture}\\[0.04cm]
-      {\bfseries\footnotesize\color{cnamred} Christophe Hoareau}\\[0.01cm]
-      {\tiny\color{black!75} Supervisor}
+        \draw[rounded corners=4pt, cnamred!70, line width=1.0pt] (0,0) rectangle (2.0, 2.0);
+      \end{tikzpicture}\\[0.12cm]
+      {\bfseries\normalsize\color{cnamred} Christophe Hoareau}\\[0.04cm]
+      {\footnotesize\textbf{Research Supervisor}}\\[0.02cm]
+      {\scriptsize\color{black!75} Associate Professor, LMSSC / Cnam Paris}
     \end{column}
   \end{columns}
   
-  \vspace{0.05cm}
+  \vspace{0.35cm}
   
-  \begin{block}{Acknowledgements \& Cnam Staff}
+  \begin{block}{Acknowledgements \& LMSSC Research Support}
     \centering\scriptsize
     \textbf{Academic \& Research Support}: Jean-François Deü, Xavier Amandolese, Pr.~Rouleau, Pr.~Aucejo, Pr.~Laurent \\
     \textbf{Administrative Support}: Mireille Gillet, Cécile
@@ -303,7 +344,7 @@
 \section[FOM]{Simulation: Full Order Model}\label{sec:fom}
 \input{chapters/4_simulation/index}
 
-\section[ROM]{Reduced Order Modeling, Hyper-Reduction \& Digital Twin}\label{sec:rom}
+\section[ROM]{Reduced Order Modeling \& Hyper-Reduction}\label{sec:rom}
 \input{chapters/5_rom/index}
 
 \section[Conclusion]{Conclusion \& Future Perspectives}\label{sec:conclusion}

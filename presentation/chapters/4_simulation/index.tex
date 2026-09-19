@@ -1,25 +1,83 @@
 % ─── Chapter 4: Full Order Model ─────────────────────────────────────────────
 
-% Slide: Full Order Model (FOM) & Dynamic Solver
-\begin{frame}{Full Order Model (FOM) \& Dynamic Solver}
-  \begin{block}{Semi-Discrete System of Equations}
-    \vspace{-0.1cm}
+% Slide: From IGA to the Full Order Model (FOM)
+\begin{frame}{From IGA to the Full Order Model (FOM)}
+  \centering
+  \vspace{-0.2cm}
+
+  % Top: The u -> U bridge (equal heights, generous gap, zero overlap)
+  \begin{tikzpicture}[
+      box/.style={
+        rectangle,
+        draw=cnamred!70,
+        fill=cnamlightbg,
+        rounded corners=5pt,
+        thick,
+        minimum width=4.8cm,
+        minimum height=2.3cm,
+        text width=4.6cm,
+        align=center,
+        inner sep=4pt
+      },
+      arrow/.style={
+        ->,
+        >=stealth,
+        line width=1.3pt,
+        draw=cnamred!85,
+        shorten >=4pt,
+        shorten <=4pt
+      }
+    ]
+
+    \node [box] (b1) at (0, 0) {
+      \textbf{\footnotesize IGA Field Approximation}\\[4pt]
+      $\vect{u}^h(\xi, t) = \sum_{a=1}^{N_{\text{cp}}} R_a(\xi)\,\vect{u}_a(t)$\\[4pt]
+      {\scriptsize Continuous physical displacement}
+    };
+
+    \node [box] (b2) at (7.2, 0) {
+      \textbf{\footnotesize Global State Vector}\\[3pt]
+      $\vect{U}(t) = \begin{bmatrix} \vect{u}_1(t) \\ \vdots \\ \vect{u}_{N_{\text{cp}}}(t) \end{bmatrix} \in \mathbb{R}^{2N_{\text{cp}}}$\\[2pt]
+      {\scriptsize Discrete nodal unknowns}
+    };
+
+    \draw [arrow] (b1) -- node[above=3pt, font=\scriptsize\bfseries, text=cnamred!90!black] {Control DOFs} (b2);
+  \end{tikzpicture}
+
+  \vspace{0.15cm}
+
+  % Center: Clean Dynamic Equation of Motion
+  \begin{block}{Semi-Discrete Equation of Motion}
+    \vspace{-0.15cm}
     \[
       \mat{M}(\boldsymbol{\mu})\,\ddot{\vect{U}}(t) + \mat{C}(\boldsymbol{\mu})\,\dot{\vect{U}}(t) + \mat{K}(\boldsymbol{\mu})\,\vect{U}(t) = \vect{F}_{\text{ext}}(t)
     \]
-    \vspace{-0.25cm}
-    {\centering\scriptsize Initial Conditions: $\vect{U}(0) = \vect{U}_0, \quad \dot{\vect{U}}(0) = \vect{V}_0$\par}
+    \vspace{-0.15cm}
   \end{block}
 
   \vspace{0.15cm}
 
-  \begin{itemize}
-    \setlength{\itemsep}{0.25cm}
-    \small
-    \item \textbf{Implicit Solver}: Newmark-$\beta$ method ($\beta=0.25, \gamma=0.5$), unconditionally stable.
-    \item \textbf{System Size}: $80 \times 40$ elements ($6,888$ DOFs).
-    \item \textbf{The Bottleneck}: Re-assembling $\mat{K}(\boldsymbol{\mu})$ and $\mat{M}(\boldsymbol{\mu})$ when $\boldsymbol{\mu}$ changes is too slow for real-time interactivity.
-  \end{itemize}
+  % Bottom: Spatial & Temporal pillars with matrix definitions
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \small\textbf{Spatial Discretization}:
+      \begin{itemize}
+        \footnotesize
+        \setlength{\itemsep}{0.08cm}
+        \item $\mat{M}(\boldsymbol{\mu})$ (mass) \& $\mat{K}(\boldsymbol{\mu})$ (stiffness) assembled from NURBS basis.
+        \item Boundary conditions enforced at control points.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \small\textbf{Temporal Integration}:
+      \begin{itemize}
+        \footnotesize
+        \setlength{\itemsep}{0.08cm}
+        \item Rayleigh damping $\mat{C}(\boldsymbol{\mu}) = \alpha_M\mat{M} + \beta_K\mat{K}$.
+        \item Second-order implicit \textbf{Newmark-$\beta$} solver ($\beta=0.25, \gamma=0.5$).
+      \end{itemize}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % Slide: Simulation Path & Solver Workflow

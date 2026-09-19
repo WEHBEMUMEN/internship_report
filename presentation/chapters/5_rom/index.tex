@@ -1,4 +1,4 @@
-% ─── Chapter 5: ROM, Hyper-Reduction & Digital Twin ──────────────────────────
+% ─── Chapter 5: ROM & Hyper-Reduction ──────────────────────────────────────────
 
 % ==========================================
 % Frame 1: Why ROM? (Motivation)
@@ -17,7 +17,7 @@
       \vspace{0.1cm}
       \begin{block}{Need for Interactivity}
         \begin{itemize}
-          \item Interactive client-side web browser (Digital Twin).
+          \item Interactive client-side web browser execution.
           \item Must bypass the full-order assembly bottleneck.
           \item Target frame rate: 20--60 FPS ($<1.5\text{ ms}$ solve time).
         \end{itemize}
@@ -78,37 +78,40 @@
 % ==========================================
 \begin{frame}{What Do We Need to Achieve It? (The Steps)}
   \small
+  \vspace{-0.15cm}
   \begin{columns}[T]
     \begin{column}{0.50\textwidth}
-      Building a shape-parametric Reduced Order Model involves:
-      \vspace{0.15cm}
-      \begin{block}{Offline Preparation}
+      \begin{block}{Offline Phase (Preparation)}
         \begin{itemize}
-          \item \textbf{1. Pullback}: Map to reference $\hat{\Omega}$.
-          \item \textbf{2. Snapshots}: Generate state vectors.
-          \item \textbf{3. SVD / POD}: Build the basis $\boldsymbol{\Phi}$.
+          \setlength{\itemsep}{0.06cm}
+          \item \textbf{1. Pullback}: Fix static reference mesh $\hat{\Omega}$.
+          \item \textbf{2. Snapshots}: Generate state vectors across $\mathcal{D}$.
+          \item \textbf{3. SVD / POD}: Extract optimal basis $\boldsymbol{\Phi}$.
         \end{itemize}
       \end{block}
-      \begin{block}{Online Interactivity}
+      \vspace{0.08cm}
+      \begin{block}{Online Phase (Real-Time Interactivity)}
         \begin{itemize}
-          \item Project onto the basis and solve in real-time ($r \ll N$).
+          \setlength{\itemsep}{0.06cm}
+          \item \textbf{4. Galerkin ROM}: Project to $r$ DOFs ($r \ll N$).
+          \item \textbf{5. ECSW}: Hyper-reduction for sparse assembly.
         \end{itemize}
       \end{block}
     \end{column}
     
     \begin{column}{0.48\textwidth}
       \centering
-      \scalebox{0.78}{
+      \scalebox{0.74}{
       \begin{tikzpicture}[
-          node distance=0.45cm,
-          stepbox/.style={draw=cnamred, fill=cnamlightbg, thick, rounded corners, minimum width=3.8cm, minimum height=0.55cm, align=center, font=\scriptsize},
-          branchbox/.style={draw=cnamdark, fill=cnamlightbg, thick, rounded corners, minimum width=2.4cm, minimum height=0.95cm, align=center, font=\tiny},
+          node distance=0.42cm,
+          stepbox/.style={draw=cnamred, fill=cnamlightbg, thick, rounded corners, minimum width=3.8cm, minimum height=0.52cm, align=center, font=\scriptsize},
+          branchbox/.style={draw=cnamdark, fill=cnamlightbg, thick, rounded corners, minimum width=2.4cm, minimum height=0.90cm, align=center, font=\tiny},
           arrow/.style={thick,->,>=stealth, cnamred}
       ]
           % --- OFFLINE/ONLINE DIVIDER & LABELS ---
-          \draw[dashed, gray!40, thick] (-2.6, -2.4) -- (2.6, -2.4);
+          \draw[dashed, gray!40, thick] (-2.6, -2.2) -- (2.6, -2.2);
           \node[anchor=east, font=\tiny\bfseries, color=gray] at (-2.7, -1.0) {OFFLINE};
-          \node[anchor=east, font=\tiny\bfseries, color=cnamred] at (-2.7, -3.7) {ONLINE};
+          \node[anchor=east, font=\tiny\bfseries, color=cnamred] at (-2.7, -3.5) {ONLINE};
           
           % Nodes
           \node[stepbox] (s1) at (0, 0) {1. Reference Pullback Mapping};
@@ -116,20 +119,20 @@
           \node[stepbox, below=of s2] (s3) {3. SVD / POD Basis Construction};
           
           % Parallel Online Branches
-          \node[branchbox] (gal4) at (-1.5, -3.5) {\textbf{Galerkin ROM Path} \\ Full Assembly \\ (no hyper-reduction)};
-          \node[branchbox, below=of gal4] (gal5) {\textbf{Reduced Solve} \\ (Galerkin ROM \\ applied to Newmark-$\beta$)};
+          \node[branchbox] (gal4) at (-1.5, -3.2) {\textbf{Galerkin ROM Path} \\ Full Assembly \\ (no hyper-reduction)};
+          \node[branchbox, below=0.3cm of gal4] (gal5) {\textbf{Reduced Solve} \\ (Newmark-$\beta$ in $r\ll N$)};
           
-          \node[branchbox, draw=orange!70] (ecsw4) at (1.5, -3.5) {\textbf{ECSW ROM Path} \\ \textbf{Sparse Assembly} \\ (Hyper-reduction \\ applied to assembly)};
-          \node[branchbox, draw=orange!70, below=of ecsw4] (ecsw5) {\textbf{Reduced Solve} \\ (Galerkin ROM \\ applied to Newmark-$\beta$)};
+          \node[branchbox, draw=orange!70] (ecsw4) at (1.5, -3.2) {\textbf{ECSW ROM Path} \\ \textbf{Sparse Assembly} \\ (Hyper-reduced)};
+          \node[branchbox, draw=orange!70, below=0.3cm of ecsw4] (ecsw5) {\textbf{Reduced Solve} \\ (Newmark-$\beta$ in $r\ll N$)};
           
           % Arrows
           \draw[arrow] (s1) -- (s2);
           \draw[arrow] (s2) -- (s3);
           
           % Clean split below the divider line
-          \draw[thick, cnamred] (s3.south) -- (0, -2.6);
-          \draw[arrow] (0, -2.6) -| (gal4.north);
-          \draw[arrow] (0, -2.6) -| (ecsw4.north);
+          \draw[thick, cnamred] (s3.south) -- (0, -2.4);
+          \draw[arrow] (0, -2.4) -| (gal4.north);
+          \draw[arrow] (0, -2.4) -| (ecsw4.north);
           
           % Connections within branches
           \draw[arrow] (gal4) -- (gal5);
@@ -144,45 +147,46 @@
 % Frame 3: Step 1: Reference Pullback Mapping
 % ==========================================
 \begin{frame}{Step 1: Reference Pullback Mapping}
-  \begin{block}{Diffeomorphic Pullback to Static $\hat{\Omega}$ (Thesis Section 3.4)}
-    \scriptsize
-    Maps varying physical coordinates $\vect{x} \in \Omega(\boldsymbol{\mu})$ to static reference coordinates $\hat{\vect{x}} \in \hat{\Omega}$:
-    \[
-      \nabla_{\vect{x}} \vect{u} = \mat{J}_{\boldsymbol{\xi}}^{-T}(\boldsymbol{\xi}; \boldsymbol{\mu}) \nabla_{\boldsymbol{\xi}} \hat{\vect{u}}, \quad d\Omega = \color{cnamred}{J_{\boldsymbol{\xi}, \boldsymbol{\mu}}(\boldsymbol{\xi})} \, d\hat{\Omega}
-    \]
-    where $\mat{J}_{\boldsymbol{\xi}}(\boldsymbol{\xi}; \boldsymbol{\mu}) = \frac{\partial \vect{x}}{\partial \boldsymbol{\xi}}$ is the Jacobian, and \color{cnamred}{$J_{\boldsymbol{\xi}, \boldsymbol{\mu}}(\boldsymbol{\xi}) = \det\mat{J}_{\boldsymbol{\xi}}$} is the mapping weight.
-  \end{block}
+  \centering
+  \vspace{-0.1cm}
+
+  {\small\textbf{The Motivation}: Why does shape-parametric ROM require a reference domain?}
+  \par\vspace{0.3cm}
 
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{exampleblock}{State Projection on Static Basis ($\boldsymbol{\Phi}$)}
-        \scriptsize
-        $\vect{U}(\boldsymbol{\mu})$ is projected onto static POD modes:
-        \[
-          \vect{U}(\boldsymbol{\mu}) \approx \boldsymbol{\Phi} \vect{q}(\boldsymbol{\mu})
-        \]
+      \begin{block}{Physical Domain $\Omega(\boldsymbol{\mu})$}
+        \footnotesize
+        \textbf{Deforming Coordinates}:
         \begin{itemize}
-          \setlength{\itemsep}{1pt}
-          \item \textbf{Static Modes}: $\boldsymbol{\Phi}$ is constant and computed offline.
-          \item \textbf{Online Speed}: Only $\vect{q}(\boldsymbol{\mu}) \in \mathbb{R}^r$ is solved.
+          \setlength{\itemsep}{0.1cm}
+          \item Mesh shifts with parameter $\boldsymbol{\mu}$.
+          \item Snapshots live in different spaces.
+          \item \textcolor{cnamred}{\textbf{Cannot build a global POD basis}}.
+        \end{itemize}
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Reference Domain $\hat{\Omega}$}
+        \footnotesize
+        \textbf{Invariant Coordinate Space}:
+        \begin{itemize}
+          \setlength{\itemsep}{0.1cm}
+          \item Static mesh: state $\vect{U} \in \mathbb{R}^N$ for all $\boldsymbol{\mu}$.
+          \item Snapshots share the same coordinates.
+          \item \textcolor{teal!80!black}{\textbf{Enables a single POD basis $\boldsymbol{\Phi}$}}.
         \end{itemize}
       \end{exampleblock}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{alertblock}{Parameter Dependency ($\mat{K}(\boldsymbol{\mu})$)}
-        \scriptsize
-        Stiffness bilinear form traps $\boldsymbol{\mu}$ inside the integral:
-        \[
-          \hat{k}(\vect{u}, \delta\vect{u}; \boldsymbol{\mu}) = \int_{\hat{\Omega}} \left(\mat{J}^{-T} \nabla\vect{u}\right) : \mat{D} : \left(\mat{J}^{-T} \nabla\delta\vect{u}\right) \color{cnamred}{J_{\boldsymbol{\mu}}} \, d\hat{\Omega}
-        \]
-        \begin{itemize}
-          \setlength{\itemsep}{1pt}
-          \item Cannot precompute $\mat{\Phi}^T \mat{K}(\boldsymbol{\mu})\mat{\Phi}$.
-          \item Requires full online assembly bottleneck.
-        \end{itemize}
-      \end{alertblock}
-    \end{column}
   \end{columns}
+
+  \vspace{0.3cm}
+
+  \begin{alertblock}{Core Takeaway}
+    \centering\footnotesize
+    Geometry variations are absorbed into mapping weights $J(\boldsymbol{\mu})$, keeping the state vector space invariant for model reduction.
+  \end{alertblock}
 \end{frame}
 
 % ==========================================
@@ -194,10 +198,10 @@
     \begin{column}{0.55\textwidth}
       \begin{block}{What is a Snapshot?}
         \begin{itemize}
-          \item A high-fidelity state vector representing the structural displacement field $\vect{U}(t) \in \mathbb{R}^N$ at a given time or parameter set.
+          \item A high-fidelity state vector representing the structural displacement field $\vect{U}(t) \in \mathbb{R}^N$ on the reference mesh $\hat{\Omega}$.
         \end{itemize}
       \end{block}
-      \begin{block}{Compilation of snap matrix}
+      \begin{block}{Snapshot Matrix}
         \begin{itemize}
           \item Compile all state vectors into snapshot matrix:
           \[
@@ -225,12 +229,13 @@
 \begin{frame}{Step 3: SVD / POD Basis Construction}
   \small
   \begin{columns}[T]
-    \begin{column}{0.55\textwidth}
+    \begin{column}{0.51\textwidth}
       \textbf{Dimensionality Reduction}:
       \begin{itemize}
+        \setlength{\itemsep}{0.1cm}
         \item Perform Singular Value Decomposition (SVD):
         \[
-          \mathbf{S}_u = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T
+          \mathbf{S}_u = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T, \quad \boldsymbol{\Sigma} = \operatorname{diag}(\sigma_1, \dots, \sigma_d)
         \]
         \item Keep the first $r$ dominant modes of $\mathbf{U}$ to form the Reduced Basis matrix $\boldsymbol{\Phi} \in \mathbb{R}^{N \times r}$:
         \[
@@ -238,22 +243,25 @@
         \]
       \end{itemize}
     \end{column}
-    \begin{column}{0.42\textwidth}
-      \begin{block}{POD Convergence Metrics}
-        \footnotesize
+    \begin{column}{0.46\textwidth}
+      \begin{block}{Cumulative Energy \& Error}
+        \scriptsize
         \centering
+        \[
+          \eta(r) = \frac{\sum_{i=1}^{r} \sigma_i^2}{\sum_{j=1}^{d} \sigma_j^2}, \quad \epsilon(r) = \sqrt{1 - \eta(r)}
+        \]
+        \vspace{-0.15cm}
         \begin{tabular}{lcc}
           \toprule
-          Modes $r$ & Error $\epsilon(r)$ & Energy $\eta(r)$ \\
+          Modes $r$ & Energy $\eta(r)$ & Error $\epsilon(r)$ \\
           \midrule
-          1  & 2.34\% & 99.945\% \\
-          5  & 0.89\% & 99.992\% \\
-          10 & 0.11\% & 99.999\% \\
+          1  & 99.945\% & 2.34\% \\
+          5  & 99.992\% & 0.89\% \\
+          10 & 99.999\% & 0.11\% \\
           \bottomrule
         \end{tabular}
-        \vspace{0.1cm}
-        \scriptsize
-        $\epsilon(r) = \sqrt{1-\eta(r)}$ decays rapidly, reaching high accuracy at just $r=10$ modes.
+        \par\vspace{0.08cm}
+        Captures $>99.99\%$ energy with just $r=10$ modes.
       \end{block}
     \end{column}
   \end{columns}
@@ -415,68 +423,102 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Client-Side Software Architecture (Digital Twin)}
-  \vspace{0.4cm}
+% ==========================================
+% Frame 8: Project Workflow: Completing the Puzzle
+% ==========================================
+\begin{frame}{Project Workflow: Completing the Puzzle}
   \centering
-  
-  \scalebox{0.78}{
+  \vspace{-0.15cm}
+
+  {\small\textbf{The Engineering Journey}: Connecting theory, literature, and modern tools into an interactive solver}
+  \par\vspace{0.25cm}
+
   \begin{tikzpicture}[
-    box/.style={thick, rounded corners=6pt, minimum width=4.5cm, minimum height=2.8cm, align=center},
-    modelbox/.style={box, draw=blue!70!black, fill=blue!5},
-    ctrlbox/.style={box, draw=teal!70!black, fill=teal!5},
-    viewbox/.style={box, draw=orange!70!black, fill=orange!5},
-    arrow/.style={->, >=stealth, thick}
-  ]
-    % Model Box
-    \node[modelbox] (model) at (0,0) {
-      \textbf{\large Model} \\[0.15cm]
-      \textbf{IGA-ROM Solver Engine} \\[0.15cm]
-      {\footnotesize $\bullet$ Asynchronous Solver Loop} \\
-      {\footnotesize $\bullet$ ECSW Hyper-reduction ($2.2\text{ ms}$)} \\
-      {\footnotesize $\bullet$ Typed Arrays (\texttt{Float64Array})}
+      stage/.style={
+        rectangle,
+        draw=cnamred!70,
+        fill=cnamlightbg,
+        rounded corners=5pt,
+        thick,
+        minimum width=2.45cm,
+        minimum height=3.0cm,
+        text width=2.25cm,
+        align=center,
+        inner sep=3pt
+      },
+      arrow/.style={
+        ->,
+        >=stealth,
+        line width=1.3pt,
+        draw=cnamred!85,
+        shorten >=2pt,
+        shorten <=2pt
+      }
+    ]
+
+    % Stage 1: Understanding & Scoping
+    \node [stage] (s1) at (0, 0) {
+      \textbf{\normalsize 1. Scope}\\[2pt]
+      \color{cnamred!70}\hrule\vspace{3pt}\color{black}
+      \textbf{\scriptsize Problem Insight}\\[2pt]
+      {\tiny
+      $\bullet$ Initial reading on elastodynamics\\
+      $\bullet$ Identified browser real-time bottleneck}
     };
-    
-    % Controller Box
-    \node[ctrlbox] (controller) at (6.2,0) {
-      \textbf{\large Controller} \\[0.15cm]
-      \textbf{Application Manager} \\[0.15cm]
-      {\footnotesize $\bullet$ Event Listeners for UI Sliders} \\
-      {\footnotesize $\bullet$ Parameter binding $\boldsymbol{\mu} = (r, x_c)$} \\
-      {\footnotesize $\bullet$ Animation Frame Scheduler}
+
+    % Stage 2: Roadmap
+    \node [stage] (s2) at (2.85, 0) {
+      \textbf{\normalsize 2. Roadmap}\\[2pt]
+      \color{cnamred!70}\hrule\vspace{3pt}\color{black}
+      \textbf{\scriptsize Strategic Plan}\\[2pt]
+      {\tiny
+      $\bullet$ Outlined step-by-step milestones\\
+      $\bullet$ IGA $\to$ Pullback $\to$ POD $\to$ ECSW $\to$ Web}
     };
-    
-    % View Box
-    \node[viewbox] (view) at (12.4,0) {
-      \textbf{\large View} \\[0.15cm]
-      \textbf{Interactive Visualizer} \\[0.15cm]
-      {\footnotesize $\bullet$ NURBS coordinate mapping} \\
-      {\footnotesize $\bullet$ Von Mises stress contouring} \\
-      {\footnotesize $\bullet$ HTML5 Canvas repaint ($> 30\text{ FPS}$)}
+
+    % Stage 3: Prior Literature
+    \node [stage] (s3) at (5.70, 0) {
+      \textbf{\normalsize 3. Literature}\\[2pt]
+      \color{cnamred!70}\hrule\vspace{3pt}\color{black}
+      \textbf{\scriptsize Key References}\\[2pt]
+      {\tiny
+      $\bullet$ Explored state of art\\
+      $\bullet$ Hughes/Cottrell (IGA)\\
+      $\bullet$ Quarteroni/Benner (ROM)\\
+      $\bullet$ Farhat (ECSW)}
     };
-    
-    % Data Flow Connections
-    % View to Controller (UI Events)
-    \draw[arrow, orange!70!black] ([yshift=0.35cm]view.west) -- 
-      node[above, font=\tiny\sffamily, text=black, inner sep=2pt] {UI Event} ([yshift=0.35cm]controller.east);
-      
-    % Controller to Model (Update parameters)
-    \draw[arrow, teal!70!black] ([yshift=0.35cm]controller.west) -- 
-      node[above, font=\tiny\sffamily, text=black, inner sep=2pt] {Update $\boldsymbol{\mu}$} ([yshift=0.35cm]model.east);
-      
-    % Model to Controller (Solved State)
-    \draw[arrow, blue!70!black] ([yshift=-0.35cm]model.east) -- 
-      node[below, font=\tiny\sffamily, text=black, inner sep=2pt] {Solved State} ([yshift=-0.35cm]controller.west);
-      
-    % Controller to View (Repaint)
-    \draw[arrow, teal!70!black] ([yshift=-0.35cm]controller.east) -- 
-      node[below, font=\tiny\sffamily, text=black, inner sep=2pt] {Render Call} ([yshift=-0.35cm]view.west);
-    
-    % Modern Badges/Pills
-    \node[above=0.3cm of model, draw=blue!40, fill=blue!10, rounded corners=4pt, font=\tiny\bfseries, text=blue!80!black, inner sep=4pt] 
-      {Dynamic JSON Payload};
-      
-    \node[above=0.3cm of controller, draw=teal!40, fill=teal!10, rounded corners=4pt, font=\tiny\bfseries, text=teal!80!black, inner sep=4pt] 
-      {Zero-Server Overhead (Pure Client-Side)};
+
+    % Stage 4: AI-Assisted Implementation
+    \node [stage] (s4) at (8.55, 0) {
+      \textbf{\normalsize 4. Coding}\\[2pt]
+      \color{cnamred!70}\hrule\vspace{3pt}\color{black}
+      \textbf{\scriptsize AI-Assisted Dev}\\[2pt]
+      {\tiny
+      $\bullet$ AI pairing for complex numerical math\\
+      $\bullet$ Rapid prototyping \& JS/WebGL pipelines}
+    };
+
+    % Stage 5: Completing the Puzzle
+    \node [stage, draw=green!60!black, fill=green!5] (s5) at (11.40, 0) {
+      \textbf{\normalsize 5. Deliver}\\[2pt]
+      \color{green!60!black}\hrule\vspace{3pt}\color{black}
+      \textbf{\scriptsize The Final Puzzle}\\[2pt]
+      {\tiny
+      $\bullet$ Unified physics, reduction \& frontend\\
+      $\bullet$ Real-time web solver ($< 1.5\,\text{ms}$, $>30$ FPS)}
+    };
+
+    % Connections
+    \draw [arrow] (s1) -- (s2);
+    \draw [arrow] (s2) -- (s3);
+    \draw [arrow] (s3) -- (s4);
+    \draw [arrow, draw=green!60!black] (s4) -- (s5);
   \end{tikzpicture}
-  }
+
+  \vspace{0.25cm}
+
+  \begin{alertblock}{Completing the Puzzle}
+    \centering\footnotesize
+    Combining foundational literature, rigorous mathematical reduction, and AI-accelerated implementation to deliver a client-side real-time interactive solver from scratch.
+  \end{alertblock}
 \end{frame}
