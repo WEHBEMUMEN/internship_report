@@ -345,10 +345,11 @@ LIVE DEMONSTRATIONS:
 * `[CLICK NEXT]`
 
 #### Page 41 | Project Workflow: Completing the Puzzle `[25:45 - 26:15 | 30s]`
-* **Action:** Trace the 5 roadmap boxes.
-* "This diagram shows the complete roadmap from the bottleneck to victory:"
-* "We took the best theory from Hughes, Quarteroni, and Farhat, paired with modern tools, and crushed the runtime down to 1.3 milliseconds."
-* "The bottom line: high-fidelity mechanics running interactively at 60 FPS in the browser."
+* **Action:** Trace the 5 workflow boxes.
+* "This slide reflects our engineering methodology from start to finish:"
+* "1. Defined the core problem and real-time targets; 2. Structured the milestones with a Gantt chart;"
+* "3. Gathered references and studied prior literature (Hughes, Quarteroni, Farhat);"
+* "4. Solved formulation hurdles with Dr.~Hoareau's mentorship and AI pairing; 5. Delivered the final 60 FPS web application."
 * `[CLICK NEXT]`
 
 ---
