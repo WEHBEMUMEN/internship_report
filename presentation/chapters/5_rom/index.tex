@@ -431,7 +431,7 @@
   \vspace{-0.15cm}
 
   {\small\textbf{Project Workflow}: From problem definition and planning to advisor/AI execution and delivery}
-  \par\vspace{0.25cm}
+  \par\vspace{0.4cm}
 
   \begin{tikzpicture}[
       stage/.style={
@@ -441,10 +441,11 @@
         rounded corners=5pt,
         thick,
         minimum width=2.45cm,
-        minimum height=2.85cm,
+        minimum height=3.8cm,
         text width=2.25cm,
         align=center,
-        inner sep=3pt
+        inner sep=4pt,
+        anchor=north
       },
       arrow/.style={
         ->,
@@ -458,57 +459,72 @@
 
     % Stage 1: Problem Definition
     \node [stage] (s1) at (0, 0) {
-      \textbf{\normalsize 1. Problem}\\[2pt]
-      \color{cnamred!70}\hrule\vspace{3pt}\color{black}
-      \textbf{\scriptsize Definition}\\[4pt]
-      {\tiny
-      $\bullet$ Defined core goals\\
-      $\bullet$ Target: $< 16\,\text{ms}$ (60 FPS)\\
-      $\bullet$ Moving mesh bottleneck}
+      \begin{minipage}[t][3.4cm][t]{2.25cm}
+        \centering
+        \textbf{\normalsize 1. Problem}\\[3pt]
+        \color{cnamred!70}\hrule\vspace{4pt}\color{black}
+        \textbf{\scriptsize Definition}\\[6pt]
+        \raggedright\tiny
+        $\bullet$~Defined core goals\\[3pt]
+        $\bullet$~Target: $<16\,\text{ms}$ (60 FPS)\\[3pt]
+        $\bullet$~Moving mesh bottleneck
+      \end{minipage}
     };
 
     % Stage 2: Planning & Gantt Chart
     \node [stage] (s2) at (2.85, 0) {
-      \textbf{\normalsize 2. Planning}\\[2pt]
-      \color{cnamred!70}\hrule\vspace{3pt}\color{black}
-      \textbf{\scriptsize Gantt Chart}\\[4pt]
-      {\tiny
-      $\bullet$ Structured milestones\\
-      $\bullet$ Built Gantt timeline\\
-      $\bullet$ Phased roadmap to web}
+      \begin{minipage}[t][3.4cm][t]{2.25cm}
+        \centering
+        \textbf{\normalsize 2. Planning}\\[3pt]
+        \color{cnamred!70}\hrule\vspace{4pt}\color{black}
+        \textbf{\scriptsize Gantt Chart}\\[6pt]
+        \raggedright\tiny
+        $\bullet$~Structured milestones\\[3pt]
+        $\bullet$~Built Gantt timeline\\[3pt]
+        $\bullet$~Phased roadmap to web
+      \end{minipage}
     };
 
     % Stage 3: Research & Literature
     \node [stage] (s3) at (5.70, 0) {
-      \textbf{\normalsize 3. Research}\\[2pt]
-      \color{cnamred!70}\hrule\vspace{3pt}\color{black}
-      \textbf{\scriptsize Prior Work}\\[4pt]
-      {\tiny
-      $\bullet$ Gathered references\\
-      $\bullet$ Hughes / Cottrell (IGA)\\
-      $\bullet$ Quarteroni / Farhat (ROM)}
+      \begin{minipage}[t][3.4cm][t]{2.25cm}
+        \centering
+        \textbf{\normalsize 3. Research}\\[3pt]
+        \color{cnamred!70}\hrule\vspace{4pt}\color{black}
+        \textbf{\scriptsize Prior Work}\\[6pt]
+        \raggedright\tiny
+        $\bullet$~Gathered references\\[3pt]
+        $\bullet$~Hughes / Cottrell (IGA)\\[3pt]
+        $\bullet$~Quarteroni / Farhat (ROM)
+      \end{minipage}
     };
 
     % Stage 4: AI & Advisor Assistance
     \node [stage] (s4) at (8.55, 0) {
-      \textbf{\normalsize 4. Solving}\\[2pt]
-      \color{cnamred!70}\hrule\vspace{3pt}\color{black}
-      \textbf{\scriptsize AI + Advisor}\\[4pt]
-      {\tiny
-      $\bullet$ Dr.~Hoareau mentorship\\
-      $\bullet$ AI pairing for math\\
-      $\bullet$ Overcame bottlenecks}
+      \begin{minipage}[t][3.4cm][t]{2.25cm}
+        \centering
+        \textbf{\normalsize 4. Solving}\\[3pt]
+        \color{cnamred!70}\hrule\vspace{4pt}\color{black}
+        \textbf{\scriptsize AI + Advisor}\\[6pt]
+        \raggedright\tiny
+        $\bullet$~Dr.~Hoareau guidance\\[3pt]
+        $\bullet$~AI pairing for math\\[3pt]
+        $\bullet$~Overcame bottlenecks
+      \end{minipage}
     };
 
     % Stage 5: Work Done
     \node [stage, draw=green!60!black, fill=green!5] (s5) at (11.40, 0) {
-      \textbf{\normalsize 5. Delivered}\\[2pt]
-      \color{green!60!black}\hrule\vspace{3pt}\color{black}
-      \textbf{\scriptsize Work Done}\\[4pt]
-      {\tiny
-      $\bullet$ Validated FOM solver\\
-      $\bullet$ $64.5\times$ speedup ($1.3\,\text{ms}$)\\
-      $\bullet$ Live 60 FPS WebGL app}
+      \begin{minipage}[t][3.4cm][t]{2.25cm}
+        \centering
+        \textbf{\normalsize 5. Delivered}\\[3pt]
+        \color{green!60!black}\hrule\vspace{4pt}\color{black}
+        \textbf{\scriptsize Work Done}\\[6pt]
+        \raggedright\tiny
+        $\bullet$~Validated FOM solver\\[3pt]
+        $\bullet$~$64.5\times$ speedup ($1.3\,\text{ms}$)\\[3pt]
+        $\bullet$~Live 60 FPS WebGL app
+      \end{minipage}
     };
 
     % Connections
@@ -517,11 +533,4 @@
     \draw [arrow] (s3) -- (s4);
     \draw [arrow, draw=green!60!black] (s4) -- (s5);
   \end{tikzpicture}
-
-  \vspace{0.25cm}
-
-  \begin{alertblock}{Execution Summary}
-    \centering\footnotesize
-    Structured Gantt planning, rigorous literature study, advisor mentorship, and AI-accelerated implementation delivered an end-to-end real-time web solver from scratch.
-  \end{alertblock}
 \end{frame}
