@@ -3,7 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{amsmath,amssymb,bm}
-\usepackage[margin=1.5cm]{geometry}
+\usepackage[margin=1.2cm]{geometry}
 \usepackage{xcolor}
 \usepackage{titlesec}
 \usepackage{enumitem}
@@ -15,196 +15,523 @@
 \definecolor{cnamred}{RGB}{196, 18, 45}
 \definecolor{cnamdark}{RGB}{120, 10, 28}
 \definecolor{boxbg}{RGB}{253, 248, 249}
-\definecolor{actionbg}{RGB}{245, 245, 245}
 \definecolor{graytext}{RGB}{80, 80, 80}
 
 \titleformat{\section}{\normalsize\bfseries\color{cnamred}}{\thesection}{1em}{}[\titlerule]
-\newtcolorbox{slidebox}[2][]{colback=boxbg,colframe=cnamred!75,fonttitle=\bfseries\footnotesize,title={#2},top=2pt,bottom=2pt,left=4pt,right=4pt,#1}
+\newtcolorbox{slidebox}[2][]{colback=boxbg,colframe=cnamred!75,fonttitle=\bfseries\footnotesize,title={#2},top=2pt,bottom=2pt,left=5pt,right=5pt,#1}
 
-\title{\textbf{\color{cnamred} Master 2 Oral Defense: Complete Slide-by-Slide Script (30 Minutes)}\\[0.15cm]\small\color{graytext} Real-Time Physics on the Web: IGA \& ROM for Parameterized Structural Dynamics}
+\setlist[itemize]{leftmargin=1.2em, itemsep=1pt, topsep=1pt}
+
+\title{\textbf{\color{cnamred} Master 2 Oral Defense: Slide-by-Slide Spoken Script}\\[0.1cm]\small\color{graytext} Real-Time Physics on the Web: IGA \& ROM for Parameterized Structural Dynamics}
 \author{\textbf{Mumen Wehbe} \quad$\bullet$\quad Supervisor: \textbf{Dr. Christophe Hoareau} \quad$\bullet$\quad LMSSC / Cnam Paris}
-\date{Target Time: \textbf{28:20} / 30:00 Max (Includes 2 Live Web Demos \& Step-by-Step Cues)}
+\date{Target Time: \textbf{28:00} / 30:00 Max \quad$\bullet$\quad Short, Punchy Sentences for Every Single Slide}
 
 \begin{document}
 \maketitle
 
-\vspace{-0.6cm}
+\vspace{-0.5cm}
 \begin{center}
 \scriptsize
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Milestone} & \textbf{Pages in PDF} & \textbf{Elapsed Clock} & \textbf{Duration} & \textbf{Key Demonstrations \& Cues} \\
+\textbf{Chapter} & \textbf{Pages} & \textbf{Clock} & \textbf{Duration} & \textbf{Key Action / Demonstrations} \\
 \midrule
-Preamble \& Laboratory & 1 -- 4 & 00:00 -- 02:00 & 2m 00s & Title, LMSSC team, agenda overview \\
-Ch 1: Intro \& Motivation & 5 -- 7 & 02:00 -- 04:30 & 2m 30s & Dual scope (pedagogy + research), compression analogies \\
-Ch 2: Theory \& Pullback & 8 -- 13 & 04:30 -- 09:00 & 4m 30s & Parameter vector $\boldsymbol{\mu}$, $\hat{\Omega}$ reference mapping \\
-Ch 3: Isogeometric Analysis & 14 -- 25 & 09:00 -- 16:15 & 7m 15s & \textbf{Live Demo 1} (Page 19: Interactive B-Spline curve) \\
-Ch 4: Full Order Model & 26 -- 32 & 16:15 -- 20:30 & 4m 15s & Newmark-$\beta$, Von Mises stress, $<10^{-12}$ validation \\
-Ch 5: ROM \& Hyper-Reduction & 33 -- 41 & 20:30 -- 26:45 & 6m 15s & \textbf{Live Demo 2} (Page 40: Real-time 60 FPS Digital Twin) \\
-Ch 6: Conclusion \& Perspectives & 42 -- 45 & 26:45 -- 28:20 & 1m 35s & Summary, research perspectives, open Q\&A floor \\
+Preamble \& Overview & 1 -- 4 & 00:00 -- 02:00 & 2m 00s & Title, LMSSC team, agenda overview \\
+Ch 1: Intro \& Motivation & 5 -- 7 & 02:00 -- 04:15 & 2m 15s & Dual scope, vector/audio compression parallels \\
+Ch 2: Theory \& Pullback & 8 -- 13 & 04:15 -- 08:30 & 4m 15s & Parameters $(r, x_c)$, moving domain, $\hat{\Omega}$ pullback \\
+Ch 3: Isogeometric Analysis & 14 -- 25 & 08:30 -- 15:30 & 7m 00s & \textbf{Live Demo 1} (Page 19: B-Spline curve), $k$-refinement \\
+Ch 4: Full Order Model (FOM) & 26 -- 32 & 15:30 -- 19:45 & 4m 15s & Newmark-$\beta$, Von Mises stress, $<10^{-12}$ validation \\
+Ch 5: ROM \& Hyper-Reduction & 33 -- 41 & 19:45 -- 26:15 & 6m 30s & POD, ECSW (28 elements), \textbf{Grand Live Demo 2} (Page 40) \\
+Ch 6: Conclusion \& Perspectives & 42 -- 45 & 26:15 -- 28:00 & 1m 45s & Summary of 4 pillars, future axes, open discussion \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\vspace{0.1cm}
+\vspace{-0.1cm}
 
-\section*{Preamble: Title, Laboratory \& Team (Pages 1 -- 4)}
+% ── PREAMBLE ──────────────────────────────────────────────────────────────────
+\section*{Preamble (Slides 1 -- 4)}
 
-\begin{slidebox}{Page 1 | Title Slide \hfill [00:00 -- 00:40 | 40s]}
-\textit{[Stand center-stage, make eye contact with jury president and members.]}\\
-``Mr. President, esteemed members of the jury, dear colleagues. Welcome to my Master 2 thesis defense in Computational Mechanics. Today, I am honored to present my research entitled: \textbf{`Real-Time Physics on the Web: Geometrical Parameters in Isogeometric Analysis and Reduced Order Modeling for Structural Dynamics'}. Conducted at Cnam Paris under Dr. Christophe Hoareau, our central goal is combining exact CAD geometry and model reduction to run millisecond-scale, interactive physical simulations directly inside a web browser.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 1 | Title Slide \hfill [00:00 -- 00:35 | 35s]}
+\textit{[Stand center-stage, make eye contact with jury.]}
+\begin{itemize}
+  \item ``Good morning, Mr. President, esteemed members of the jury.''
+  \item ``Welcome to my Master 2 defense in Computational Mechanics.''
+  \item ``My topic is: \textit{Real-Time Physics on the Web: IGA and Reduced Order Modeling for Structural Dynamics}.''
+  \item ``This research was supervised by Dr. Christophe Hoareau here at Cnam Paris.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 2 | Host Institution \& Research Laboratory \hfill [00:40 -- 01:10 | 30s]}
-\textit{[Point to Saint-Martin portal photo and LMSSC research axes.]}\\
-``This research was hosted at \textbf{LMSSC}—the Structural Mechanics and Coupled Systems Laboratory here at Cnam Paris. The laboratory is renowned for its work in structural dynamics, fluid-structure interaction, and vibration control. This thesis contributes directly to the DYSCOM group, focusing on advanced numerical formulations and lightweight digital twin demonstrators.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 2 | Host Institution \& Research Laboratory \hfill [00:35 -- 01:05 | 30s]}
+\textit{[Point to the Saint-Martin portal photo.]}
+\begin{itemize}
+  \item ``This research was hosted at LMSSC, the Structural Mechanics and Coupled Systems Laboratory.''
+  \item ``The laboratory specializes in structural dynamics, vibration mitigation, and fluid-structure interaction.''
+  \item ``This work is part of the DYSCOM research group, focusing on interactive numerical methods.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 3 | Supervision \& Research Team \hfill [01:10 -- 01:35 | 25s]}
-\textit{[Acknowledge supervisor and lab with an open-hand gesture.]}\\
-``I express my deepest gratitude to my advisor, Dr. Christophe Hoareau, for his scientific mentorship, continuous availability, and inspiring discussions. I also thank the professors, researchers, and administrative team at LMSSC for providing a stimulating research environment.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 3 | Supervision \& Research Team \hfill [01:05 -- 01:30 | 25s]}
+\textit{[Acknowledge advisor with open hand.]}
+\begin{itemize}
+  \item ``I want to warmly thank my supervisor, Dr. Christophe Hoareau.''
+  \item ``His scientific guidance and continuous support were invaluable throughout this project.''
+  \item ``I also extend my sincere thanks to the professors and research staff at LMSSC.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 4 | Lecture Overview (Table of Contents) \hfill [01:35 -- 02:00 | 25s]}
-\textit{[Sweep over the 6 chapters on screen.]}\\
-``Today's presentation is structured into six chapters: beginning with motivation and state of the art, through continuous pullback formulation, IGA discretization, full-order dynamic simulation, and reduced-order modeling via POD and ECSW hyper-reduction, before concluding with perspectives.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 4 | Lecture Overview (Table of Contents) \hfill [01:30 -- 02:00 | 30s]}
+\textit{[Sweep through the 6 chapters on screen.]}
+\begin{itemize}
+  \item ``Today's talk is organized into six parts.''
+  \item ``We start with the motivation and continuum mechanics theory.''
+  \item ``Then we detail the IGA discretization and our Full Order Model solver.''
+  \item ``Next, we present Model Order Reduction with POD and ECSW hyper-reduction.''
+  \item ``Finally, I will present a live web demonstration and conclude.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\section*{Chapter 1: Introduction \& State of the Art (Pages 5 -- 7)}
+% ── CHAPTER 1 ─────────────────────────────────────────────────────────────────
+\section*{Chapter 1: Introduction \& State of the Art (Slides 5 -- 7)}
 
-\begin{slidebox}{Page 5 | Splash: Chapter 1 Announcement \hfill [02:00 -- 02:10 | 10s]}
-``Let us begin with Chapter 1: Introduction and Motivation.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 5 | Chapter 1 Announcement \hfill [02:00 -- 02:10 | 10s]}
+\begin{itemize}
+  \item ``Let us begin with Chapter 1: Introduction and Motivation.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 6 | Slide 4: Introduction \& Motivation (Dual Scope) \hfill [02:10 -- 03:15 | 1m 05s]}
-\textit{[Point to left blocks; introduce web preview on right as the target vision. Do NOT click link yet.]}\\
-``Our project was motivated by a \textbf{Dual Scope}:\\
-First, a \textbf{pedagogical ambition}: structural dynamics is often taught with static formulas. We envisioned an accessible, zero-install web visualizer where students interact with wave propagation live.\\
-Second, this raised a major \textbf{scientific challenge}: changing shape in standard FEM requires costly remeshing, and solving thousands of DOFs cannot maintain 60 FPS in a browser.\\
-Our framework couples \textbf{Isogeometric Analysis (IGA)} for exact CAD geometry with \textbf{Reduced Order Modeling (ROM)} and \textbf{ECSW hyper-reduction}, targeting real-time client-side performance.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 6 | Introduction \& Motivation \hfill [02:10 -- 03:15 | 1m 05s]}
+\textit{[Point to left blocks; mention web screenshot on the right as the target goal.]}
+\begin{itemize}
+  \item ``Our project has two clear goals:''
+  \item ``\textbf{Education}: an interactive physics visualizer directly in the browser with zero install.''
+  \item ``Students can physically see wave propagation and vibrations live.''
+  \item ``\textbf{Research}: solving the moving-geometry problem in real time.''
+  \item ``Standard FEM is too slow and crashes on remeshing.''
+  \item ``Our solution: exact CAD geometry with IGA, and extreme speed with ROM.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 7 | Slide 5: Conceptual Parallels to Data Compression \hfill [03:15 -- 04:20 | 1m 05s]}
-\textit{[Point sequentially to Hughes, Quarteroni, and Farhat cards.]}\\
-``We can draw direct parallels to data compression:\\
-1. \textbf{IGA (Hughes, 2005)} is like \textbf{vector graphics versus pixel grids}: CAD splines are retained exactly without piecewise polygonal facet approximations.\\
-2. \textbf{ROM (Quarteroni, 2016)} acts like \textbf{spectral audio compression}: projecting dynamic states onto dominant modal subspaces.\\
-3. \textbf{Hyper-Reduction via ECSW (Farhat, 2014)} is like \textbf{optimal sensor placement}: sampling a sparse subset of elements to compute reduced matrices in microseconds.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 7 | Conceptual Parallels to Data Compression \hfill [03:15 -- 04:15 | 1m 00s]}
+\textit{[Point to Hughes (left), Quarteroni (center), and Farhat (right).]}
+\begin{itemize}
+  \item ``We can understand our pipeline through direct parallels to data compression:''
+  \item ``1. \textbf{IGA (Hughes, 2005)} is like vector graphics: CAD curves are exact, never pixelated into chords.''
+  \item ``2. \textbf{ROM (Quarteroni, 2016)} is like MP3 audio compression: we retain only dominant dynamic modes.''
+  \item ``3. \textbf{Hyper-Reduction (Farhat, 2014)} is like smart sensor placement: we compute on just a few elements.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\section*{Chapter 2: Theory: Problem Definition (Pages 8 -- 13)}
+% ── CHAPTER 2 ─────────────────────────────────────────────────────────────────
+\section*{Chapter 2: Theory: Problem Definition (Slides 8 -- 13)}
 
-\begin{slidebox}{Page 8 | Splash: Chapter 2 Announcement \hfill [04:20 -- 04:30 | 10s]}
-``This brings us to Chapter 2: Problem Definition and Continuum Theory.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 8 | Chapter 2 Announcement \hfill [04:15 -- 04:25 | 10s]}
+\begin{itemize}
+  \item ``Now we move to Chapter 2: Theoretical Formulation and Continuum Mechanics.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 9 | Slide 6: Geometry Configurations \hfill [04:30 -- 05:25 | 55s]}
-\textit{[Point to schematic, highlighting notch depth $r$ and axial position $x_c$.]}\\
-``We consider a 2D clamped cantilever beam with symmetric smooth notches parameterized by $\boldsymbol{\mu} = (r, x_c)^T \in \mathcal{D}$ under transient tip loading. Notice the core challenge: varying $\boldsymbol{\mu}$ directly deforms the physical domain $\Omega(\boldsymbol{\mu})$, creating incompatible function spaces across different configurations.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 9 | Geometry Configurations \hfill [04:25 -- 05:15 | 50s]}
+\textit{[Point to cantilever beam schematic, indicating $r$ and $x_c$.]}
+\begin{itemize}
+  \item ``We study a 2D clamped cantilever beam with symmetric smooth notches.''
+  \item ``The geometry depends on two parameters: notch depth $r$ and notch position $x_c$.''
+  \item ``When these parameters change, the physical domain deforms.''
+  \item ``In standard FEM, this requires remeshing for every single parameter change.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 10 | Slide 7: Governing Equations \& Assumptions \hfill [05:25 -- 06:10 | 45s]}
-\textit{[Point to linear momentum balance equation.]}\\
-``Under linear elasticity, small strains, and 2D plane stress, dynamics obey $\rho \ddot{\mathbf{u}} - \nabla \cdot \boldsymbol{\sigma} = \mathbf{b}$ in $\Omega(\boldsymbol{\mu})$ with Hookean elasticity, clamped Dirichlet root, and dynamic traction at the tip.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 10 | Governing Equations \& Assumptions \hfill [05:15 -- 06:00 | 45s]}
+\textit{[Point to linear momentum equation.]}
+\begin{itemize}
+  \item ``We assume linear elasticity, small deformations, and 2D plane stress.''
+  \item ``The motion is governed by the elastodynamic momentum balance equation.''
+  \item ``The left boundary is fully clamped, and a dynamic traction acts at the tip.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 11 | Slide 8: Classical Weak Form on $\Omega(\boldsymbol{\mu})$ \hfill [06:10 -- 06:55 | 45s]}
-\textit{[Emphasize integral subscript $\Omega(\boldsymbol{\mu})$.]}\\
-``Multiplying by test functions $\mathbf{v}$ yields the standard weak form. But because the integration domain depends on $\boldsymbol{\mu}$, snapshots would live on differing grids, preventing global basis extraction.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 11 | Classical Weak Form on $\Omega(\boldsymbol{\mu})$ \hfill [06:00 -- 06:50 | 50s]}
+\textit{[Highlight the moving domain subscript $\Omega(\boldsymbol{\mu})$.]}
+\begin{itemize}
+  \item ``Here is the classical weak form on the physical domain.''
+  \item ``Notice the integration domain $\Omega(\boldsymbol{\mu})$ moves with the parameter.''
+  \item ``This is the central bottleneck: snapshots belong to incompatible function spaces.''
+  \item ``We cannot build a global reduced basis directly from these meshes.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 12 | Slide 9: Pullback Mapping to Reference Configuration \hfill [06:55 -- 08:00 | 1m 05s]}
-\textit{[Trace mapping arrow $\boldsymbol{\Psi}: \hat{\Omega} \to \Omega(\boldsymbol{\mu})$.]}\\
-``To resolve this, we introduce a \textbf{diffeomorphic pullback mapping} $\boldsymbol{\Psi}$. All equations are mapped onto an invariant reference rectangle $\hat{\Omega}$. With transformation Jacobian $\mathbf{F} = \nabla_{\hat{\mathbf{x}}} \boldsymbol{\Psi}$ and determinant $J$, all gradients and measures are evaluated on $\hat{\Omega}$.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 12 | Pullback Mapping to Reference Configuration \hfill [06:50 -- 07:40 | 50s]}
+\textit{[Trace mapping arrow from $\hat{\Omega}$ down to $\Omega(\boldsymbol{\mu})$.]}
+\begin{itemize}
+  \item ``To fix this, we map the moving domain to a fixed reference rectangle $\hat{\Omega}$.''
+  \item ``This is the reference pullback mapping $\boldsymbol{\Psi}$.''
+  \item ``All coordinate changes are captured by the mapping Jacobian matrix.''
+  \item ``Now, all integrations take place on a static, parameter-independent space.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 13 | Slide 10: Pulled-Back Weak Form on $\hat{\Omega}$ \hfill [08:00 -- 09:00 | 1m 00s]}
-\textit{[Point to pulled-back tensor $\hat{\mathcal{C}}(\hat{\mathbf{x}};\boldsymbol{\mu})$.]}\\
-``On $\hat{\Omega}$, geometry variations are completely transferred from the domain boundary into the algebraic coefficients of the differential operator. All states now belong to a fixed Hilbert space $H^1(\hat{\Omega})$, enabling global model reduction.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 13 | Pulled-Back Weak Form on $\hat{\Omega}$ \hfill [07:40 -- 08:30 | 50s]}
+\textit{[Point to Jacobian terms in stiffness and mass forms.]}
+\begin{itemize}
+  \item ``This gives our pulled-back weak form on $\hat{\Omega}$.''
+  \item ``Notice that the integration bounds are completely fixed.''
+  \item ``All parameter dependence is isolated inside the Jacobian mapping tensors.''
+  \item ``Degrees of freedom now share a unified algebraic vector space, ideal for ROM.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\section*{Chapter 3: Discretization: Isogeometric Analysis (Pages 14 -- 25)}
+% ── CHAPTER 3 ─────────────────────────────────────────────────────────────────
+\section*{Chapter 3: Discretization: Isogeometric Analysis (Slides 14 -- 25)}
 
-\begin{slidebox}{Pages 14--18 | IGA Fundamentals (Slides 11--14) \hfill [09:00 -- 11:35 | 2m 35s]}
-``We turn to Chapter 3: Isogeometric Analysis. Classical FEA replaces CAD curves with faceted segments, causing discretization errors and remeshing bottlenecks. IGA uses CAD B-Splines and NURBS directly as shape functions. Defined recursively via Cox-de Boor over knot vector $\Xi$ and control points $\mathbf{P}_i$, they ensure partition of unity, non-negativity, and compact support.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE (Advance to Page 19)]}
+\begin{slidebox}{Page 14 | Chapter 3 Announcement \hfill [08:30 -- 08:40 | 10s]}
+\begin{itemize}
+  \item ``Chapter 3 introduces the spatial discretization using Isogeometric Analysis.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 19 | Slide 15: B-Spline Curve \& LIVE DEMO 1 \hfill [11:35 -- 12:35 | 1m 00s]}
-\textit{[Action \& Live Interaction]:}\\
-1. Explain $\mathbf{C}(\xi) = \sum N_{i,p}(\xi) \mathbf{P}_i$.\\
-2. \textbf{Click Button}: \fbox{\bfseries\scriptsize Interactive IGA Curve Web App} $\to$ Switch to browser.\\
-3. \textbf{In Browser (25s)}: Drag a control point. Show that the curve deforms smoothly and locally with zero change in knot topology.\\
-4. Switch back to slides (\texttt{Alt+Tab}).\\
-``Notice how moving this control point smoothly reshapes the curve locally while knot connectivity remains strictly invariant. This makes IGA ideal for shape parameterization.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 15 | Curve Representations in Geometry \hfill [08:40 -- 09:20 | 40s]}
+\textit{[Compare Explicit, Implicit, and Parametric plots.]}
+\begin{itemize}
+  \item ``Let us compare how curves are described in geometry.''
+  \item ``Explicit curves cannot describe vertical lines or closed circles.''
+  \item ``Implicit curves are computationally expensive to parameterize.''
+  \item ``Parametric curves are the CAD standard: flexible, robust, and exact.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Pages 20--25 | Bivariate Splines, $k$-Refinement \& Isoparametric (Slides 16--21) \hfill [12:35 -- 16:15 | 3m 40s]}
-``For 2D continua, we take bivariate tensor products. The parent domain $[0,1]^2$ serves natively as our invariant reference configuration $\hat{\Omega}$! Knot insertion ($h$-refinement) and degree elevation ($p$-refinement) enrich the space with zero geometry change. Furthermore, \textbf{$k$-refinement} provides $C^{p-1}$ continuity, eliminating inter-element stress jumps. Following the isoparametric concept, the dynamic displacement $\mathbf{u}_h$ is approximated using these exact functions.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE (Advance to Page 26)]}
+\begin{slidebox}{Page 16 | Why IGA? \hfill [09:20 -- 10:05 | 45s]}
+\textit{[Point to the three vertical blocks.]}
+\begin{itemize}
+  \item ``IGA unifies CAD geometry and numerical simulation:''
+  \item ``\textbf{CAD Splines}: uses native spline functions, bypassing separate meshing steps.''
+  \item ``\textbf{Exact Geometry}: preserves curved boundaries exactly at all scales without error.''
+  \item ``\textbf{High Regularity}: $C^{p-1}$ continuity provides smooth stresses and higher accuracy per DOF.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\section*{Chapter 4: Simulation: Full Order Model (Pages 26 -- 32)}
-
-\begin{slidebox}{Pages 26--32 | FOM Dynamic Solver, Stress \& Verification (Slides 22--27) \hfill [16:15 -- 20:30 | 4m 15s]}
-``Chapter 4 covers the Full Order Model: $\mathbf{M}\ddot{\mathbf{u}} + \mathbf{K}(\boldsymbol{\mu})\mathbf{u} = \mathbf{F}$ ($N = 6{,}564$ DOFs). We integrate using implicit \textbf{Newmark-$\beta$} ($\beta=1/4, \gamma=1/2$) at $\Delta t = 0.05$ s with zero artificial damping. Von Mises stress concentrates smoothly at the notch root without post-processing artifacts.\\
-\textbf{Validation}: solving on reference domain $\hat{\Omega}$ matches the physical domain solver within $< 10^{-12}$ (machine precision). An $h$-convergence study confirms optimal theoretical convergence rates $O(h^p)$.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE (Advance to Page 33)]}
+\begin{slidebox}{Page 17 | The Core Ingredients of IGA \hfill [10:05 -- 10:50 | 45s]}
+\textit{[Point to the 4 ingredient blocks.]}
+\begin{itemize}
+  \item ``The IGA framework relies on four ingredients:''
+  \item ``1. A knot vector $\Xi$ partitioning the parametric domain into elements.''
+  \item ``2. B-spline basis functions computed by the Cox-de Boor recurrence.''
+  \item ``3. Weights that generalize B-splines to NURBS for exact conics.''
+  \item ``4. Control points defining the physical shape in Cartesian space.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\section*{Chapter 5: Reduced Order Modeling \& Hyper-Reduction (Pages 33 -- 41)}
-
-\begin{slidebox}{Pages 33--39 | Why ROM, POD Basis \& ECSW Formulation (Slides 28--33) \hfill [20:30 -- 24:55 | 4m 25s]}
-``Chapter 5: FOM takes 142 ms—far too slow for our 60 FPS ($<1.5$ ms) browser budget. In the offline phase, we collect snapshots across $\mathcal{D}$ and apply SVD. Just $r = 10$ POD modes capture $>99.99\%$ energy. However, standard Galerkin projection $\mathbf{K}_r = \boldsymbol{\Phi}^T \mathbf{K}(\boldsymbol{\mu})\boldsymbol{\Phi}$ still integrates 3,200 cells, running at 154 ms!\\
-To break this, we deploy \textbf{ECSW Hyper-reduction}: selecting just \textbf{28 active elements} via NNLS. Non-negative weights strictly guarantee symmetry, positive-definiteness, and energy stability.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE (Advance to Page 40)]}
+\begin{slidebox}{Page 18 | B-Spline Basis Functions \hfill [10:50 -- 11:35 | 45s]}
+\textit{[Show basis curves and Cox-de Boor formula.]}
+\begin{itemize}
+  \item ``B-spline basis functions have ideal mathematical properties:''
+  \item ``They form a partition of unity and are strictly non-negative.''
+  \item ``They have compact local support, ensuring sparse system matrices.''
+  \item ``They provide $C^{p-1}$ inter-element continuity across internal knots.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 40 | Slide 34: Solver Benchmarks \& GRAND LIVE DEMO 2 \hfill [24:55 -- 26:15 | 1m 20s]}
-\textit{[Action \& Grand Live Demonstration]:}\\
-1. Point to table: FOM (142 ms) vs. ECSW ROM (\textbf{2.2 ms}, \textbf{$64.5\times$ speedup}, \textbf{0.054\% error}).\\
-2. \textbf{Click / Switch to Browser Tab}: \texttt{/app/playground\#5.3a}\\
-3. \textbf{In Browser (45s)}:\\
-   $\bullet$ Move notch depth slider $r$ $\to$ geometry adapts live.\\
-   $\bullet$ Move notch position slider $x_c$ $\to$ stress concentration shifts live.\\
-   $\bullet$ Point out the \textbf{60 FPS counter} and instantaneous tip deflection curves.\\
-4. Switch back to slides (\texttt{Alt+Tab}).\\
-``As demonstrated live in the browser, changing notch geometry runs in real time at 60 FPS entirely client-side in JavaScript without a backend server.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 19 | B-Spline Curve Concept \& LIVE DEMO 1 \hfill [11:35 -- 12:35 | 1m 00s]}
+\textit{[Action: Click button, switch to browser for 20 seconds, drag control point live.]}
+\begin{itemize}
+  \item ``A B-spline curve is a linear sum of basis functions multiplied by control points.''
+  \item \textit{[Live Interaction]}: ``Notice as I drag this control point: the curve deforms smoothly and locally.''
+  \item ``The knot topology never breaks, and no remeshing is needed.''
+  \item ``This makes splines exceptionally suited for geometric parameterization.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 41 | Slide 35: Project Workflow: Completing the Puzzle \hfill [26:15 -- 26:45 | 30s]}
-\textit{[Trace the puzzle diagram connecting theory, IGA, Python, and Web.]}\\
-``Slide 35 summarizes the pipeline connecting continuum mechanics, IGA, Python snapshot generation, and ECSW optimization into an interactive client-side solver.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE]}
+\begin{slidebox}{Page 20 | 2D Bivariate Basis Functions \hfill [12:35 -- 13:15 | 40s]}
+\textit{[Show 2D surface patch.]}
+\begin{itemize}
+  \item ``For 2D continua, we take tensor products of 1D B-splines.''
+  \item ``Each basis function is a simple product: $R_{i,j}(\xi, \eta) = N_i(\xi) M_j(\eta)$.''
+  \item ``Control points form a structured 2D bidirectional net.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\section*{Chapter 6: Conclusion \& Perspectives (Pages 42 -- 45)}
-
-\begin{slidebox}{Pages 42--44 | Achievements \& Future Perspectives (Slides 36--37) \hfill [26:45 -- 28:05 | 1m 20s]}
-``In conclusion, we: 1) Built an exact-geometry 2D IGA elastodynamics solver; 2) Formulated an invariant reference pullback; 3) Deployed POD + ECSW to condense 3,200 elements to 28 with a $64.5\times$ speedup; 4) Delivered a real-time web Digital Twin.\\
-Future work includes Green-Lagrange nonlinear kinematics, 3D trivariate splines, and adaptive bases.''\\
-\textbf{\color{cnamred}[CLICK NEXT SLIDE (Advance to Page 45)]}
+\begin{slidebox}{Page 21 | Parametric to Physical Domain Mapping \hfill [13:15 -- 13:55 | 40s]}
+\textit{[Trace mapping from unit square to physical notched beam.]}
+\begin{itemize}
+  \item ``This geometric mapping transforms the unit square $[0,1]^2$ into our beam.''
+  \item ``Parametric knot spans map directly into physical elements.''
+  \item ``Crucially, this parent square $[0,1]^2$ is our invariant reference domain $\hat{\Omega}$.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
 \end{slidebox}
 
-\begin{slidebox}{Page 45 | Thank You / Q\&A Floor \hfill [28:05 -- 28:20 | 15s]}
-\textit{[Stand upright, smile, make eye contact, bow slightly.]}\\
-``Thank you very much for your attention. I am now delighted to open the discussion and answer your questions.''\\
-\textbf{\color{cnamred}[FINISHED AT 28:20 -- 1m 40s SAFETY BUFFER TO 30:00]}
+\begin{slidebox}{Page 22 | $h$-Refinement (Knot Insertion) \hfill [13:55 -- 14:30 | 35s]}
+\textit{[Show knot insertion plot.]}
+\begin{itemize}
+  \item ``To refine the mesh, we insert new knot values.''
+  \item ``This splits elements into smaller elements, just like $h$-refinement in FEM.''
+  \item ``Most importantly: inserting knots does not change the physical geometry at all.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 23 | $p$-Refinement (Degree Elevation) \hfill [14:30 -- 15:00 | 30s]}
+\textit{[Show degree elevation plot.]}
+\begin{itemize}
+  \item ``We can also elevate the polynomial degree $p$.''
+  \item ``This enriches the approximation space without adding new elements.''
+  \item ``Once again, the exact CAD geometry is strictly preserved.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 24 | $k$-Refinement \& Exact Geometry \hfill [15:00 -- 15:35 | 35s]}
+\textit{[Point to comparison table: $h \to p$ vs. $k$-ref.]}
+\begin{itemize}
+  \item ``This brings us to $k$-refinement, unique to IGA.''
+  \item ``If we insert knots first, then elevate degree ($h \to p$), continuity drops to $C^0$.''
+  \item ``In $k$-refinement, we elevate degree first, then insert knots: keeping $C^{p-1}$ continuity.''
+  \item ``This gives maximum accuracy per DOF and eliminates artificial stress jumps.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 25 | Isoparametric Concept \& Field Approximation \hfill [15:35 -- 16:05 | 30s]}
+\textit{[Point to equation of displacement field.]}
+\begin{itemize}
+  \item ``We follow the isoparametric concept.''
+  \item ``The unknown displacement field $\mathbf{u}_h$ is interpolated using the exact same spline basis.''
+  \item ``Geometry and physics share the identical mathematical representation.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+% ── CHAPTER 4 ─────────────────────────────────────────────────────────────────
+\section*{Chapter 4: Simulation: Full Order Model (Slides 26 -- 32)}
+
+\begin{slidebox}{Page 26 | Chapter 4 Announcement \hfill [16:05 -- 16:15 | 10s]}
+\begin{itemize}
+  \item ``Chapter 4 covers the Full Order Model dynamic simulation.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 27 | From IGA to the Full Order Model (FOM) \hfill [16:15 -- 17:00 | 45s]}
+\textit{[Point to semi-discrete matrix equation.]}
+\begin{itemize}
+  \item ``Applying Galerkin projection yields the semi-discrete equation of motion: $\mathbf{M}\ddot{\mathbf{u}} + \mathbf{K}\mathbf{u} = \mathbf{F}$.''
+  \item ``System matrices are assembled using Gaussian quadrature over knot spans.''
+  \item ``Our full-order model has $N = 6{,}564$ degrees of freedom.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 28 | Simulation Path \& Solver Workflow \hfill [17:00 -- 17:45 | 45s]}
+\textit{[Trace time integration flow.]}
+\begin{itemize}
+  \item ``We integrate in time using the implicit Newmark-$\beta$ method.''
+  \item ``It is unconditionally stable with parameters $\beta = 1/4$ and $\gamma = 1/2$.''
+  \item ``We apply a dynamic harmonic tip load and compute transient deflections.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 29 | Model Displacement Field \hfill [17:45 -- 18:25 | 40s]}
+\textit{[Show deformed beam mesh.]}
+\begin{itemize}
+  \item ``Here is the dynamic displacement response of the notched cantilever beam.''
+  \item ``Bending waves propagate cleanly through the structure.''
+  \item ``Clamped boundary conditions on the left wall are strictly enforced.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 30 | Model Stress \& Von Mises Definition \hfill [18:25 -- 19:05 | 40s]}
+\textit{[Point to stress concentration at the notch.]}
+\begin{itemize}
+  \item ``From displacement derivatives, we compute Cauchy stresses and Von Mises fields.''
+  \item ``Stress smoothly concentrates around the notch roots.''
+  \item ``Because IGA basis functions have $C^1$ continuity, stresses are smooth across elements.''
+  \item ``No artificial post-processing smoothing is required.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 31 | Physical vs. Reference Mapped Path: Validation \hfill [19:05 -- 19:45 | 40s]}
+\textit{[Highlight $< 10^{-12}$ difference.]}
+\begin{itemize}
+  \item ``We validated our reference pullback solver against the physical solver.''
+  \item ``The numerical difference between both paths is under $10^{-12}$, pure machine precision.''
+  \item ``This proves the mathematical exactness of our pullback implementation.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 32 | Mesh Convergence Study \hfill [19:45 -- 20:20 | 35s]}
+\textit{[Show log-log convergence plot.]}
+\begin{itemize}
+  \item ``We conducted a rigorous mesh convergence study.''
+  \item ``The asymptotic error matches the theoretical optimal rate $O(h^{p+1})$.''
+  \item ``$k$-refined IGA converges significantly faster than classical quadratic FEM.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+% ── CHAPTER 5 ─────────────────────────────────────────────────────────────────
+\section*{Chapter 5: Reduced Order Modeling \& Hyper-Reduction (Slides 33 -- 41)}
+
+\begin{slidebox}{Page 33 | Chapter 5 Announcement \hfill [20:20 -- 20:30 | 10s]}
+\begin{itemize}
+  \item ``Now we enter Chapter 5: Model Order Reduction and Hyper-Reduction.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 34 | Why ROM? (Motivation) \hfill [20:30 -- 21:15 | 45s]}
+\textit{[Contrast 142 ms FOM vs. 16 ms budget.]}
+\begin{itemize}
+  \item ``Solving the Full Order Model takes 142 milliseconds per time step.''
+  \item ``To run at 60 FPS in a web browser, we need each step under 16 milliseconds.''
+  \item ``The FOM is nearly 10 times too slow for real-time web deployment.''
+  \item ``This is why we must build a Reduced Order Model.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 35 | What Do We Need to Achieve It? (The 5 Steps) \hfill [21:15 -- 21:55 | 40s]}
+\textit{[Walk through the 5 steps.]}
+\begin{itemize}
+  \item ``We reach real-time performance through five structured steps:''
+  \item ``1. Reference pullback to fix the domain.''
+  \item ``2. Offline snapshot collection across parameters.''
+  \item ``3. POD basis construction via SVD.''
+  \item ``4. ECSW hyper-reduction for fast assembly.''
+  \item ``5. Client-side real-time solver in WebGL.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 36 | Step 1: Reference Pullback Mapping \hfill [21:55 -- 22:30 | 35s]}
+\textit{[Reiterate the fixed reference domain role.]}
+\begin{itemize}
+  \item ``Step 1 is the foundation: all geometries map to the same reference domain $\hat{\Omega}$.''
+  \item ``Every snapshot shares the exact same algebraic degree-of-freedom indices.''
+  \item ``This allows direct snapshot aggregation across the entire parameter space.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 37 | Step 2: Snapshot Collection (Data Generation) \hfill [22:30 -- 23:05 | 35s]}
+\textit{[Point to snapshot matrix structure.]}
+\begin{itemize}
+  \item ``In Step 2, we simulate training cases across the parameter space $\mathcal{D}$.''
+  \item ``Displacement fields at each time step are stored as columns of snapshot matrix $\mathbf{S}$.''
+  \item ``This captures the dominant dynamic deformation modes.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 38 | Step 3: SVD / POD Basis Construction \hfill [23:05 -- 23:45 | 40s]}
+\textit{[Point to singular value decay plot.]}
+\begin{itemize}
+  \item ``In Step 3, we compute the Singular Value Decomposition: $\mathbf{S} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T$.''
+  \item ``Singular values decay exponentially.''
+  \item ``Just $r = 15$ POD modes capture over 99.99\% of total kinetic and strain energy.''
+  \item ``We truncate the basis from 6,564 DOFs down to just 15.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 39 | Step 4: Galerkin Projection vs. ECSW Hyper-reduction \hfill [23:45 -- 24:35 | 50s]}
+\textit{[Explain the non-affine bottleneck.]}
+\begin{itemize}
+  \item ``Standard Galerkin projection shrinks matrix size, but still integrates over all 3,200 elements.''
+  \item ``Online assembly still takes 150 milliseconds: no real speedup!''
+  \item ``To fix this, we apply ECSW hyper-reduction: selecting a sparse subset of elements.''
+  \item ``Using non-negative least squares, ECSW reduces 3,200 elements to just \textbf{28 active elements}.''
+  \item ``Positive weights guarantee numerical stability, symmetry, and energy conservation.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 40 | Step 5: Real-Time Solver \& GRAND LIVE DEMO 2 \hfill [24:35 -- 25:45 | 1m 10s]}
+\textit{[Point to benchmark table, then switch to browser for 35 seconds.]}
+\begin{itemize}
+  \item ``Here are the results: solve time drops from 142 milliseconds to \textbf{1.3 milliseconds}.''
+  \item ``That is a \textbf{64.5 times speedup}, with relative error below 0.1\%!''
+  \item \textit{[Switch to browser]}: ``Here is our live Digital Twin running in the browser.''
+  \item ``When I move notch depth $r$, the geometry and mesh update instantly.''
+  \item ``When I move notch position $x_c$, dynamic stresses concentrate live at 60 FPS.''
+  \item ``The entire solve runs client-side in WebGL with zero cloud latency.''
+  \item \textit{[Switch back to slides]}
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 41 | Project Workflow: Completing the Puzzle \hfill [25:45 -- 26:15 | 30s]}
+\textit{[Trace the 5 roadmap boxes.]}
+\begin{itemize}
+  \item ``This diagram shows the complete roadmap from the bottleneck to victory:''
+  \item ``We took the best theory from Hughes, Quarteroni, and Farhat, paired with modern tools, and crushed the runtime down to 1.3 milliseconds.''
+  \item ``The bottom line: high-fidelity mechanics running interactively at 60 FPS in the browser.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+% ── CHAPTER 6 ─────────────────────────────────────────────────────────────────
+\section*{Chapter 6: Conclusion \& Future Perspectives (Slides 42 -- 45)}
+
+\begin{slidebox}{Page 42 | Chapter 6 Announcement \hfill [26:15 -- 26:25 | 10s]}
+\begin{itemize}
+  \item ``We now conclude with Chapter 6: Summary and Perspectives.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 43 | Summary of Achievements \& Implemented Methods \hfill [26:25 -- 27:05 | 40s]}
+\textit{[Recap the 4 achievements with pride.]}
+\begin{itemize}
+  \item ``In summary, this research achieved four major milestones:''
+  \item ``1. Developed an exact-geometry IGA dynamic elastodynamics solver.''
+  \item ``2. Resolved the moving-boundary issue using reference pullback mapping.''
+  \item ``3. Implemented POD and ECSW hyper-reduction, achieving a 64.5 times speedup on 28 elements.''
+  \item ``4. Built a real-time web Digital Twin running at 60 FPS on standard devices.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 44 | Alternatives \& Future Perspectives \hfill [27:05 -- 27:45 | 40s]}
+\textit{[Present future research vectors.]}
+\begin{itemize}
+  \item ``For future research, three direct paths open:''
+  \item ``First, extending to large geometric deformations with Green-Lagrange strain.''
+  \item ``Second, advancing from 2D plane stress to 3D solid structures using trivariate splines.''
+  \item ``Third, exploring neural networks to predict reduced coordinates for rapid design sweeps.''
+\end{itemize}
+\textbf{\color{cnamred}[CLICK NEXT]}
+\end{slidebox}
+
+\begin{slidebox}{Page 45 | Thank You / Questions \& Discussion \hfill [27:45 -- 28:00 | 15s]}
+\textit{[Stand upright, smile, make eye contact, bow slightly.]}
+\begin{itemize}
+  \item ``Thank you very much for your kind attention.''
+  \item ``I am now pleased to answer any questions from the jury.''
+\end{itemize}
+\textbf{\color{cnamred}[FINISHED AT 28:00 -- 2:00 SAFETY BUFFER BEFORE 30:00 LIMIT]}
 \end{slidebox}
 
 \end{document}

@@ -60,14 +60,31 @@
 % Slide: Why IGA?
 \begin{frame}{Why IGA?}
   \small
-  IGA closes the gap between CAD and FEA by using CAD basis functions for analysis:
+  Isogeometric Analysis unifies geometry and numerical simulation:
 
-  \begin{itemize}
-    \setlength{\itemsep}{0.4cm}
-    \item \textbf{Direct CAD Integration:} Runs simulations directly on NURBS geometry, bypassing time-consuming mesh generation.
-    \item \textbf{Exact Geometry:} Preserves exact CAD boundaries throughout the analysis, eliminating geometric errors.
-    \item \textbf{Higher Continuity ($C^{p-1}$):} Provides high regularity across element boundaries for superior accuracy per DOF compared to classical $C^0$ FEM.
-  \end{itemize}
+  \vspace{0.3cm}
+  \begin{columns}[T]
+    \begin{column}{0.31\textwidth}
+      \begin{block}{CAD Splines}
+        \footnotesize
+        Adopts native spline basis functions used in CAD, eliminating separate meshing steps.
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.31\textwidth}
+      \begin{block}{Exact Geometry}
+        \footnotesize
+        Preserves true curved boundaries (arcs, fillets) without geometric approximation errors.
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.31\textwidth}
+      \begin{block}{High Regularity}
+        \footnotesize
+        Inter-element $C^{p-1}$ continuity yields smooth stress fields and higher accuracy per DOF.
+      \end{block}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % Slide: Core Ingredients of IGA
@@ -545,7 +562,7 @@
           \toprule
           \textbf{Method}  & \textbf{Sequence}      & \textbf{Continuity}           \\
           \midrule
-          $p \to h$        & Insert first           & $C^0$ (FEA-like)              \\
+          $h \to p$        & Insert first           & $C^0$ (FEA-like)              \\
           \textbf{$k$-ref} & \textbf{Elevate first} & \textbf{$C^{p+\Delta p - 1}$} \\
           \bottomrule
         \end{tabular}
